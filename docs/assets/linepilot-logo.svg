@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="LinePilot mark">
+  <!-- plot frame -->
+  <path d="M11 9 V53 H57" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- the plotted line, left half -->
+  <path d="M14 41 C 19 38, 22 22, 27 20 C 30 19, 31 27, 33 31" fill="none" stroke="#BA0C2F" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- recovered points, right half -->
+  <circle cx="37" cy="35" r="2.7" fill="#BA0C2F"/>
+  <circle cx="41" cy="30" r="2.7" fill="#BA0C2F"/>
+  <circle cx="45" cy="25" r="2.7" fill="#BA0C2F"/>
+  <circle cx="49" cy="28" r="2.7" fill="#BA0C2F"/>
+  <circle cx="53" cy="33" r="2.7" fill="#BA0C2F"/>
+  <!-- calibration crosshair on the axis corner -->
+  <path d="M11 53 m-5 0 h10 M11 53 m0 -5 v10" stroke="#00A3AD" stroke-width="2" stroke-linecap="round"/>
+</svg>

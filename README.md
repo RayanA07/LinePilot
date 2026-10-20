@@ -1,503 +1,246 @@
-# Data Digitizer 2.15 — User Guide
+<p align="center">
+  <img src="docs/assets/banner.png" alt="LinePilot Digitizer" width="820">
+</p>
 
-## What is this?
+<p align="center">
+  <a href="https://arxiv.org/abs/2609.19377"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2609.19377-BA0C2F.svg"></a>
+  <a href="https://rayana07.github.io/LinePilot/"><img alt="Project website" src="https://img.shields.io/badge/website-rayana07.github.io%2FLinePilot-000000.svg"></a>
+  <a href="https://github.com/aj24by7/DataDigitizer/releases/latest"><img alt="Download" src="https://img.shields.io/badge/download-Windows%20app-00A3AD.svg"></a>
+  <a href="#digitizerbench"><img alt="DigitizerBench" src="https://img.shields.io/badge/benchmark-DigitizerBench-9EA2A2.svg"></a>
+</p>
 
-**Data Digitizer** turns a *picture of a graph* into *numbers you can use*. You give it an image of a chart (a screenshot, a scan, a figure from a paper), and it reads the curve off the picture and hands you back a **spreadsheet-friendly table of data points** (a CSV file) plus an **overlay image** that shows you exactly which points it detected, drawn on top of your original graph. That way you can check its work at a glance.
+**LinePilot Digitizer** turns a *picture* of a line plot — a figure from a paper, a scanned chart, a screenshot — into the *numbers* behind it. It reads the axes, follows each colored curve column by column, and exports a CSV plus an overlay image so you can check its work at a glance.
 
-There are **two ways to use it**:
+It offers three calibration modes that share one curve-recovery procedure:
 
-- **The click-and-go app** — a normal Windows program. Double-click and follow the on-screen steps. No coding, nothing to install. **This is what most people want.**
-- **The command line** — a one-line typed command for people who like terminals or want to process images quickly. This needs Python and the source files (see [Using the command line](#using-the-command-line)).
+| Mode | How the axes are calibrated | Best for |
+| --- | --- | --- |
+| **LinePilot (standard)** | You click four axis ticks (X min, X max, Y min, Y max); the clicks are used as is. | Full manual control. |
+| **LinePilot (enhanced)** | Same four clicks, each snapped to the nearest tick / axis stroke at sub-pixel precision — only when the image supports it. | Best accuracy with human guidance. Lowest error of every tool we tested on DigitizerBench-Lite. |
+| **LinePilot (OCR)** | Axis labels are read with Tesseract (and RapidOCR when available), paired with ticks, and checked for a consistent scale. No clicks. | Batch processing and fully automatic pipelines. Best of the automatic tools on DigitizerBench-Full. |
 
-If you just want your data out, head to the [Quick start](#quick-start).
+The paper also introduces **[DigitizerBench](#digitizerbench)**, the first benchmark designed specifically to evaluate plot digitizers end to end.
 
-> **New to all this?** Don't worry about the technical words yet. Just follow [Quick start](#quick-start) and then [Using the app](#using-the-app-step-by-step) — every button is explained as you go. You can ignore the entire command-line half of this guide.
+<p align="center">
+  <img src="docs/assets/demo.gif" alt="Animated illustration: LinePilot sweeps across a line plot column by column, placing calibrated points and streaming x,y rows to a CSV" width="560"><br>
+  <sub>Column-by-column color matching, linked by dynamic programming into one continuous path per curve.</sub>
+</p>
 
----
-
-## Quick start
-
-1. Go to the **[Releases page](https://github.com/aj24by7/DataDigitizer/releases/tag/v2.15)**. Scroll down until you see a heading called **Assets**, then click the file named **`Digitizer.exe`** to download it. (See [Download & install](#download--install-no-python-needed) for exactly what that page looks like.)
-2. **Double-click `Digitizer.exe`** to open it. (*Double-click* means quickly press the left mouse button twice in a row on the file's icon.) On the very first run, Windows shows a blue warning box — click the small **More info** text, then the **Run anyway** button. This is normal and safe; the full explanation is in [Download & install](#the-first-run-windows-warning-expected).
-3. In the app, work top to bottom: **Import** your graph image → set the **curve color** → run **Axis Detection** → run **Calibration** → **Place Points** → **Export** to CSV.
-
-That's the whole flow. **Don't worry if those words mean nothing yet** — each one is explained, with exactly what to click, in [Using the app](#using-the-app-step-by-step) below.
-
----
-
-## Download & install (no Python needed)
-
-You do **not** need Python, and you do **not** need to install anything. The OCR engine (the part that reads the axis numbers) is already built into the app.
-
-### Step 1 — Open the Releases page
-
-Go to <https://github.com/aj24by7/DataDigitizer/releases/tag/v2.15>.
-
-This is a GitHub *release page*. It shows a title and a description at the top. **Scroll down** past the description until you see a grey heading called **Assets** with a small triangle next to it. If the list under it looks collapsed, click the word **Assets** to open it.
-
-### Step 2 — Download the program
-
-In the **Assets** list, click the file named **`Digitizer.exe`**. (Ignore the green **Source code (zip)** and **Source code (tar.gz)** links — you do not need those.)
-
-Your browser will **download** the file rather than open it. Edge or Chrome may warn that the file is "not commonly downloaded" and offer **Keep** or **Discard** — choose **Keep** (then **Keep anyway** if it asks again). If you accidentally chose Discard, nothing is harmed — just click `Digitizer.exe` again and choose Keep.
-
-> *Optional:* if you also want the accuracy-checking tool, download **`AccuracyTester.exe`** the same way — see the [last section](#accuracy-tester-optional).
-
-### Step 3 — Find the downloaded file
-
-The file lands in your **Downloads** folder. To get there: open **File Explorer** (the yellow folder icon on the taskbar, or press the **Windows key + E**), then click **Downloads** in the left-hand list.
-
-You can leave it there, or drag it somewhere easy to find like your **Desktop**. There is nothing to "install" — the `.exe` *is* the program.
-
-### Step 4 — Launch it
-
-**Double-click `Digitizer.exe`** (quickly press the left mouse button twice in a row on its icon) to open the app.
-
-### The first-run Windows warning (expected)
-
-The first time you run it, Windows SmartScreen may show a blue box that says **"Windows protected your PC."** This is **not** a virus warning. It appears because the file is not "code-signed" (a paid certificate the author hasn't bought), and Windows is cautious about any program it hasn't seen before.
-
-To run it:
-
-1. The box at first shows only a **Don't run** button — **do not click that.** Instead, click the small **More info** text in the middle of the box.
-2. A **Run anyway** button now appears. Click it.
-
-*(If you accidentally clicked **Don't run**, nothing bad happened — just double-click `Digitizer.exe` again and try the steps above.)*
-
-You'll only need to do this once.
+> **Paper:** Fengbo Ma\*, Rayan Akhtar\*, Aakash H. Joshi\*, Xiaoting Li, Haijian Sun, Zhen Xiang†, Xianyan Chen†, Yiping Zhao†.
+> *LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration.* arXiv:2609.19377, 2026.
+> [[arXiv](https://arxiv.org/abs/2609.19377)] · [[PDF](https://arxiv.org/pdf/2609.19377)] · [[Online appendix](docs/assets/LinePilot_Online_Appendix.pdf)] · [[Website](https://rayana07.github.io/LinePilot/)] · [[Cite](#citation)]
 
 ---
 
-## Using the app (step by step)
+## Contents
 
-When the app opens you'll see your future graph in the big main area, a floating **Cursor Zoom** panel in the top-right corner, and a **status bar** along the bottom. A few things to know up front:
+- [How it works](#how-it-works)
+- [Results](#results)
+- [Install](#install)
+- [Using the desktop app](#using-the-desktop-app)
+- [Command line, batch mode and Python API](#command-line-batch-mode-and-python-api)
+- [DigitizerBench](#digitizerbench)
+- [Repository layout](#repository-layout)
+- [Citation](#citation)
+- [Acknowledgment](#acknowledgment)
 
-- **The status bar is the thin strip along the very bottom edge of the window.** It shows a short message after every action — **watch it.** It confirms success or tells you why something didn't work. At the start it reads *"Load an image to begin."*
-- **Cursor Zoom** is just a magnifying glass — it shows an enlarged view of whatever is under your mouse so you can click precisely. It's a helper only; it has nothing to do with exporting.
-- **Import, Tools, Advanced, and Export are buttons along the top of the window.** Clicking one opens a small menu of choices. Throughout this guide, "open the **Tools** button → **Pick Color**" means: click **Tools** at the top, then click **Pick Color** in the menu that drops down.
+---
 
-Follow these steps in order.
+## How it works
 
-### 1. Load your graph image
+<p align="center">
+  <img src="docs/assets/workflow.png" alt="LinePilot workflow: import a line plot; calibrate with standard, enhanced or OCR mode; color-based curve extraction; digitized (x, y) data" width="620">
+</p>
 
-Click the **Import** button (top-left), then choose:
+Digitization is two problems. **Calibration** maps image pixels to data coordinates — a calibration error shifts every recovered point. **Curve recovery** follows the plotted line, which is a continuous path rather than a cloud of independent pixels. LinePilot keeps the recovery stage fixed and lets you choose how calibration happens.
 
-- **Import Image** — to pick a file from your computer (PNG, JPG, JPEG, BMP, TIF/TIFF), or
-- **Paste Image** — to use a screenshot you've already copied to the clipboard.
+**Calibration.** For either linear axis, two anchors *(p₁, q₁)* and *(p₂, q₂)* define *q = q₁ + (p − p₁)(q₂ − q₁)/(p₂ − p₁)*, applied horizontally to *(u, x)* and vertically to *(v, y)*. The three modes differ only in where the anchors come from: your raw clicks (standard), your clicks refined to the tick center from local image intensity (enhanced), or OCR'd tick labels paired with detected ticks and filtered for a consistent scale (OCR). OCR mode reports failure rather than guessing when the required endpoints can't be established. Log-scale axes are supported in every mode.
 
-Your chart appears in the main area. The app automatically guesses your curve's color and shows it as the first colored square in the **Selected color** row at the bottom of the window.
+**Curve extraction.** Target colors are detected automatically or picked by you. In each image column, pixels within a color tolerance are grouped into vertical runs; each run's midpoint is a candidate center-line position and its thickness is extra stroke evidence. Dynamic programming links candidates across columns, rewarding sustained support and penalizing abrupt vertical jumps and gaps, so isolated color-matched objects lose to the real line. Only image-supported points are exported — missing columns are never filled with synthesized values.
 
-### 2. Confirm or set the curve color
+Also in the app: text and legend masking, out-of-plot masking, a color picker with multiple color slots, cursor zoom, Ctrl+Z for calibration clicks, CSV / Excel export, and a batch CLI.
 
-Look at the auto-picked color square in the **Selected color** row (the strip of colored squares near the bottom).
+---
 
-- If it already matches your data line, **keep it** — you're done with this step.
-- To set it yourself: open the **Tools** button, click **Pick Color** (your cursor becomes a crosshair), then click directly on the curve in the image. The color square updates, and Pick Color turns itself off.
+## Results
 
-> **Tracing more than one curve?** Click the small green **`+`** square in the Selected color row to add another color slot, select it, then use Pick Color again for that line. (Most people only have one curve and can skip this.)
+One example from DigitizerBench (`D0001-overlapping-altair`, Fig. 1b in the paper): an overlapping two-line plot digitized by the state-of-the-art automatic tool, the state-of-the-art manual tool, and the three LinePilot modes.
 
-### 3. Read the axis numbers automatically
+| Original plot | ChartOCR | LinePilot (OCR) |
+| :---: | :---: | :---: |
+| <img src="docs/assets/example-original.png" width="220"> | <img src="docs/assets/example-chartocr.png" width="220"> | <img src="docs/assets/example-linepilot-ocr.png" width="220"> |
+| two noisy series, Altair | **no output** | both series, fully automatic |
 
-Open the **Advanced** button → **Axis Scale Detection** submenu → click **Run Axis Detection**.
+| PlotDigitizer Pro | LinePilot (standard) | LinePilot (enhanced) |
+| :---: | :---: | :---: |
+| <img src="docs/assets/example-plotdigitizer-pro.png" width="220"> | <img src="docs/assets/example-linepilot-standard.png" width="220"> | <img src="docs/assets/example-linepilot-enhanced.png" width="220"> |
+| sparse manual points | dense, 4 clicks | dense, 4 snapped clicks |
 
-The app uses OCR (text recognition) to read the numbers printed along your axes and automatically fills in the four boxes in the **Min-Max Coordinates** panel: **X min, X max, Y min, Y max**. The same submenu also displays the detected values for reference.
+**Automatic pipelines — DigitizerBench-Full (2,980 images per method)**
 
-### 4. Check and fix the axis numbers
+| Method | FPC-NRMSE ↓ | Output success ↑ | Trusted usability ↑ | Points per line ↑ |
+| --- | ---: | ---: | ---: | ---: |
+| ChartOCR | 0.953 | 30.2 % | 5.4 % | 29 |
+| LineEX | 0.997 | 36.6 % | 0.4 % | 14 |
+| **LinePilot (OCR)** | **0.672** | **55.1 %** | **38.2 %** | **1,180** |
 
-Look at the four **Min-Max Coordinates** boxes. OCR is good but not perfect, so **always sanity-check them.** If any value is missing or misread, just **type the correct number into the box** yourself.
+**Human-guided tools — DigitizerBench-Lite (60 images per method)**
 
-> These four values are required. Export will not run until all four boxes contain valid numbers.
+| Method | FPC-NRMSE ↓ | Output success ↑ | Trusted usability ↑ | Points per line ↑ |
+| --- | ---: | ---: | ---: | ---: |
+| PlotDigitizer Pro | 0.097 | 100 % | 91.7 % | 475 |
+| WebPlotDigitizer | 0.164 | 98.3 % | 86.7 % | 195 |
+| Engauge Digitizer | 0.790 | 55.0 % | 23.3 % | 235 |
+| **LinePilot (standard)** | 0.101 | **100 %** | 91.7 % | 1,025 |
+| **LinePilot (enhanced)** | **0.081** | **100 %** | **93.3 %** | **1,027** |
 
-### 5. Calibrate the plot box
+*FPC-NRMSE* (failure-penalized capped normalized RMSE) assigns a full unit of error to any image whose output is missing, structurally unusable or catastrophically wrong, so it measures reliability as well as accuracy. *Trusted usability* requires the correct line count, finite error on every match, at least 20 valid points and ≥ 80 % coverage. Values are from Table 3 of the paper; the full comparison with LineEX, WebPlotDigitizer and Engauge Digitizer on the example above is in the [online appendix](docs/assets/LinePilot_Online_Appendix.pdf).
 
-This tells the app exactly where your plotted area sits in the image. Open **Tools → Calibration**, then choose one:
+---
 
-- **Coordinate-Mediated Calibration** *(recommended — easiest)* — run **Axis Detection** first (step 3), because this option uses those detected axis positions. It automatically snaps a **dashed green box** onto your plot area. **If you ran step 3, use this and you can skip manual calibration entirely.**
-- **Manual Calibration** *(by hand)* — you click four ticks **directly on your chart image**. A **large green step-by-step banner** appears above the image and walks you through each click in order: **X MIN** (smallest X), **X MAX** (largest X), **Y MIN** (smallest Y), **Y MAX** (largest Y), telling you exactly which point to click at each step. You are clicking *locations on the picture*, not typing numbers. The points don't have to be in textbook positions — the box is built correctly from wherever you click, as long as **X MIN is left of X MAX** and **Y MIN is below Y MAX**.
+## Install
 
-Either way, you'll end up with a **dashed green box** (a rectangle drawn with a dashed green outline) marking the plotted region.
+### Windows — no Python needed
 
-> If you pick Coordinate-Mediated Calibration without running Axis Detection first, the status bar will say *"Run Axis Scale Detection first."*
+1. Open the **[latest release](https://github.com/aj24by7/DataDigitizer/releases/latest)** and download **`Digitizer.exe`** from *Assets*. (Optional: `AccuracyTester.exe`, see below.)
+2. Double-click it. Nothing to install — the Tesseract OCR engine is bundled inside.
+3. On first run Windows SmartScreen may say *"Windows protected your PC"*. Click **More info → Run anyway**. The app simply isn't code-signed.
 
-### 6. Adjust the box if needed (optional)
+> If double-clicking does *nothing at all* — no window, no warning — **Smart App Control** (on by default on new Windows 11 installs) is silently blocking unsigned programs. Run from source instead (below); that path is not blocked. Turning Smart App Control off is a one-way door, so prefer running from source.
 
-If the dashed green box edges don't line up exactly with your axes, hover over an edge until the cursor becomes a **resize arrow**, then **drag** it into place. The app remembers your adjusted box for export.
+### macOS
 
-### 7. Extract the data points
+A `Digitizer.app` bundle is built from the companion **[digitizer_mac](https://github.com/RayanA07/digitizer_mac)** repository (`bash build_macos.sh`), which also builds automatically on GitHub Actions.
 
-Open **Tools → Place Points → Run**.
+### From source (Windows / macOS / Linux)
 
-The app scans the image for your chosen color and overlays the detected points on the curve. The **status bar tells you how many points were placed.**
+```bash
+git clone https://github.com/RayanA07/LinePilot.git
+cd LinePilot/Digitizer
+python -m pip install -r requirements.txt     # PyQt6, numpy, pillow, pytesseract, openpyxl, PyInstaller
+python digitizer_2_11.py                      # launches the GUI
+```
 
-> **Stray text or a legend getting picked up as data?** Use the optional **Masking** tools first. Under **Advanced → Masking** you can blank out words, numbers, or a legend, or hand-draw mask rectangles (Manual Mask Mode), so they aren't mistaken for your curve. Do this *before* Place Points. There's also a **Clear Masks** option to undo them.
+Running from source needs the **Tesseract** program installed for OCR features (`pytesseract` alone is not enough); the prebuilt `.exe` bundles it. On Windows, `build.cmd` rebuilds `dist\Digitizer.exe` with PyInstaller.
 
-### 8. Choose which colors to export (only for multiple curves)
+---
 
-If you traced more than one curve: open the **Export** button → **Colors to Export** submenu, and tick the color slots you want (or choose **Active Color Only** / **All Configured Colors**). **With a single curve this is already handled for you** — skip it.
+## Using the desktop app
 
-### 9. Export your data
+> The complete, click-by-click user guide — every menu, option and error message, written for people who have never used a terminal — is in **[`Digitizer/README.md`](Digitizer/README.md)**. This is the short version.
 
-Open the **Export** button and choose:
+Work top to bottom. The status bar along the bottom of the window confirms every step or tells you why something didn't run.
 
-- **Export CSV → Raw values** — a plain text spreadsheet file that opens in Excel, Google Sheets, Python, etc.
-- **Export Excel → Raw values** — a real Excel `.xlsx` workbook.
+1. **Import** — `Import → Import Image` (PNG, JPG, BMP, TIF) or `Paste Image` from the clipboard. The curve color is guessed and shown in the *Selected color* row; use `Tools → Pick Color` and click the curve to change it, or press the green **+** to add a slot for a second curve.
+2. **Calibrate** — pick a mode:
+   - *OCR:* `Advanced → Axis Scale Detection → Run Axis Detection`, then `Tools → Calibration → Coordinate-Mediated Calibration`. The four **Min-Max Coordinates** boxes are filled automatically.
+   - *Standard:* `Tools → Calibration → Manual Calibration` and follow the banner: click X min, X max, Y min, Y max on the image. Type the four axis values into the Min-Max boxes.
+   - *Enhanced:* as standard, with `Tools → Calibration → Enhanced Human Click` turned on. Each click is snapped to the nearest tick center; the status bar reports what moved and by how much. `Enhanced Click Settings…` sets the maximum snap distance (1–10 px, default 3). **Ctrl+Z** undoes a click.
+3. **Check the axis values.** OCR is good but not perfect — correct any misread box by hand. Drag an edge of the dashed green calibration box if it doesn't sit on your axes.
+4. **Mask what isn't data** *(optional)* — `Advanced → Masking` blanks out text, numbers, legends, or hand-drawn rectangles so they aren't mistaken for the curve.
+5. **Place Points** — `Tools → Place Points → Run`. The overlay shows every detected point; the status bar reports the count.
+6. **Export** — `Export → Export CSV` or `Export Excel`. Each row carries `color_slot, color_r, color_g, color_b, x, y, x_px, y_px`.
 
-A standard Windows **Save As** dialog appears. **Note which folder is shown at the top** (Downloads or Desktop are easy choices so you can find it again), keep the suggested name **`digitized_points.csv`**, and click **Save**.
+Log-scale axes: toggle the small **log** buttons beside the X or Y Min-Max boxes and enter the axis values as printed (e.g. `1` and `1000`).
 
-**That's it — you now have a spreadsheet of your graph's data.** To open it, go to the folder you just saved into and **double-click the CSV file**; it opens in Excel by default, where you'll see your X and Y columns.
+---
 
-### Where your files go
+## Command line, batch mode and Python API
 
-Exports go **wherever you choose in the Save dialog** — they are not forced into a fixed folder, so make a note of the location you pick. The app suggests the filename **`digitized_points.csv`** (or **`digitized_points.xlsx`** for Excel) and forces the correct extension.
+All three run from the source folder (`LinePilot/Digitizer`) with Python installed.
 
-Each row in the file is one detected point, with these columns:
+```bash
+# one image, everything auto-detected (OCR calibration), output to Downloads
+python digitizer.py graph.png
 
-| Column | Meaning |
+# give the axis values yourself, read Y on a log scale, choose the output folder
+python digitizer.py graph.png --axis 0,10,0,100 --log-y --out results/
+
+# force the curve color (R,G,B) and show the OCR confidence + full log
+python digitizer.py graph.png --color 130,5,255 --verbose 1
+
+# a whole folder: digitized_csvs/, digitized_overlays/ and a batch_report.csv/.json
+python digitizer_batch_cli.py figures/ --out digitized/
+
+# score digitized CSVs against reference CSVs, matched by file name
+python ../AccuracyTester/accuracy_batch_cli.py --digitized-dir digitized/digitized_csvs --ground-truth-dir truth/ --out scores/
+```
+
+Every run writes `<image>_digitized_points.csv` and `<image>_digitized_overlay.png`; `--verbose 1` adds `<image>_log.txt` with the OCR confidence score — a low score is a hint to pass `--axis` yourself. Run `python digitizer.py --help` for every option (`--ticks`, `--log-x`, `--json`, `--normalize-y`, `--limit-to-calibration`, …).
+
+```python
+from digitizer_api import digitize_image
+
+out = digitize_image("graph.png",
+                     axis_values=(0, 10, 0, 100),   # None → read by OCR
+                     color_rgb=None,                # None → auto-detect
+                     output_dir="results")
+out.csv_path, out.overlay_path, out.point_count, out.used_ocr, out.ocr_confidence
+```
+
+### Accuracy Tester
+
+A separate, optional tool (`AccuracyTester.exe`, or `python accuracytester_desktop.py` from `AccuracyTester/`) that measures how faithfully a digitized curve reproduces a reference curve: MAE, RMSE, R², bias, MAPE / sMAPE / WAPE, with overlay, residual and outlier plots, optional constant X-shift optimization, and CSV export. `accuracy_batch_cli.py` scores whole folders.
+
+---
+
+## DigitizerBench
+
+DigitizerBench evaluates digitizers under **controlled, orthogonally balanced** variation of signal, rendering and plot-structure factors, so you can see *which* factors break a tool — not just how often it breaks.
+
+| | |
 | --- | --- |
-| `color_slot` | which color slot the point belongs to (1 for a single curve) |
-| `color_r`, `color_g`, `color_b` | the curve's color (0–255 each) |
-| `x`, `y` | the real-world data values |
-| `x_px`, `y_px` | the original pixel position in the image |
+| **DigitizerBench-Full** | 2,980 images: a 2,500-image orthogonal-array core (four strength-3 OA(625, 19, 5, 3) panels) plus 480 matched *bridge* renderings. For automatic evaluation and main-effects ANOVA. |
+| **DigitizerBench-Lite** | 60 outcome-independent core images, each rendered under all nine plot-type × renderer combinations. For human-guided evaluation on identical plots. |
+| **Signal factors (8 × 5 levels)** | Baseline family and magnitude; extrema count and prominence; feature width, sharpness and asymmetry; signal noise. |
+| **Rendering factors (10 × 5 levels)** | Line thickness and color; DPI; blur; figure width and aspect ratio; tick-label size and tick count; X- and Y-axis ranges. |
+| **Structure** | Single, overlapping and stacked plots with 1, 2, 3 or 5 lines; rendered with Matplotlib, Plotly and Altair. |
+| **Ground truth** | Exact curve and tick coordinates for every image, plus the master seed, factor levels, orthogonal-array matrices, trace-generation rules, bridge identifiers, software versions and image manifest needed to regenerate it. |
 
-The CSV is saved as UTF-8, with one header row followed by one row per point.
+**What it found.** For automatic digitization, image presentation matters far more than signal complexity: figure width has the largest effect, then DPI and renderer; noise and most curve-shape factors are not significant, and width × DPI interact. For human-guided digitization, one-pixel lines are the main failure mode — performance stabilizes at 3–5 px.
 
-> **Excel export needs a helper library** (`openpyxl`). In the prebuilt app it's already included. If you're running from source and it's missing, the status bar will say so and nothing is saved — use CSV instead, or install it (see [Run from source](#run-from-source-for-developers)).
-
-### Two things that block export (and how the app tells you)
-
-Export will **quietly refuse** and show a status message unless **both** of these are true:
-
-1. **The four Min-Max Coordinate boxes contain valid numbers** — otherwise you'll see *"Export requires X/Y min/max values."*
-2. **A calibration has been run** (the dashed green box exists) — otherwise you'll see *"Export requires calibration."*
-
-If either message appears, glance at the status bar, go back, and finish that step.
-
-### Log-scale axes (optional)
-
-Most plots are linear, so leave this alone for a normal graph — but if your graph uses a **logarithmic** X or Y axis, turn it on with the small **log** toggle buttons that sit just to the **right of the Min-Max Coordinates boxes** (one on the X-min/X-max row, one on the Y-min/Y-max row):
-
-- Click the **log** button beside the X boxes and/or the one beside the Y boxes. It turns **green** when it's on.
-- Calibrate and enter the axis min/max **as the real numbers printed on the axis** (e.g. `1` and `1000`), exactly as you would for a linear plot.
-- On export, that axis is interpolated in log space, so the values come out correct for a log scale. Leave the buttons off (grey) for normal linear axes.
-
-> A log axis needs **positive** min/max values (you can't take the log of zero or a negative number). If a value is zero or negative, export will tell you instead of producing wrong numbers.
-
-### Tips for the best results
-
-- A **clean, distinctly-colored curve** works best. Point extraction matches your selected color within a tolerance and takes the vertical midpoint of matching pixels in each column.
-- **Loading a new image resets everything** — points, color slots, calibration, and the coordinate boxes. Finish one image before loading the next.
-- If **Axis Detection** ever says Tesseract OCR isn't available, just **type the four axis values in by hand** (step 4) — everything else still works.
-- Stuck on an error? **Advanced → Error Log** opens a window of recent errors.
+**Download:** the benchmark package will be released on Hugging Face — *link coming soon*. <!-- TODO: https://huggingface.co/datasets/… -->
 
 ---
 
-# For developers
-
-> **Using the click-and-go app? You can stop here.** Everything below is the optional command-line and build-from-source material for people comfortable with a terminal. If you just want your data, you're already done — see [Troubleshooting](#troubleshooting) if anything went wrong.
-
-## Using the command line
-
-> **Important:** The command line runs from the **source files with Python installed** — see [Run from source](#run-from-source-for-developers). The prebuilt **`Digitizer.exe` is the click-and-go app only**: it always opens the graphical window and ignores any command-line options. If you want to type commands, you need the source code and Python, not the `.exe`.
-
-### Open a terminal in the Digitizer folder
-
-1. Open the folder that contains the Digitizer source files in **File Explorer**.
-2. **Right-click an empty area** inside the folder.
-3. Choose **Open in Terminal** (or **Open PowerShell window here**).
-
-A blue/black window opens, already pointed at the right folder. Type your commands there.
-
-> The examples below use the placeholder image name **`graph.png`**. Substitute the real name of your own image file. The image must be either in the folder the terminal is pointed at, or in your Downloads folder, or you must give its full path in quotes.
-
-### The simplest command
-
-Give it an image. That's it:
-
-```powershell
-py digitizer.py graph.png
-```
-
-With nothing else, the app automatically:
-
-1. **detects the curve color**,
-2. **detects the axes and tick positions** with OCR (so it reads X min / X max / Y min / Y max straight off the image), and
-3. **writes a CSV of data points plus an overlay PNG** to your **Downloads** folder.
-
-A bare filename like `graph.png` is looked up first in the current folder, then in your Downloads folder — so the one-liner works as long as the image is in either place. By default it stays quiet: it prints just a success line and the output folder. Add **`--verbose 1`** to see the full detail — the color, pixel coordinates, the OCR readings, the point count, and the **OCR confidence score** (see [Seeing more detail](#seeing-more-detail---verbose)).
-
-> Two other spellings do exactly the same thing: `py digitizer_2_11.py cli graph.png` and `py digitizer_2_11.py digitize graph.png`.
-
-### Options
-
-Add any of these to the command for more control:
-
-| Option (aliases) | What it does | Default |
-| --- | --- | --- |
-| `pic_path` *(positional)* | Path to the image. A bare filename is searched in the current folder, then Downloads. Either this **or** `--pic-dir` is required. | none (required) |
-| `--pic-dir` | Another way to give the image path. If both are given, `--pic-dir` wins. | none |
-| `--color R,G,B` | Curve color, e.g. `255,0,0` (each part 0–255). Also accepts `[r,g,b]`. **Must match your curve's actual color**, or the run finds no points. | auto-detected |
-| `--axis-values` *(`--axis`)* | Axis numbers as `xmin,xmax,ymin,ymax`. X min must differ from X max, and Y min from Y max. | read by OCR |
-| `--ticks` *(`--tick-setting`, `--tick-coordinates`)* | Four tick pixel points in `x_min,x_max,y_min,y_max` order, e.g. `[10,200],[500,200],[10,200],[10,20]`. | found by OCR |
-| `--log-x` | Read the X axis in base-10 **log** space (X min/max must be positive). Mirrors the GUI's **log** toggle. | off (linear) |
-| `--log-y` | Read the Y axis in base-10 **log** space (Y min/max must be positive). Mirrors the GUI's **log** toggle. | off (linear) |
-| `--output-dir` *(`--out`, `-o`)* | Folder to save into. Created if it doesn't exist. | your Downloads folder |
-| `--verbose N` *(`-v`)* | How much to print. `1` (or a bare `-v` / `--verbose`) shows the color, pixel coords, tick→OCR values, point count, and OCR confidence, and writes a `<image>_log.txt`. `0` prints only success + the output folder. | `0` (quiet) |
-| `--json` | Print the result details as JSON instead of plain text. | off |
-| `-h` / `--help` | Show the usage help and exit. | — |
-| `--normalize-y` *(optional extra)* | Adds an extra `y_norm` column (Y rescaled to 0–1 over the axis range). Leave it off for normal use. | off |
-| `--limit-to-calibration` *(optional extra)* | Export **only** points inside the calibration box. **Off by default** (since 2.14): if OCR reads an extreme tick slightly short, the box would otherwise clip real data off the ends of the curve. | off |
-| `--no-limit-to-calibration` *(optional extra)* | Also export points outside the calibration box. This is **already the default**; the flag is kept so older scripts keep working. | (the default) |
-
-### The "fill-in-the-blank" template and function-call style
-
-If you'd like a copy-and-edit reference, run:
-
-```powershell
-py digitizer.py template
-```
-
-This **prints a fill-in-the-blank line** (it does **not** digitize anything). It shows a minimal example, a full example listing every option, and a short legend explaining each value.
-
-You can then run that **function-call form** — one quoted line. In PowerShell, wrap the whole `digitizer_cli(...)` call in **single quotes** so the inner double quotes survive.
-
-**Minimal example** (just the image; everything else auto-detected). This is the form to copy first:
-
-```powershell
-py digitizer.py 'digitizer_cli(pic_dir="graph.png")'
-```
-
-**Full example** — the `color`, `axis_values`, and `tick_setting` values below are **placeholders you must edit to match your own chart.** A leftover `color=(255,0,0)` (red) on a non-red curve finds no points and exits with *"produced no points."* Either delete the options you don't need (so those values auto-detect) or replace them with your real values:
-
-```powershell
-py digitizer.py 'digitizer_cli(pic_dir="graph.png", color=(255,0,0), axis_values=(0,10,0,100), tick_setting=([10,200],[500,200],[10,200],[10,20]), log_x=False, log_y=False, output_dir="C:/Users/You/Downloads/out", verbose=1, json=False, normalize_y=False, limit_to_calibration=False)'
-```
-
-The values you can put inside `digitizer_cli(...)`:
-
-| Name (aliases) | What it is | Default |
-| --- | --- | --- |
-| `pic_dir` *(`pic_path`, `plot_location`, `image`, `image_path`)* | **Required.** The image path; a bare filename is looked up in the current folder, then Downloads. | none (required) |
-| `color` *(`rgb`, `color_rgb`)* | Curve color as `(R,G,B)` or `"255,0,0"`. Blank = auto-detect. Must match your curve's real color. | auto-detected |
-| `tick_setting` *(`ticks`, `tick_coordinates`, `tick_coordinate`)* | Four tick pixel points in `x_min,x_max,y_min,y_max` order. Blank = OCR. | OCR-detected |
-| `axis_values` *(`axis`, `bounds`)* | Axis numbers as `(xmin,xmax,ymin,ymax)`. Blank = OCR. | OCR-detected |
-| `log_x` *(`logx`, `x_log`)* | `True` reads the X axis in base-10 log space (X min/max must be positive). | False |
-| `log_y` *(`logy`, `y_log`)* | `True` reads the Y axis in base-10 log space (Y min/max must be positive). | False |
-| `output_dir` *(`out_dir`, `out`)* | Folder to save into. Blank = Downloads. | Downloads |
-| `verbose` *(`v`)* | `1` prints full detail and writes a `<image>_log.txt`; `0` stays quiet. | `0` |
-| `json` *(`as_json`, `print_json`)* | `True` prints full details as JSON. **Only accepted in this function-call form** (the flag version is `--json`). | False |
-| `normalize_y` *(`normalize`)* — *optional extra* | `True` adds the `y_norm` (0–1) column. Leave off for normal use. | False |
-| `limit_to_calibration` *(`limit`)* — *optional extra* | `True` keeps only points inside the calibration window. | False |
-
-Arguments can be **positional** in the order `pic_dir, color, tick_setting, axis_values, output_dir`, or by **name** using any alias above. Empty positions are allowed and fall back to defaults, and the words `none` / `null` / blank are treated as "auto".
-
-### Worked examples
-
-Auto-detect everything (color and axes), save to Downloads — **the safest example to copy as-is**:
-
-```powershell
-py digitizer.py graph.png
-```
-
-Set the axis values yourself but still auto-detect the color:
-
-```powershell
-py digitizer.py graph.png --axis 0,10,0,100
-```
-
-Force a specific curve color — **change `130,5,255` to your curve's real R,G,B**; a color that doesn't match the curve produces no points:
-
-```powershell
-py digitizer.py graph.png --color 130,5,255 --axis 0,10,0,100
-```
-
-Use a full path, choose an output folder, and read the Y axis on a **log scale**:
-
-```powershell
-py digitizer.py "C:\path\to\graph.png" --out "C:\path\to\out" --log-y
-```
-
-See everything the run worked out — color, pixel coordinates, the tick→OCR values, point count, and the **OCR confidence score** — and drop a `log.txt` alongside the output:
-
-```powershell
-py digitizer.py graph.png --verbose 1
-```
-
-> **Tip:** There's also an interactive wizard that asks for each field one at a time. Start it with `py digitizer_2_11.py interactive` (or `wizard`).
-
-### Seeing more detail (`--verbose`)
-
-By default the command line is **quiet** — it just confirms success and tells you the output folder. When you want to see (or keep a record of) exactly what the tool did, raise the verbosity:
-
-```powershell
-py digitizer.py graph.png --verbose 1
-```
-
-At level `1` it prints, and the run also writes a `<image>_log.txt`, the following:
-
-- **color (r,g,b)** — the curve color it used.
-- **pixel coords** — where the four axis ticks sit in the image, in pixels.
-- **tick → values** — the four axis numbers (X min, X max, Y min, Y max) the tool used, and whether it read them automatically or you typed them in.
-- **OCR confidence** — how sure the built-in number-reader (Tesseract) was about the axis numbers it read off your image, as a percentage. A low number is a hint to double-check the numbers, or to type them in yourself with `--axis`. Shows **n/a** only when you supply *both* the axis values **and** the tick pixel coordinates yourself (so no reading is done); if you pass `--axis` but let the tick positions auto-detect, the reader still runs and a percentage is shown.
-- **num points** — how many data points were extracted.
-- **elapsed (s)** — how long the run took, in seconds.
-
-Level `0` (the default) stays quiet; you can also write just `--verbose` or `-v` as shorthand for level `1`.
-
-### Output files
-
-Every run writes two files (named after your image), plus a third at `--verbose 1`:
-
-- **`<imageName>_digitized_points.csv`** — the table of digitized points.
-- **`<imageName>_digitized_overlay.png`** — a copy of your image with the calibration box, the OCR axis-detection rectangles, and the detected points drawn on top (in the inverse of the curve color, so they stand out).
-- **`<imageName>_log.txt`** — *(only with `--verbose 1`)* a plain-text record of the run: time, color, pixel coords, tick→OCR values, point count, OCR confidence, and the output paths.
-
-The CSV columns:
-
-| Column | Meaning |
-| --- | --- |
-| `color_slot` | 1-based color slot number (1 for a single-color run). |
-| `color_r` | Red component (0–255) of the curve color. |
-| `color_g` | Green component (0–255) of the curve color. |
-| `color_b` | Blue component (0–255) of the curve color. |
-| `x` | Digitized X value in data coordinates (rounded to 6 decimals). |
-| `y` | Digitized Y value in data coordinates (rounded to 6 decimals). |
-| `x_px` | Raw X pixel position in the image. |
-| `y_px` | Raw Y pixel position in the image. |
-| `y_norm` | *Only when `--normalize-y` is on.* Y rescaled to 0–1 over the axis range; appended as the last column (rounded to 6 decimals). |
-
----
-
-## Run from source (for developers)
-
-You'll need a **recent Python 3** installed (from <https://python.org> — tick *"Add python.exe to PATH"* during setup).
-
-1. Get the source code — download it from the [repo](https://github.com/aj24by7/DataDigitizer) or clone it:
-
-   ```powershell
-   git clone https://github.com/aj24by7/DataDigitizer.git
-   ```
-
-2. Open a terminal in the `Digitizer` folder and install the dependencies:
-
-   ```powershell
-   py -m pip install -r requirements.txt
-   ```
-
-3. Launch the graphical app:
-
-   ```powershell
-   py digitizer_2_11.py
-   ```
-
-The command-line interface ([above](#using-the-command-line)) also runs from this same source setup.
-
-The dependencies are: `PyInstaller` (for building the exe), `PyQt6` (the window), `numpy`, `pillow` (image handling), `pytesseract` (OCR), and `openpyxl` (Excel export).
-
----
-
-## Build pipeline — turning the code into an app
-
-The project is plain Python (a PyQt6 GUI plus a small CLI). There are three "shapes" you can run it as, and the conversion is the same idea each time — **[PyInstaller](https://pyinstaller.org)** bundles the Python interpreter, this code, and the dependencies into one self-contained program described by a `.spec` file:
-
-| Target | What it is | How it's made |
-| --- | --- | --- |
-| **CLI** | `python3 digitizer.py …` | No build needed — it runs straight from the source files with Python (see [Run from source](#run-from-source-for-developers)). |
-| **Windows `.exe`** | a one-file `Digitizer.exe` you double-click | PyInstaller reads `digitizer.spec`, bundles the GUI entry `digitizer_desktop.py` **and** the Tesseract OCR runtime in `vendor\tesseract`, and writes `dist\Digitizer.exe`. |
-| **macOS `.app`** | a `Digitizer.app` bundle | Same tool, the macOS specs/scripts in the separate **[digitizer_mac](https://github.com/RayanA07/digitizer_mac)** repo (`bash build_macos.sh`) produce `Digitizer.app`. |
-
-### Starter command (Windows)
-
-One-click: double-click **`build.cmd`** in this folder. (It just runs the PowerShell build with the execution policy unblocked, then keeps the window open so you can read the result.)
-
-Or from a terminal in this folder:
-
-```powershell
-py -m pip install -r requirements.txt
-.\build_windows.ps1
-```
-
-Either way the result is **`dist\Digitizer.exe`** — a windowed, one-file app you can double-click. The **Tesseract OCR runtime** under `vendor\tesseract` is **bundled into the exe**, so OCR features (axis-value detection and the text/number/legend masking tools) work without anyone needing a separate Tesseract install.
-
-> **macOS starter:** in the `digitizer_mac` repo it's `bash build_macos.sh` (in each app folder), which vendors Tesseract via Homebrew and produces the `.app`. That repo also builds on a GitHub Actions macOS runner automatically.
-
----
-
-## Troubleshooting
-
-**"Windows protected your PC" when I open the .exe.**
-Expected on the first run — the file just isn't code-signed. Click the small **More info** text, then **Run anyway**. (Full explanation in [Download & install](#the-first-run-windows-warning-expected).)
-
-**I can't find `Digitizer.exe` after downloading it.**
-It's in your **Downloads** folder. Open **File Explorer** (the yellow folder icon on the taskbar, or **Windows key + E**) and click **Downloads** on the left.
-
-**"`py` is not recognized" in the terminal.**
-Python isn't installed (or wasn't added to your PATH). Install it from <https://python.org> and make sure to tick **"Add python.exe to PATH"** during setup. Then open a fresh terminal and try again. (Reminder: the command line needs Python; the `.exe` does not.)
-
-**It picked the wrong curve color.**
-- *In the app:* use **Tools → Pick Color** and click your curve (step 2).
-- *On the command line:* pass it yourself, e.g. `--color 130,5,255` (flags) or `color=(130,5,255)` (function-call form) — using your curve's real R,G,B.
-
-**The command line says "produced no points" / exits without a CSV.**
-The color it's matching doesn't match your curve. If you passed `--color` (or `color=`), the values are wrong — fix them, or drop the option entirely to let it auto-detect. The placeholder `255,0,0` (red) in the template will fail on any non-red plot.
-
-**The axis numbers came out wrong.**
-OCR can misread numbers. Always check them.
-- *In the app:* type the correct value into the **Min-Max Coordinates** box.
-- *On the command line:* give them with `--axis xmin,xmax,ymin,ymax` (flags) or `axis_values=(xmin,xmax,ymin,ymax)` (function-call form). Run with `--verbose 1` to see the **OCR confidence score** — a low number is a strong hint that you should type the axis values in yourself with `--axis`.
-
-**"Image file not found" on the command line.**
-Put the image in your **Downloads** folder or in the folder the terminal is pointed at (a bare filename is searched in both), or pass the **full path in quotes**, e.g. `py digitizer.py "C:\Users\You\Pictures\graph.png"`.
-
-**Export does nothing in the app.**
-Check the status bar (the thin strip at the bottom). You need **all four Min-Max Coordinate boxes filled** *and* **a calibration run** (the dashed green box). Finish whichever is missing, then export again.
-
-**Where did my files go?**
-- *In the app:* wherever you chose in the **Save As** dialog.
-- *On the command line:* your **Downloads** folder by default, or the folder you set with `--out` / `output_dir=`.
-
----
-
-## Folder contents
+## Repository layout
 
 ```text
-digitizer.py        # CLI / function-call launcher
-digitizer_2_11.py   # GUI + CLI dispatch and runtime path setup
-digitizer_desktop.py# GUI-only entry used by the PyInstaller build
-digitizer_cli.py    # Terminal CLI
-digitizer_api.py    # Programmatic API (digitize_image)
-function.py         # Thin re-export of digitize_image
-UI.py               # Main window and GUI workflows
-ImageTray.py        # Canvas rendering and interaction
-PointPlacer.py      # Color-based point extraction + interpolation
-AxisReader.py       # OCR axis detection
-Calibration.py      # Calibration strategies
-Masking.py          # OCR / manual masking helpers
-ErrorLogger.py      # Error logging utilities
-digitizer.spec      # PyInstaller spec (Digitizer.exe)
-build_windows.ps1   # Build script
-requirements.txt    # Python dependencies
-version.json        # App name + version
-assets/             # Application icon
-vendor/tesseract/   # Bundled Tesseract OCR runtime
+LinePilot/
+├── Digitizer/           # desktop app (PyQt6), CLI, batch CLI and Python API
+│   ├── digitizer_2_11.py    GUI entry point
+│   ├── digitizer.py         CLI launcher
+│   ├── digitizer_batch_cli.py
+│   ├── digitizer_api.py     digitize_image(...)
+│   ├── Calibration.py / EnhancedClick.py / AxisReader.py / PointPlacer.py / Masking.py
+│   └── build.cmd            one-click Windows build (PyInstaller)
+├── AccuracyTester/      # reference-vs-digitized scoring app and batch CLI
+├── docs/                # project website (GitHub Pages) and figures used in this README
+├── CHANGELOG.md
+└── CITATION.cff
 ```
+
+This repository carries the full commit history of the project. Earlier releases (2.11 – 2.15, published as *Data Digitizer*) are at [aj24by7/DataDigitizer](https://github.com/aj24by7/DataDigitizer); the [changelog](CHANGELOG.md) covers every version.
 
 ---
 
-## Accuracy Tester (optional)
+## Citation
 
-This is a **separate, optional** tool. It's completely independent of the main Digitizer — you don't need it to get your data out.
+If LinePilot or DigitizerBench is useful in your work, please cite the paper — and star the repo, open an issue, or tell us how it went.
 
-**What it does:** it measures how faithfully a digitized curve reproduces a reference curve. You load **two CSV files** — an *original* reference and a *digitized* one — and it lines them up on a common X grid and reports accuracy numbers (MAE, RMSE, R-squared, bias, MAPE/sMAPE/WAPE, and more) alongside diagnostic plots: the curve overlay, residuals, absolute error, and zoomable outliers. It cleans messy data (drops non-numeric rows, collapses duplicate X values), can filter by color slot, and can optionally optimize a constant X-shift before comparing. Results can be exported to a comparison CSV.
-
-**Run the app (no Python needed):**
-Double-click **`AccuracyTester.exe`** (download it from [Releases](https://github.com/aj24by7/DataDigitizer/releases/tag/v2.15), or, if you built from source, find it in the `AccuracyTester` folder). It's a windowed, one-file app — no install or console needed.
-
-**Run from source:**
-
-```powershell
-py accuracytester_desktop.py
+```bibtex
+@article{ma2026linepilot,
+  title   = {LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration},
+  author  = {Ma, Fengbo and Akhtar, Rayan and Joshi, Aakash H. and Li, Xiaoting and
+             Sun, Haijian and Xiang, Zhen and Chen, Xianyan and Zhao, Yiping},
+  journal = {arXiv preprint arXiv:2609.19377},
+  year    = {2026},
+  doi     = {10.48550/arXiv.2609.19377}
+}
 ```
 
----
+\* Equal contribution. † Corresponding authors: zhaoy@uga.edu, zxiangaa@uga.edu, xychen@uga.edu.
 
-*Runtime logs are written to `%LOCALAPPDATA%\DataDigitizer\2.15\logs` (you can also view them in-app via **Advanced → Error Log**).*
+## Acknowledgment
+
+This work was supported by the National Science Foundation through the Pathways to Open-Source Ecosystems (POSE) program, award No. 2518273. The authors gratefully acknowledge the support, guidance and collaboration of all members of the SpectraGuru™ development and stakeholder teams. LinePilot is part of the open-source ecosystem for Raman and SERS spectroscopy developed in the Zhao lab at the University of Georgia and its collaborators at the University of Pennsylvania.

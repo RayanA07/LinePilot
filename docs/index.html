@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinePilot Digitizer</title>
+<meta name="description" content="LinePilot Digitizer recovers numerical data from line-plot images with three calibration modes (standard, enhanced, OCR) and continuous color-based curve extraction. From the University of Georgia. Includes DigitizerBench.">
+<meta property="og:title" content="LinePilot Digitizer">
+<meta property="og:description" content="Turn a picture of a line plot into numbers. Three calibration modes, one curve-recovery workflow, and DigitizerBench — the first dedicated benchmark for plot digitizers.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/linepilot-logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Merriweather+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ---------- UGA palette ---------- */
+  :root{
+    --red:#BA0C2F;        /* Bulldog Red */
+    --red-deep:#8E0A24;
+    --glory:#E4002B;      /* Glory Glory */
+    --black:#000000;      /* Arch Black */
+    --white:#FFFFFF;      /* Chapel Bell White */
+    --teal:#00A3AD;       /* Lake Herrick */
+    --teal-deep:#007C84;
+    --steel:#9EA2A2;      /* Stegeman */
+    --mist:#F3F5F6;
+    --line:#DADEE1;
+    --ink:#1F1F1F;
+    --ink-soft:#4A4F52;
+    --blue:#1F5FA8;       /* plot series colors (match paper figures) */
+    --orange:#E08A2E;
+    --max:1120px;
+    --head:'Oswald', 'Arial Narrow', sans-serif;
+    --body:'Merriweather Sans', 'Segoe UI', system-ui, sans-serif;
+    --mono:ui-monospace, 'Cascadia Mono', Consolas, Menlo, monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+  body{margin:0;background:var(--white);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:var(--red);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}
+  a:hover{border-bottom-color:currentColor}
+  h1,h2,h3{font-family:var(--head);font-weight:600;color:var(--black);line-height:1.1;margin:0 0 .4em;letter-spacing:.005em}
+  h1{font-size:clamp(2.4rem,5.5vw,4.2rem);font-weight:600}
+  h2{font-size:clamp(1.8rem,3.6vw,2.6rem)}
+  h3{font-size:1.25rem;font-weight:500}
+  p{margin:0 0 1em;max-width:68ch}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+  code{font-family:var(--mono);font-size:.92em;background:var(--mist);padding:.1em .35em;border-radius:3px}
+  pre{font-family:var(--mono);font-size:.9rem;line-height:1.55;background:var(--black);color:#F2F2F2;padding:18px 20px;border-radius:4px;overflow:auto;margin:0 0 1em}
+  pre code{background:none;padding:0;color:inherit}
+  :focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+
+  /* ---------- top bar ---------- */
+  .top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:saturate(1.2) blur(8px);border-bottom:1px solid var(--line)}
+  .top .wrap{display:flex;align-items:center;gap:28px;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;border:0;color:var(--black);font-family:var(--head);font-weight:600;font-size:1.3rem;letter-spacing:.01em}
+  .brand svg{width:32px;height:32px}
+  nav.menu{margin-left:auto;display:flex;gap:4px}
+  nav.menu a{border:0;color:var(--ink-soft);padding:8px 12px;border-radius:4px;font-size:.95rem;position:relative}
+  nav.menu a::after{content:"";position:absolute;left:12px;right:12px;bottom:4px;height:2px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .2s}
+  nav.menu a:hover::after, nav.menu a.active::after{transform:scaleX(1)}
+  nav.menu a.active{color:var(--black)}
+  .gh{margin-left:8px;border:1.5px solid var(--black);color:var(--black);padding:7px 14px;border-radius:4px;font-size:.92rem;display:inline-flex;gap:8px;align-items:center;transition:background .15s,color .15s}
+  .gh:hover{background:var(--black);color:var(--white);border-bottom-color:transparent}
+  .gh svg{width:16px;height:16px;fill:currentColor}
+  @media (max-width:860px){
+    .top .wrap{gap:12px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+    nav.menu{order:3;width:100%;overflow-x:auto;gap:0;margin-left:0;-webkit-overflow-scrolling:touch}
+    nav.menu a{white-space:nowrap;padding:8px 10px;font-size:.9rem}
+    .gh{margin-left:auto}
+  }
+  /* tabs */
+  .tab{display:none}
+  .tab.active{display:block;animation:tabin .4s ease}
+  @keyframes tabin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){ .tab.active{animation:none} }
+  @media print{ .tab{display:block !important} }
+  .tab > section:first-child:not(.hero){padding-top:56px}
+  .next{display:flex;justify-content:flex-end;padding:0 0 64px}
+  .next a{font-family:var(--head);font-weight:500;font-size:1.05rem;color:var(--black);display:inline-flex;align-items:center;gap:10px;border:0}
+  .next a span{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;transition:transform .15s}
+  .next a:hover span{transform:translateX(3px)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:72px 0 56px;border-bottom:1px solid var(--line);background:
+      linear-gradient(180deg,#fff 0%,#fff 70%,var(--mist) 100%)}
+  .hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
+  .hero .kicker{font-family:var(--head);font-weight:500;color:var(--red);font-size:1.05rem;margin:0 0 10px;letter-spacing:.02em}
+  .hero p.lead{font-size:1.15rem;color:var(--ink-soft);max-width:52ch}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0 18px}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:12px 20px;border-radius:4px;font-family:var(--head);font-weight:500;font-size:1.05rem;letter-spacing:.02em;border:1.5px solid transparent;transition:transform .12s,background .15s,color .15s,border-color .15s}
+  .btn:hover{transform:translateY(-1px);border-bottom-color:transparent}
+  .btn.primary{background:var(--red);color:#fff}
+  .btn.primary:hover{background:var(--red-deep)}
+  .btn.outline{border-color:var(--black);color:var(--black)}
+  .btn.outline:hover{background:var(--black);color:#fff}
+  .btn.quiet{color:var(--ink-soft);border-color:var(--line)}
+  .btn.quiet:hover{border-color:var(--black);color:var(--black)}
+  .btn svg{width:18px;height:18px;fill:currentColor}
+  .meta{font-size:.9rem;color:var(--ink-soft)}
+  .meta a{color:var(--ink);border-bottom-color:var(--line)}
+  @media (max-width:860px){ .hero .wrap{grid-template-columns:1fr;gap:32px} .hero{padding:44px 0 40px} }
+
+  /* ---------- live demo ---------- */
+  .demo{background:#fff;border:1px solid var(--line);border-radius:6px;padding:18px 18px 14px;box-shadow:0 14px 40px -24px rgba(0,0,0,.35)}
+  .demo-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+  .demo-head .t{font-family:var(--head);font-weight:500;font-size:1rem;color:var(--black)}
+  .modes{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .modes button{appearance:none;border:0;background:#fff;color:var(--ink-soft);font:inherit;font-size:.82rem;padding:6px 10px;cursor:pointer;transition:background .15s,color .15s}
+  .modes button + button{border-left:1px solid var(--line)}
+  .modes button[aria-pressed="true"]{background:var(--black);color:#fff}
+  .modes button.ocr[aria-pressed="true"]{background:var(--teal-deep)}
+  .demo svg{width:100%;height:auto;display:block}
+  .demo-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px;font-size:.84rem;color:var(--ink-soft)}
+  .demo-foot button{appearance:none;background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink);font:inherit;font-size:.82rem;padding:5px 10px;cursor:pointer}
+  .demo-foot button:hover{border-color:var(--black)}
+  .csv{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);white-space:pre;overflow:hidden;height:6.3em;line-height:1.4;margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+  .csv b{color:var(--black);font-weight:600}
+  /* sweep animation */
+  .scan{transition:none}
+  .pt{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.3)}
+  .demo.run .pt{animation:pop .35s cubic-bezier(.2,.9,.3,1.3) forwards;animation-delay:var(--d)}
+  .demo.run .scan{animation:sweep 3.2s linear forwards}
+  .demo.run .curve{animation:fadeLine 3.2s linear forwards}
+  @keyframes pop{to{opacity:1;transform:scale(1)}}
+  @keyframes sweep{0%{transform:translateX(0);opacity:1}96%{opacity:1}100%{transform:translateX(420px);opacity:0}}
+  @keyframes fadeLine{from{opacity:1}to{opacity:.28}}
+  .calib{transition:opacity .25s}
+  @media (prefers-reduced-motion:reduce){
+    .pt{opacity:1;transform:none}
+    .demo.run .pt,.demo.run .scan,.demo.run .curve{animation:none}
+    .demo .scan{display:none}
+    .demo .curve{opacity:.28}
+  }
+
+  /* ---------- sections ---------- */
+  section{padding:72px 0;scroll-margin-top:80px}
+  .start>*,.flow>*,.cite>*,.bench>*,.tables>*{min-width:0}
+  body{overflow-x:hidden}
+  section.alt{background:var(--mist)}
+  .sec-head{max-width:70ch;margin-bottom:34px}
+  .sec-head p{color:var(--ink-soft);font-size:1.05rem}
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce), print{ .reveal{opacity:1;transform:none;transition:none} }
+
+  /* flow */
+  .flow{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+  @media (max-width:900px){ .flow{grid-template-columns:1fr} }
+  .flowchart svg{width:100%;height:auto;display:block}
+  .flowchart .node rect{fill:#fff;stroke:var(--black);stroke-width:1.5;transition:fill .2s,stroke .2s}
+  .flowchart .node text{font-family:var(--head);font-weight:500;font-size:17px;fill:var(--black)}
+  .flowchart .node.small text{font-size:15px}
+  .flowchart .node.ocr rect{stroke:var(--teal-deep)}
+  .flowchart .node.ocr text{fill:var(--teal-deep)}
+  .flowchart .edge{fill:none;stroke:var(--steel);stroke-width:1.6}
+  .flowchart .arrow{fill:var(--steel)}
+  .flowchart .node.hot rect{fill:#FBE6EA;stroke:var(--red)}
+  .flowchart .node.hot text{fill:var(--red-deep)}
+  .flowchart .node.ocr.hot rect{fill:#E0F5F6;stroke:var(--teal-deep)}
+  .flowchart .node.ocr.hot text{fill:var(--teal-deep)}
+  .flowchart .tools text{font-family:var(--body);font-size:11.3px;fill:var(--ink-soft)}
+  .modes-list{display:grid;gap:14px}
+  .mode{border-left:4px solid var(--line);padding:4px 0 4px 18px;transition:border-color .2s}
+  .mode:hover, .mode.hot{border-left-color:var(--red)}
+  .mode.ocr:hover, .mode.ocr.hot{border-left-color:var(--teal)}
+  .mode h3{margin-bottom:.2em}
+  .mode p{margin:0;color:var(--ink-soft);font-size:.97rem}
+  .mode .tag{font-family:var(--head);font-size:.85rem;font-weight:500;color:var(--ink-soft);margin-left:8px}
+  .extract{margin-top:28px;padding:22px 24px;background:#fff;border:1px solid var(--line);border-radius:6px}
+  .extract h3{margin-bottom:.3em}
+  .extract p{margin:0;color:var(--ink-soft)}
+
+  /* results */
+  .panels{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  @media (max-width:900px){ .panels{grid-template-columns:repeat(3,1fr)} }
+  @media (max-width:520px){ .panels{grid-template-columns:repeat(2,1fr)} }
+  figure{margin:0}
+  .panel img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:4px;background:#fff}
+  .panel figcaption{font-size:.84rem;color:var(--ink-soft);margin-top:7px;line-height:1.35}
+  .panel figcaption b{display:block;color:var(--black);font-weight:600}
+  .panel.ours figcaption b{color:var(--red)}
+  .panel.fail img{opacity:.55}
+  .cap{font-size:.86rem;color:var(--ink-soft);margin-top:14px;max-width:none}
+  .tables{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:40px}
+  @media (max-width:900px), print{ .tables{grid-template-columns:1fr} }
+  @media print{ .top{position:static} table,.fact,.panel,.extract{break-inside:avoid} }
+  table{width:100%;border-collapse:collapse;font-size:.95rem;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  caption{text-align:left;font-family:var(--head);font-weight:500;font-size:1.1rem;color:var(--black);padding:0 0 10px}
+  th,td{padding:10px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{background:var(--mist);font-weight:600;color:var(--ink);font-size:.8rem;text-align:right;white-space:nowrap}
+  td:first-child{white-space:nowrap}
+  thead th:first-child{text-align:left}
+  tbody tr:last-child td{border-bottom:0}
+  tr.ours td{background:#FFF5F7}
+  tr.ours td:first-child{color:var(--red-deep);font-weight:600}
+  td.best{font-weight:700;color:var(--black)}
+  .tnote{font-size:.82rem;color:var(--ink-soft);margin-top:8px}
+
+  /* benchmark */
+  .bench{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start}
+  @media (max-width:900px){ .bench{grid-template-columns:1fr} }
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .fact{background:#fff;border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+  .fact .n{font-family:var(--head);font-size:2rem;font-weight:600;color:var(--black);line-height:1}
+  .fact .l{font-size:.9rem;color:var(--ink-soft);margin-top:6px}
+  .fact.red .n{color:var(--red)}
+  .fact.teal .n{color:var(--teal-deep)}
+  .soon{display:inline-block;font-family:var(--head);font-size:.8rem;font-weight:500;letter-spacing:.03em;color:var(--teal-deep);border:1px solid var(--teal);border-radius:3px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+  .factor-list{columns:2;column-gap:28px;padding-left:1.1em;margin:0 0 1em;color:var(--ink-soft);font-size:.95rem}
+  @media (max-width:560px){ .factor-list{columns:1} }
+
+  /* get started */
+  .start{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+  @media (max-width:900px){ .start{grid-template-columns:1fr} }
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:0 0 1em}
+  ol.steps li{counter-increment:s;position:relative;padding:0 0 14px 44px}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--black);color:#fff;font-family:var(--head);font-weight:500;display:grid;place-items:center;font-size:.95rem}
+  ol.steps li b{font-weight:600;color:var(--black)}
+  .note{border-left:4px solid var(--teal);background:#fff;padding:12px 16px;border-radius:0 4px 4px 0;font-size:.93rem;color:var(--ink-soft);margin:0 0 1em}
+  .dl{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px}
+  details{border:1px solid var(--line);border-radius:6px;padding:0 16px;background:#fff;margin-bottom:10px}
+  summary{cursor:pointer;font-family:var(--head);font-weight:500;font-size:1.05rem;padding:12px 0;color:var(--black);list-style:none;display:flex;align-items:center;gap:10px}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--red);border-bottom:2px solid var(--red);transform:rotate(-45deg);transition:transform .2s;margin-left:2px}
+  details[open] summary::before{transform:rotate(45deg)}
+  details .body{padding:0 0 14px}
+
+  /* cite */
+  .cite{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+  @media (max-width:900px){ .cite{grid-template-columns:1fr} }
+  .bib{position:relative}
+  .bib pre{padding-right:90px;font-size:.84rem}
+  .copy{position:absolute;top:10px;right:10px;appearance:none;background:#fff;border:1px solid var(--line);border-radius:4px;color:var(--ink);font:inherit;font-size:.82rem;padding:5px 10px;cursor:pointer}
+  .copy:hover{border-color:var(--black)}
+  .copy.ok{border-color:var(--teal);color:var(--teal-deep)}
+  .ack{background:#fff;border:1px solid var(--line);border-radius:6px;padding:20px 22px;font-size:.95rem;color:var(--ink-soft)}
+  .ack h3{color:var(--black)}
+  .authors{font-size:.95rem;color:var(--ink-soft)}
+  .authors b{color:var(--black);font-weight:600}
+  .authors sup{font-size:.7em;color:var(--red)}
+
+  /* footer */
+  footer{border-top:4px solid var(--red);background:var(--black);color:#D6D6D6;padding:40px 0 48px;font-size:.9rem}
+  footer .wrap{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:28px}
+  @media (max-width:760px){ footer .wrap{grid-template-columns:1fr} }
+  footer h4{font-family:var(--head);font-weight:500;color:#fff;margin:0 0 10px;font-size:1.05rem;letter-spacing:.02em}
+  footer a{color:#fff;border-bottom-color:rgba(255,255,255,.25)}
+  footer a:hover{border-bottom-color:#fff}
+  footer ul{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+  footer p{max-width:none}
+</style>
+</head>
+<body>
+
+<!-- ============ top bar ============ -->
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="LinePilot home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M11 9 V53 H57" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 41 C 19 38, 22 22, 27 20 C 30 19, 31 27, 33 31" fill="none" stroke="#BA0C2F" stroke-width="3.5" stroke-linecap="round"/><circle cx="37" cy="35" r="2.7" fill="#BA0C2F"/><circle cx="41" cy="30" r="2.7" fill="#BA0C2F"/><circle cx="45" cy="25" r="2.7" fill="#BA0C2F"/><circle cx="49" cy="28" r="2.7" fill="#BA0C2F"/><circle cx="53" cy="33" r="2.7" fill="#BA0C2F"/><path d="M6 53 h10 M11 48 v10" stroke="#00A3AD" stroke-width="2" stroke-linecap="round"/></svg>
+      LinePilot
+    </a>
+    <nav class="menu" aria-label="Pages" role="tablist">
+      <a href="#overview" data-tab="overview" role="tab">Overview</a>
+      <a href="#benchmark" data-tab="benchmark" role="tab">DigitizerBench</a>
+      <a href="#start" data-tab="start" role="tab">Get started</a>
+      <a href="#paper" data-tab="paper" role="tab">Paper</a>
+    </nav>
+    <a class="gh" href="https://github.com/RayanA07/LinePilot" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </div>
+</header>
+
+<!-- ============ TAB: overview ============ -->
+<div class="tab" id="tab-overview" data-tab="overview">
+<section class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <p class="kicker">LinePilot Digitizer · University of Georgia</p>
+      <h1>Turn a picture of a line plot into numbers.</h1>
+      <p class="lead">LinePilot reads the axes, follows each colored curve column by column, and hands back a CSV you can re-analyze. Three calibration modes let you choose between full automation and precise manual control — the curve recovery is the same either way.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/aj24by7/DataDigitizer/releases/latest" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.6l3.3-3.3 1.4 1.4L12 17.4l-4.7-4.7 1.4-1.4 3.3 3.3V3h2zM4 19h16v2H4z"/></svg>
+          Download for Windows
+        </a>
+        <a class="btn outline" href="https://arxiv.org/abs/2609.19377" target="_blank" rel="noopener">Read the paper</a>
+        <a class="btn quiet" href="#benchmark">DigitizerBench</a>
+      </div>
+      <p class="meta">Free and open source · No install, no Python needed for the desktop app · macOS build via <a href="https://github.com/RayanA07/digitizer_mac" target="_blank" rel="noopener">digitizer_mac</a> · arXiv:2609.19377</p>
+    </div>
+
+    <!-- live demo: a plot digitizing itself -->
+    <div class="demo" id="demo" aria-label="Animated illustration of LinePilot extracting a curve">
+      <div class="demo-head">
+        <span class="t">Calibration mode</span>
+        <div class="modes" role="group" aria-label="Choose calibration mode">
+          <button type="button" data-mode="standard" aria-pressed="true">Standard</button>
+          <button type="button" data-mode="enhanced" aria-pressed="false">Enhanced</button>
+          <button type="button" class="ocr" data-mode="ocr" aria-pressed="false">OCR</button>
+        </div>
+      </div>
+      <svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <clipPath id="plotclip"><rect x="60" y="20" width="420" height="230"/></clipPath>
+        </defs>
+        <!-- axes -->
+        <path d="M60 20 V250 H480" fill="none" stroke="#000" stroke-width="1.6"/>
+        <!-- ticks + labels -->
+        <g font-family="Merriweather Sans, sans-serif" font-size="10.5" fill="#4A4F52">
+          <g stroke="#000" stroke-width="1.2">
+            <path d="M60 250 v5 M165 250 v5 M270 250 v5 M375 250 v5 M480 250 v5"/>
+            <path d="M60 250 h-5 M60 192.5 h-5 M60 135 h-5 M60 77.5 h-5 M60 20 h-5"/>
+          </g>
+          <text x="60" y="268" text-anchor="middle">0</text>
+          <text x="165" y="268" text-anchor="middle">25</text>
+          <text x="270" y="268" text-anchor="middle">50</text>
+          <text x="375" y="268" text-anchor="middle">75</text>
+          <text x="480" y="268" text-anchor="middle">100</text>
+          <text x="50" y="254" text-anchor="end">0</text>
+          <text x="50" y="196" text-anchor="end">25</text>
+          <text x="50" y="139" text-anchor="end">50</text>
+          <text x="50" y="81" text-anchor="end">75</text>
+          <text x="50" y="24" text-anchor="end">100</text>
+          <text x="270" y="290" text-anchor="middle" fill="#1F1F1F">Raman shift (cm⁻¹)</text>
+          <text transform="translate(16 135) rotate(-90)" text-anchor="middle" fill="#1F1F1F">Intensity (a.u.)</text>
+        </g>
+
+        <!-- calibration overlays -->
+        <g class="calib" id="cal-standard">
+          <g fill="none" stroke="#BA0C2F" stroke-width="1.4">
+            <circle cx="60" cy="250" r="6"/><circle cx="480" cy="250" r="6"/><circle cx="60" cy="20" r="6"/>
+          </g>
+          <circle cx="60" cy="250" r="1.8" fill="#BA0C2F"/><circle cx="480" cy="250" r="1.8" fill="#BA0C2F"/><circle cx="60" cy="20" r="1.8" fill="#BA0C2F"/>
+          <text x="470" y="238" font-family="Merriweather Sans" font-size="9.5" fill="#BA0C2F" text-anchor="end">click 4 ticks</text>
+        </g>
+        <g class="calib" id="cal-enhanced" style="opacity:0">
+          <g fill="none" stroke="#BA0C2F" stroke-width="1.4">
+            <path d="M52 250 h16 M60 242 v16 M472 250 h16 M480 242 v16 M52 20 h16 M60 12 v16"/>
+            <rect x="52" y="242" width="16" height="16" stroke-dasharray="2 2" opacity=".7"/>
+            <rect x="472" y="242" width="16" height="16" stroke-dasharray="2 2" opacity=".7"/>
+            <rect x="52" y="12" width="16" height="16" stroke-dasharray="2 2" opacity=".7"/>
+          </g>
+          <text x="470" y="238" font-family="Merriweather Sans" font-size="9.5" fill="#BA0C2F" text-anchor="end">click → snapped to tick center</text>
+        </g>
+        <g class="calib" id="cal-ocr" style="opacity:0">
+          <rect x="44" y="258" width="446" height="16" fill="none" stroke="#00A3AD" stroke-width="1.4" stroke-dasharray="4 3"/>
+          <rect x="30" y="12" width="26" height="248" fill="none" stroke="#00A3AD" stroke-width="1.4" stroke-dasharray="4 3"/>
+          <text x="470" y="238" font-family="Merriweather Sans" font-size="9.5" fill="#007C84" text-anchor="end">axis labels read by OCR</text>
+        </g>
+
+        <!-- the plotted curve (a Raman-like spectrum) -->
+        <g clip-path="url(#plotclip)">
+          <path class="curve" fill="none" stroke="#1F5FA8" stroke-width="2.2" stroke-linejoin="round"
+            d="M60 236 L75 234 L90 235 L105 231 L120 229 L135 230 L150 226 L160 215 L168 190 L175 150 L181 110 L186 80 L190 66 L194 72 L198 95 L204 135 L211 178 L220 205 L232 218 L245 222 L258 219 L270 211 L280 195 L288 170 L295 150 L301 138 L307 142 L313 158 L321 185 L331 206 L343 216 L356 218 L370 214 L382 200 L392 182 L400 166 L407 160 L414 168 L422 190 L432 206 L444 215 L456 220 L468 223 L480 224"/>
+          <!-- extracted points -->
+          <g id="pts" fill="#BA0C2F"></g>
+          <!-- the scanning column -->
+          <g class="scan" id="scan">
+            <rect x="58" y="20" width="4" height="230" fill="#BA0C2F" opacity=".18"/>
+            <line x1="60" y1="20" x2="60" y2="250" stroke="#BA0C2F" stroke-width="1"/>
+          </g>
+        </g>
+      </svg>
+      <div class="csv" id="csv"><b>x,y</b>
+</div>
+      <div class="demo-foot">
+        <span id="demo-status">Column-by-column color matching, linked by dynamic programming.</span>
+        <button type="button" id="replay">Replay</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ how it works ============ -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>How it works</h2>
+      <p>Digitization is two problems. <em>Calibration</em> maps image pixels to data coordinates; a calibration error shifts every recovered point. <em>Curve recovery</em> follows the plotted line, which is a continuous path rather than a cloud of independent pixels. LinePilot keeps the recovery stage fixed and lets you pick how calibration happens.</p>
+    </div>
+
+    <div class="flow">
+      <div class="flowchart reveal" aria-label="LinePilot workflow">
+        <svg viewBox="0 0 560 470" xmlns="http://www.w3.org/2000/svg" role="img">
+          <title>LinePilot workflow: import a line plot, calibrate with standard, enhanced or OCR mode, run color-based extraction, export digitized data.</title>
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="arrow"/></marker>
+          </defs>
+          <!-- import -->
+          <g class="node" id="n-import">
+            <rect x="150" y="14" width="260" height="62" rx="6"/>
+            <text x="280" y="40" text-anchor="middle">Import line plot</text>
+            <path d="M205 62 L225 58 L240 50 L258 55 L275 46 L292 52 L310 44 L330 50 L355 47" fill="none" stroke="#1F5FA8" stroke-width="2.2" stroke-linecap="round"/>
+          </g>
+          <!-- edges down to modes -->
+          <path class="edge" d="M280 76 V100 H88 V124" marker-end="url(#ah)"/>
+          <path class="edge" d="M280 76 V124" marker-end="url(#ah)"/>
+          <path class="edge" d="M280 76 V100 H472 V124" marker-end="url(#ah)"/>
+          <!-- modes -->
+          <g class="node small" data-mode="standard" id="n-standard">
+            <rect x="14" y="126" width="150" height="54" rx="6"/>
+            <text x="89" y="151" text-anchor="middle">Standard</text>
+            <text x="89" y="169" text-anchor="middle" style="font-size:12px;font-family:var(--body);fill:#4A4F52">manual clicks</text>
+          </g>
+          <g class="node small" data-mode="enhanced" id="n-enhanced">
+            <rect x="205" y="126" width="150" height="54" rx="6"/>
+            <text x="280" y="151" text-anchor="middle">Enhanced</text>
+            <text x="280" y="169" text-anchor="middle" style="font-size:12px;font-family:var(--body);fill:#4A4F52">clicks snapped to ticks</text>
+          </g>
+          <g class="node small ocr" data-mode="ocr" id="n-ocr">
+            <rect x="396" y="126" width="150" height="54" rx="6"/>
+            <text x="471" y="151" text-anchor="middle">Automatic OCR</text>
+            <text x="471" y="169" text-anchor="middle" style="font-size:12px;font-family:var(--body);fill:#4A4F52">no clicks</text>
+          </g>
+          <!-- edges to extraction -->
+          <path class="edge" d="M89 180 V204 H280"/>
+          <path class="edge" d="M471 180 V204 H280"/>
+          <path class="edge" d="M280 180 V228" marker-end="url(#ah)"/>
+          <!-- extraction -->
+          <g class="node" id="n-extract">
+            <rect x="130" y="230" width="300" height="60" rx="6"/>
+            <text x="280" y="255" text-anchor="middle">Color-based curve extraction</text>
+            <text x="280" y="275" text-anchor="middle" style="font-size:12px;font-family:var(--body);fill:#4A4F52">column runs → dynamic-programming path</text>
+          </g>
+          <path class="edge" d="M280 290 V318" marker-end="url(#ah)"/>
+          <!-- output -->
+          <g class="node" id="n-out">
+            <rect x="150" y="320" width="260" height="62" rx="6"/>
+            <text x="280" y="345" text-anchor="middle">Digitized data (x, y)</text>
+            <g fill="#BA0C2F">
+              <circle cx="206" cy="366" r="2.6"/><circle cx="220" cy="363" r="2.6"/><circle cx="234" cy="358" r="2.6"/><circle cx="248" cy="352" r="2.6"/><circle cx="262" cy="358" r="2.6"/><circle cx="276" cy="364" r="2.6"/><circle cx="290" cy="366" r="2.6"/><circle cx="304" cy="362" r="2.6"/><circle cx="318" cy="356" r="2.6"/><circle cx="332" cy="360" r="2.6"/><circle cx="346" cy="365" r="2.6"/>
+            </g>
+          </g>
+          <!-- tools -->
+          <g class="tools">
+            <rect x="14" y="404" width="532" height="52" rx="6" fill="#F3F5F6" stroke="#DADEE1"/>
+            <text x="30" y="426" style="font-family:var(--head);font-size:14px;fill:#000;font-weight:500">Also in the app</text>
+            <text x="30" y="444">Text &amp; legend masking · Out-of-plot masking · Color picker · Cursor zoom · Log axes · CSV/Excel export · Batch CLI</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="reveal">
+        <div class="modes-list" id="modes-list">
+          <div class="mode" data-mode="standard">
+            <h3>Standard <span class="tag">manual</span></h3>
+            <p>You click four axis points — X min, X max, Y min, Y max — and LinePilot uses them directly. A guided banner walks you through each click. Full control, no surprises.</p>
+          </div>
+          <div class="mode" data-mode="enhanced">
+            <h3>Enhanced <span class="tag">manual, sub-pixel</span></h3>
+            <p>Same four clicks, but each one is snapped to the nearest tick or axis stroke using local image intensity. A detected crossing refines both coordinates; a single stroke refines only the coordinate across it. If no feature is found nearby, your click is kept as is — precision is added only where the image supports it.</p>
+          </div>
+          <div class="mode ocr" data-mode="ocr">
+            <h3>OCR <span class="tag">automatic</span></h3>
+            <p>LinePilot finds the plot region, crops the two axis neighborhoods, reads the numeric labels with Tesseract (and RapidOCR when available), pairs labels with ticks, and rejects readings that disagree with the common scale. If the required endpoints can't be established it reports failure instead of guessing — and you can fall back to a manual mode.</p>
+          </div>
+        </div>
+
+        <div class="extract">
+          <h3>One curve-recovery procedure for every mode</h3>
+          <p>Target colors are detected automatically or picked by you. In each image column, pixels within tolerance of a target color are grouped into vertical runs; each run's midpoint is a candidate and its thickness is extra evidence. Dynamic programming links candidates across columns, rewarding sustained support and penalizing abrupt jumps and gaps, so isolated color-matched specks lose out to the real line. Only image-supported points are exported — missing columns are never filled with invented values.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ results ============ -->
+<section id="results" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Results</h2>
+      <p>One example from DigitizerBench — an overlapping two-line plot rendered with Altair — digitized by the state-of-the-art automatic tool, the state-of-the-art manual tool, and the three LinePilot modes.</p>
+    </div>
+
+    <div class="panels reveal">
+      <figure class="panel"><img src="assets/example-original.png" alt="Original overlapping two-line plot"><figcaption><b>Original plot</b>two noisy series, Altair</figcaption></figure>
+      <figure class="panel fail"><img src="assets/example-chartocr.png" alt="ChartOCR output: nothing recovered"><figcaption><b>ChartOCR</b>no output</figcaption></figure>
+      <figure class="panel ours"><img src="assets/example-linepilot-ocr.png" alt="LinePilot OCR output: both series recovered automatically"><figcaption><b>LinePilot (OCR)</b>both series, fully automatic</figcaption></figure>
+      <figure class="panel"><img src="assets/example-plotdigitizer-pro.png" alt="PlotDigitizer Pro output: sparse points on both series"><figcaption><b>PlotDigitizer Pro</b>sparse manual points</figcaption></figure>
+      <figure class="panel ours"><img src="assets/example-linepilot-standard.png" alt="LinePilot standard output: dense points on both series"><figcaption><b>LinePilot (standard)</b>dense, 4 clicks</figcaption></figure>
+      <figure class="panel ours"><img src="assets/example-linepilot-enhanced.png" alt="LinePilot enhanced output: dense points on both series"><figcaption><b>LinePilot (enhanced)</b>dense, 4 snapped clicks</figcaption></figure>
+    </div>
+    <p class="cap">Example <code>D0001-overlapping-altair</code> from DigitizerBench (Fig. 1b in the paper). The full nine-tool comparison, including LineEX, WebPlotDigitizer and Engauge Digitizer, is in the <a href="assets/LinePilot_Online_Appendix.pdf">online appendix</a>.</p>
+
+    <div class="tables">
+      <div class="reveal">
+        <table>
+          <caption>Automatic pipelines · DigitizerBench-Full (2,980 images)</caption>
+          <thead><tr><th>Method</th><th>FPC-NRMSE ↓</th><th>Output success</th><th>Trusted usability</th><th>Points / line</th></tr></thead>
+          <tbody>
+            <tr><td>ChartOCR</td><td>0.953</td><td>30.2%</td><td>5.4%</td><td>29</td></tr>
+            <tr><td>LineEX</td><td>0.997</td><td>36.6%</td><td>0.4%</td><td>14</td></tr>
+            <tr class="ours"><td>LinePilot (OCR)</td><td class="best">0.672</td><td class="best">55.1%</td><td class="best">38.2%</td><td class="best">1,180</td></tr>
+          </tbody>
+        </table>
+        <p class="tnote">FPC-NRMSE assigns a full unit of error to any image with missing, unusable or catastrophically wrong output, so it rewards reliability, not just accuracy on the easy cases.</p>
+      </div>
+      <div class="reveal">
+        <table>
+          <caption>Human-guided tools · DigitizerBench-Lite (60 images)</caption>
+          <thead><tr><th>Method</th><th>FPC-NRMSE ↓</th><th>Output success</th><th>Trusted usability</th><th>Points / line</th></tr></thead>
+          <tbody>
+            <tr><td>PlotDigitizer Pro</td><td>0.097</td><td>100%</td><td>91.7%</td><td>475</td></tr>
+            <tr><td>WebPlotDigitizer</td><td>0.164</td><td>98.3%</td><td>86.7%</td><td>195</td></tr>
+            <tr><td>Engauge Digitizer</td><td>0.790</td><td>55.0%</td><td>23.3%</td><td>235</td></tr>
+            <tr class="ours"><td>LinePilot (standard)</td><td>0.101</td><td class="best">100%</td><td>91.7%</td><td>1,025</td></tr>
+            <tr class="ours"><td>LinePilot (enhanced)</td><td class="best">0.081</td><td class="best">100%</td><td class="best">93.3%</td><td class="best">1,027</td></tr>
+          </tbody>
+        </table>
+        <p class="tnote">Trusted usability: correct line count, finite error on every match, ≥ 20 valid points and ≥ 80% coverage. Values from Table 3 of the paper.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap next"><a href="#benchmark">Next: DigitizerBench <span aria-hidden="true">→</span></a></div>
+</div>
+
+<!-- ============ TAB: benchmark ============ -->
+<div class="tab" id="tab-benchmark" data-tab="benchmark">
+<section id="benchmark">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>DigitizerBench</h2>
+      <p>The first benchmark built specifically to evaluate plot digitizers end to end. Rather than sampling plots at random, it varies signal, rendering and plot-structure factors in an orthogonally balanced design, so you can see <em>which</em> factors break a digitizer — not just how often it breaks.</p>
+    </div>
+    <div class="bench">
+      <div class="reveal">
+        <div class="facts">
+          <div class="fact red"><div class="n">2,980</div><div class="l">images in DigitizerBench-Full, for automatic evaluation</div></div>
+          <div class="fact teal"><div class="n">60</div><div class="l">images in DigitizerBench-Lite, for human-guided evaluation on identical plots</div></div>
+          <div class="fact"><div class="n">18 × 5</div><div class="l">signal and rendering factors, each at five levels</div></div>
+          <div class="fact"><div class="n">3 × 3</div><div class="l">plot types (single, overlapping, stacked) × renderers (Matplotlib, Plotly, Altair)</div></div>
+        </div>
+        <p style="margin-top:22px">
+          <a class="btn outline" href="#" id="hf-link" aria-disabled="true">Benchmark on Hugging Face <span class="soon">coming soon</span></a>
+        </p>
+      </div>
+      <div class="reveal">
+        <h3>What the benchmark varies</h3>
+        <ul class="factor-list">
+          <li>Baseline family and magnitude</li>
+          <li>Extrema count and prominence</li>
+          <li>Feature width, sharpness, asymmetry</li>
+          <li>Signal noise</li>
+          <li>Line thickness and color</li>
+          <li>DPI and blur</li>
+          <li>Figure width and aspect ratio</li>
+          <li>Tick-label size and tick count</li>
+          <li>X- and Y-axis ranges</li>
+          <li>Line count: 1, 2, 3 or 5</li>
+        </ul>
+        <h3>What it found</h3>
+        <p>For automatic digitization, image presentation matters far more than signal complexity: figure width has the largest effect, then DPI and renderer; noise and most curve-shape factors are not significant. For human-guided digitization, one-pixel lines are the main failure mode — performance stabilizes at 3–5 px. Every image ships with exact ground-truth curves and tick coordinates, plus the master seed, factor levels and orthogonal-array matrices needed to regenerate it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap next"><a href="#start">Next: Get started <span aria-hidden="true">→</span></a></div>
+</div>
+
+<!-- ============ TAB: get started ============ -->
+<div class="tab" id="tab-start" data-tab="start">
+<section id="start">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Get started</h2>
+      <p>The desktop app is a single file — download, double-click, digitize. The command line and Python API run from source.</p>
+    </div>
+    <div class="start">
+      <div class="reveal">
+        <h3>Desktop app</h3>
+        <div class="dl">
+          <a class="btn primary" href="https://github.com/aj24by7/DataDigitizer/releases/latest" target="_blank" rel="noopener">Windows · Digitizer.exe</a>
+          <a class="btn outline" href="https://github.com/RayanA07/digitizer_mac" target="_blank" rel="noopener">macOS · Digitizer.app</a>
+        </div>
+        <ol class="steps">
+          <li><b>Import</b> your plot image, or paste a screenshot. The curve color is guessed automatically; use <b>Tools → Pick Color</b> to change it or add a second curve.</li>
+          <li><b>Calibrate.</b> Run <b>Axis Detection</b> for OCR mode, or choose <b>Tools → Calibration</b> and click X min, X max, Y min, Y max. Turn on <b>Enhanced Human Click</b> to snap clicks to tick centers.</li>
+          <li><b>Check the axis values</b> in the Min-Max boxes and fix anything OCR misread. Mask legends or text under <b>Advanced → Masking</b> if they share the curve's color.</li>
+          <li><b>Place Points</b> to extract the curve and review the overlay.</li>
+          <li><b>Export</b> as CSV or Excel. Each row has the data value, the pixel position and the color slot.</li>
+        </ol>
+        <p class="note">Windows SmartScreen will warn on first run because the app isn't code-signed. Choose <b>More info → Run anyway</b>. If nothing happens at all, Smart App Control is blocking it — run from source instead.</p>
+      </div>
+      <div class="reveal">
+        <h3>Command line &amp; Python</h3>
+<pre><code># get the source
+git clone https://github.com/RayanA07/LinePilot.git
+cd LinePilot/Digitizer
+py -m pip install -r requirements.txt
+
+# one image, everything auto-detected (OCR calibration)
+py digitizer.py graph.png
+
+# set the axis values yourself, log-scale Y, custom output folder
+py digitizer.py graph.png --axis 0,10,0,100 --log-y --out results/
+
+# a whole folder, with a per-file report
+py digitizer_batch_cli.py figures/ --out digitized/</code></pre>
+        <details>
+          <summary>Python API</summary>
+          <div class="body">
+<pre><code>from digitizer_api import digitize_image
+
+out = digitize_image("graph.png",
+                     axis_values=(0, 10, 0, 100),  # None = read by OCR
+                     color_rgb=None,               # None = auto-detect
+                     output_dir="results")
+out.csv_path        # results/graph_digitized_points.csv
+out.overlay_path    # results/graph_digitized_overlay.png
+out.point_count, out.used_ocr, out.ocr_confidence</code></pre>
+          </div>
+        </details>
+        <details>
+          <summary>Outputs</summary>
+          <div class="body">
+            <p><code>&lt;image&gt;_digitized_points.csv</code> — columns <code>color_slot, color_r, color_g, color_b, x, y, x_px, y_px</code>.<br>
+            <code>&lt;image&gt;_digitized_overlay.png</code> — your image with the calibration box, OCR regions and extracted points drawn on top.<br>
+            Add <code>--verbose 1</code> for a log with the OCR confidence score; a low score is a hint to pass <code>--axis</code> yourself.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Accuracy Tester</summary>
+          <div class="body">
+            <p>A companion app (<code>AccuracyTester.exe</code>, or <code>accuracy_batch_cli.py</code> for folders) that scores a digitized CSV against a reference CSV: MAE, RMSE, R², bias, MAPE/sMAPE/WAPE, with overlay, residual and outlier plots.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap next"><a href="#paper">Next: Paper &amp; citation <span aria-hidden="true">→</span></a></div>
+</div>
+
+<!-- ============ TAB: paper ============ -->
+<div class="tab" id="tab-paper" data-tab="paper">
+<section id="cite">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Paper &amp; citation</h2>
+      <p class="authors"><b>LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration.</b><br>
+      Fengbo Ma<sup>*</sup>, Rayan Akhtar<sup>*</sup>, Aakash H. Joshi<sup>*</sup>, Xiaoting Li, Haijian Sun, Zhen Xiang<sup>†</sup>, Xianyan Chen<sup>†</sup>, Yiping Zhao<sup>†</sup>. University of Georgia · University of Pennsylvania. arXiv:2609.19377, 2026. <sup>*</sup>equal contribution, <sup>†</sup>corresponding.</p>
+    </div>
+    <div class="cite">
+      <div class="bib reveal">
+        <button class="copy" type="button" id="copybib">Copy BibTeX</button>
+<pre id="bibtex"><code>@article{ma2026linepilot,
+  title   = {LinePilot Digitizer: Line-Plot Recovery with
+             Manual and Automatic Calibration},
+  author  = {Ma, Fengbo and Akhtar, Rayan and Joshi, Aakash H.
+             and Li, Xiaoting and Sun, Haijian and Xiang, Zhen
+             and Chen, Xianyan and Zhao, Yiping},
+  journal = {arXiv preprint arXiv:2609.19377},
+  year    = {2026},
+  doi     = {10.48550/arXiv.2609.19377}
+}</code></pre>
+        <p class="meta" style="margin-top:14px">If LinePilot or DigitizerBench helps your work, please cite the paper, star the <a href="https://github.com/RayanA07/LinePilot" target="_blank" rel="noopener">repository</a>, and tell us how it went — issues and pull requests are welcome.</p>
+      </div>
+      <div class="ack reveal">
+        <h3>Acknowledgment</h3>
+        <p>This work was supported by the National Science Foundation through the Pathways to Open-Source Ecosystems (POSE) program, award No. 2518273. The authors gratefully acknowledge the support, guidance and collaboration of all members of the SpectraGuru™ development and stakeholder teams.</p>
+        <p style="margin:0">LinePilot is part of the open-source ecosystem for Raman and SERS spectroscopy developed in the Zhao lab at the University of Georgia.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- ============ footer ============ -->
+<footer>
+  <div class="wrap">
+    <div>
+      <h4>LinePilot Digitizer</h4>
+      <p>Line-plot recovery with manual and automatic calibration. Developed at the University of Georgia with collaborators at the University of Pennsylvania.</p>
+      <p style="margin:0">Corresponding authors: <a href="mailto:zhaoy@uga.edu">zhaoy@uga.edu</a>, <a href="mailto:zxiangaa@uga.edu">zxiangaa@uga.edu</a>, <a href="mailto:xychen@uga.edu">xychen@uga.edu</a></p>
+    </div>
+    <div>
+      <h4>Project</h4>
+      <ul>
+        <li><a href="https://github.com/RayanA07/LinePilot" target="_blank" rel="noopener">Source code on GitHub</a></li>
+        <li><a href="https://github.com/aj24by7/DataDigitizer/releases" target="_blank" rel="noopener">Windows releases</a></li>
+        <li><a href="https://github.com/RayanA07/digitizer_mac" target="_blank" rel="noopener">macOS build</a></li>
+        <li><a href="#benchmark">DigitizerBench</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Paper</h4>
+      <ul>
+        <li><a href="https://arxiv.org/abs/2609.19377" target="_blank" rel="noopener">arXiv abstract</a></li>
+        <li><a href="https://arxiv.org/pdf/2609.19377" target="_blank" rel="noopener">PDF</a></li>
+        <li><a href="assets/LinePilot_Online_Appendix.pdf">Online appendix</a></li>
+        <li><a href="#cite">BibTeX</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* ---------- hero demo ---------- */
+  const demo = document.getElementById('demo');
+  const curve = demo.querySelector('.curve');
+  const ptsG = document.getElementById('pts');
+  const csv = document.getElementById('csv');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // sample the curve path at every ~7 px of x, like column-wise extraction
+  const len = curve.getTotalLength();
+  const samples = [];
+  for (let x = 60; x <= 480; x += 7) {
+    // binary search along the path for the point with this x
+    let lo = 0, hi = len;
+    for (let i = 0; i < 18; i++) {
+      const mid = (lo + hi) / 2;
+      if (curve.getPointAtLength(mid).x < x) lo = mid; else hi = mid;
+    }
+    const p = curve.getPointAtLength((lo + hi) / 2);
+    samples.push({x: p.x, y: p.y});
+  }
+  const frag = document.createDocumentFragment();
+  samples.forEach((p, i) => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', p.x.toFixed(1));
+    c.setAttribute('cy', p.y.toFixed(1));
+    c.setAttribute('r', '2.4');
+    c.setAttribute('class', 'pt');
+    c.style.setProperty('--d', (3.2 * (p.x - 60) / 420).toFixed(2) + 's');
+    frag.appendChild(c);
+  });
+  ptsG.appendChild(frag);
+
+  // CSV ticker: data coords from the calibration (0–100 on both axes)
+  const toData = p => ({x: (p.x - 60) / 420 * 100, y: (250 - p.y) / 230 * 100});
+  let csvTimer = null;
+  function runCsv(){
+    clearInterval(csvTimer);
+    csv.innerHTML = '<b>x,y</b>\n';
+    if (reduce) {
+      csv.innerHTML += samples.slice(-3).map(p => { const d = toData(p); return d.x.toFixed(2) + ',' + d.y.toFixed(2); }).join('\n');
+      return;
+    }
+    let i = 0;
+    csvTimer = setInterval(() => {
+      if (i >= samples.length) { clearInterval(csvTimer); return; }
+      const d = toData(samples[i++]);
+      const lines = csv.textContent.split('\n').filter(Boolean);
+      lines.push(d.x.toFixed(2) + ',' + d.y.toFixed(2));
+      const keep = lines.slice(-3);
+      csv.innerHTML = '<b>x,y</b>\n' + keep.filter(l => l !== 'x,y').join('\n');
+    }, 3200 / samples.length);
+  }
+  function run(){
+    demo.classList.remove('run');
+    void demo.offsetWidth; // restart animations
+    demo.classList.add('run');
+    runCsv();
+  }
+  document.getElementById('replay').addEventListener('click', run);
+  // one orchestrated moment on load
+
+  // calibration mode switch (demo + flowchart + text share state)
+  const status = document.getElementById('demo-status');
+  const msgs = {
+    standard: 'Your four clicks define the pixel-to-data mapping.',
+    enhanced: 'Each click is refined to the tick center from local image intensity.',
+    ocr: 'Axis labels are read and paired with ticks — no clicks needed.'
+  };
+  function setMode(m){
+    document.querySelectorAll('.modes button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === m ? 'true' : 'false'));
+    ['standard','enhanced','ocr'].forEach(k => document.getElementById('cal-' + k).style.opacity = (k === m ? 1 : 0));
+    document.querySelectorAll('[data-mode]').forEach(el => { if (el.classList.contains('node') || el.classList.contains('mode')) el.classList.toggle('hot', el.dataset.mode === m); });
+    status.textContent = msgs[m];
+  }
+  document.querySelectorAll('.modes button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  document.querySelectorAll('.flowchart .node[data-mode], .mode[data-mode]').forEach(el => {
+    el.addEventListener('mouseenter', () => setMode(el.dataset.mode));
+    el.addEventListener('click', () => setMode(el.dataset.mode));
+  });
+  setMode('standard');
+
+  /* ---------- scroll reveal ---------- */
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold: .12});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* ---------- tabs + hash router ---------- */
+  const tabOf = {overview:'overview', top:'overview', how:'overview', results:'overview',
+                 benchmark:'benchmark', start:'start', paper:'paper', cite:'paper'};
+  const tabs = [...document.querySelectorAll('.tab')];
+  const tabLinks = [...document.querySelectorAll('nav.menu a[data-tab]')];
+  function showTab(name, scrollId){
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    tabLinks.forEach(a => { const on = a.dataset.tab === name; a.classList.toggle('active', on); a.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    // reveal everything in the freshly shown tab with a short stagger
+    const cur = document.getElementById('tab-' + name);
+    cur.querySelectorAll('.reveal:not(.in)').forEach((el, i) => setTimeout(() => el.classList.add('in'), 60 + i * 70));
+    const target = document.getElementById(scrollId);
+    if (scrollId && scrollId !== name && target && target !== cur.firstElementChild) {
+      target.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'start'});
+    } else {
+      window.scrollTo({top: 0, behavior: 'auto'});
+    }
+    if (name === 'overview' && !demo.classList.contains('run')) setTimeout(run, 250);
+  }
+  function route(){
+    const id = (location.hash || '#overview').slice(1);
+    const name = tabOf[id] || 'overview';
+    showTab(name, id);
+  }
+  window.addEventListener('hashchange', route);
+  // Click handling that does not depend on hash navigation (sandboxed previews block it)
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href').slice(1);
+    if (!(id in tabOf) && !document.getElementById(id)) return;
+    e.preventDefault();
+    try { history.pushState(null, '', '#' + id); } catch (err) {}
+    showTab(tabOf[id] || 'overview', id);
+  });
+  window.addEventListener('popstate', route);
+  route();
+
+  /* ---------- copy bibtex ---------- */
+  const cb = document.getElementById('copybib');
+  cb.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById('bibtex').innerText);
+      cb.textContent = 'Copied'; cb.classList.add('ok');
+      setTimeout(() => { cb.textContent = 'Copy BibTeX'; cb.classList.remove('ok'); }, 1600);
+    } catch (e) { cb.textContent = 'Select & copy'; }
+  });
+
+  /* ---------- placeholder link ---------- */
+  document.getElementById('hf-link').addEventListener('click', e => e.preventDefault());
+})();
+</script>
+</body>
+</html>
