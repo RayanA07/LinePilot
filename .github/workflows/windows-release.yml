@@ -1,0 +1,93 @@
+name: Build Windows apps and publish release
+
+# Builds Digitizer.exe and AccuracyTester.exe with PyInstaller on a Windows runner,
+# bundling the Tesseract OCR runtime exactly like the local build.cmd does, then
+# attaches both to the GitHub release for the pushed tag.
+#
+#   git tag v2.16 && git push origin v2.16      -> release "LinePilot Digitizer 2.16" with assets
+#   Actions tab -> "Run workflow"               -> build only, artifacts downloadable from the run
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Tesseract OCR (vendored into the exe)
+        shell: pwsh
+        run: |
+          choco install tesseract --no-progress -y
+          $src = "C:\Program Files\Tesseract-OCR"
+          if (-not (Test-Path "$src\tesseract.exe")) { throw "Tesseract not found at $src" }
+          New-Item -ItemType Directory -Force -Path "Digitizer\vendor\tesseract" | Out-Null
+          Copy-Item -Recurse -Force "$src\*" "Digitizer\vendor\tesseract\"
+          & "Digitizer\vendor\tesseract\tesseract.exe" --version
+
+      - name: Build Digitizer.exe
+        shell: pwsh
+        working-directory: Digitizer
+        run: |
+          py -m pip install --upgrade pip
+          py -m pip install -r requirements.txt
+          py -m PyInstaller --clean --noconfirm digitizer.spec
+          if (-not (Test-Path "dist\Digitizer.exe")) { throw "Digitizer.exe was not produced" }
+
+      - name: Build AccuracyTester.exe
+        shell: pwsh
+        working-directory: AccuracyTester
+        run: |
+          py -m pip install -r requirements.txt
+          py -m PyInstaller --clean --noconfirm accuracytester.spec
+          if (-not (Test-Path "dist\AccuracyTester.exe")) { throw "AccuracyTester.exe was not produced" }
+
+      - name: Run tests
+        shell: pwsh
+        working-directory: Digitizer
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          py -m pip install pytest
+          py -m pytest -q
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LinePilot-windows
+          path: |
+            Digitizer/dist/Digitizer.exe
+            AccuracyTester/dist/AccuracyTester.exe
+          if-no-files-found: error
+
+      - name: Release notes
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart("v")
+          $body = Get-Content .github/RELEASE_TEMPLATE.md -Raw
+          $body = $body.Replace("<!-- vX.Y -->", $version)
+          # Pull the "New in this release" bullets from CHANGELOG.md for this version.
+          $log = Get-Content CHANGELOG.md -Raw
+          $m = [regex]::Match($log, "(?s)## $([regex]::Escape($version))\s*(.*?)(?=\r?\n## |\z)")
+          if ($m.Success) { $body = $body.Replace("<!-- bullets -->", $m.Groups[1].Value.Trim()) }
+          Set-Content -Path release_body.md -Value $body -Encoding UTF8
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: LinePilot Digitizer ${{ github.ref_name }}
+          body_path: release_body.md
+          files: |
+            Digitizer/dist/Digitizer.exe
+            AccuracyTester/dist/AccuracyTester.exe

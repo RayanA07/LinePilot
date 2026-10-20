@@ -1,7 +1,30 @@
 # Changelog
 
 All notable changes to this project are documented here. Versions follow the release tags
-on GitHub; download the apps from the [Releases page](https://github.com/aj24by7/DataDigitizer/releases/latest).
+on GitHub; download the apps from the [Releases page](https://github.com/RayanA07/LinePilot/releases/latest).
+
+## 2.16
+
+### Changed
+
+- **Renamed to LinePilot Digitizer**, matching the paper
+  ([arXiv:2609.19377](https://arxiv.org/abs/2609.19377)). Window title, CLI banner and
+  run-log header now read *LinePilot Digitizer 2.16*. Log files stay under
+  `%LOCALAPPDATA%\DataDigitizer\<version>\logs` so existing paths keep working.
+- The project moved to [github.com/RayanA07/LinePilot](https://github.com/RayanA07/LinePilot)
+  with its full history; the website is at https://rayana07.github.io/LinePilot/.
+
+### Added
+
+- **About ▾ menu** in the top-right corner of the window: *About LinePilot*, *Cite this
+  software* (one-click **Copy BibTeX** / plain citation), *Acknowledgments* (NSF POSE award
+  No. 2518273, SpectraGuru team), *Third-party licenses*, and links to the website, paper,
+  source code and issue tracker.
+- GitHub Actions workflow that builds `Digitizer.exe` and `AccuracyTester.exe` on Windows
+  (Tesseract bundled) and attaches them to the release for every `v*` tag.
+- `CITATION.cff`, a screenshot walkthrough in the README, and the project website in `docs/`.
+
+Digitization is unchanged from 2.15.
 
 ## 2.15
 

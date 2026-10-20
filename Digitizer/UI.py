@@ -8,6 +8,9 @@ from typing import Optional, Tuple
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from About import build_about_button
+from app_version import APP_TITLE
+
 from AxisReader import AxisDetectionError, AxisScaleResult, detect_axis_scale
 import EnhancedClick
 from Calibration import CalibrationResult, coordinate_mediated_calibration, line_mediated_calibration
@@ -180,7 +183,7 @@ class ColorExtractionState:
 class DigitizerWindow(QtWidgets.QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("Data Digitizer")
+        self.setWindowTitle(APP_TITLE)
         self.resize(1100, 750)
 
         self._image: Optional[QtGui.QImage] = None
@@ -372,6 +375,8 @@ class DigitizerWindow(QtWidgets.QMainWindow):
             _button.setStyleSheet(toolbar_button_style)
 
         top_bar.addStretch(1)
+        # Credits, citation and acknowledgments live under "About" in the top-right corner.
+        top_bar.addWidget(build_about_button(self, toolbar_button_style))
         layout.addLayout(top_bar)
 
         # Large-font step-by-step banner shown only during manual calibration.

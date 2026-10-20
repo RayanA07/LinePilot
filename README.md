@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://arxiv.org/abs/2609.19377"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2609.19377-BA0C2F.svg"></a>
   <a href="https://rayana07.github.io/LinePilot/"><img alt="Project website" src="https://img.shields.io/badge/website-rayana07.github.io%2FLinePilot-000000.svg"></a>
-  <a href="https://github.com/aj24by7/DataDigitizer/releases/latest"><img alt="Download" src="https://img.shields.io/badge/download-Windows%20app-00A3AD.svg"></a>
+  <a href="https://github.com/RayanA07/LinePilot/releases/latest"><img alt="Download" src="https://img.shields.io/badge/download-Windows%20app-00A3AD.svg"></a>
   <a href="#digitizerbench"><img alt="DigitizerBench" src="https://img.shields.io/badge/benchmark-DigitizerBench-9EA2A2.svg"></a>
 </p>
 
@@ -102,7 +102,7 @@ One example from DigitizerBench (`D0001-overlapping-altair`, Fig. 1b in the pape
 
 ### Windows — no Python needed
 
-1. Open the **[latest release](https://github.com/aj24by7/DataDigitizer/releases/latest)** and download **`Digitizer.exe`** from *Assets*. (Optional: `AccuracyTester.exe`, see below.)
+1. Open the **[latest release](https://github.com/RayanA07/LinePilot/releases/latest)** and download **`Digitizer.exe`** from *Assets*. (Optional: `AccuracyTester.exe`, see below.)
 2. Double-click it. Nothing to install — the Tesseract OCR engine is bundled inside.
 3. On first run Windows SmartScreen may say *"Windows protected your PC"*. Click **More info → Run anyway**. The app simply isn't code-signed.
 
@@ -127,21 +127,110 @@ Running from source needs the **Tesseract** program installed for OCR features (
 
 ## Using the desktop app
 
-> The complete, click-by-click user guide — every menu, option and error message, written for people who have never used a terminal — is in **[`Digitizer/README.md`](Digitizer/README.md)**. This is the short version.
+> The complete reference — every menu, option and error message — is in **[`Digitizer/README.md`](Digitizer/README.md)**. This walkthrough digitizes one figure end to end; the screenshots are of the real app (`docs/assets/tutorial/`), using `sample_plot.png` from that folder if you want to follow along.
 
-Work top to bottom. The status bar along the bottom of the window confirms every step or tells you why something didn't run.
+### Step 0 — Open the app
 
-1. **Import** — `Import → Import Image` (PNG, JPG, BMP, TIF) or `Paste Image` from the clipboard. The curve color is guessed and shown in the *Selected color* row; use `Tools → Pick Color` and click the curve to change it, or press the green **+** to add a slot for a second curve.
-2. **Calibrate** — pick a mode:
-   - *OCR:* `Advanced → Axis Scale Detection → Run Axis Detection`, then `Tools → Calibration → Coordinate-Mediated Calibration`. The four **Min-Max Coordinates** boxes are filled automatically.
-   - *Standard:* `Tools → Calibration → Manual Calibration` and follow the banner: click X min, X max, Y min, Y max on the image. Type the four axis values into the Min-Max boxes.
-   - *Enhanced:* as standard, with `Tools → Calibration → Enhanced Human Click` turned on. Each click is snapped to the nearest tick center; the status bar reports what moved and by how much. `Enhanced Click Settings…` sets the maximum snap distance (1–10 px, default 3). **Ctrl+Z** undoes a click.
-3. **Check the axis values.** OCR is good but not perfect — correct any misread box by hand. Drag an edge of the dashed green calibration box if it doesn't sit on your axes.
-4. **Mask what isn't data** *(optional)* — `Advanced → Masking` blanks out text, numbers, legends, or hand-drawn rectangles so they aren't mistaken for the curve.
-5. **Place Points** — `Tools → Place Points → Run`. The overlay shows every detected point; the status bar reports the count.
-6. **Export** — `Export → Export CSV` or `Export Excel`. Each row carries `color_slot, color_r, color_g, color_b, x, y, x_px, y_px`.
+Double-click `Digitizer.exe`. Everything you need is in the four menus along the top — **Import, Tools, Advanced, Export** — worked left to right. The thin **status bar** at the very bottom confirms every action or tells you why something didn't run, so keep an eye on it. **Cursor Zoom** (top right) is a live magnifier of whatever is under your mouse, handy for clicking ticks precisely. **About ▾** (top right) holds the citation and acknowledgments.
 
-Log-scale axes: toggle the small **log** buttons beside the X or Y Min-Max boxes and enter the axis values as printed (e.g. `1` and `1000`).
+<p align="center"><img src="docs/assets/tutorial/01_empty.png" width="800" alt="The empty LinePilot window with Import, Tools, Advanced, Export and About menus"></p>
+
+### Step 1 — Import your plot
+
+**Import ▾ → Import Image** and pick a PNG / JPG / BMP / TIF, or copy a screenshot and use **Paste Image**.
+
+<p align="center"><img src="docs/assets/tutorial/02_import_menu.png" width="800" alt="Import menu with Import Image and Paste Image"></p>
+
+The figure appears in the main area. LinePilot immediately guesses the curve color and shows it as the first square in the **Selected color** row at the bottom; the status bar reports `Auto-selected color: (31, 95, 168)`.
+
+<p align="center"><img src="docs/assets/tutorial/03_loaded.png" width="800" alt="A spectrum loaded, with the auto-selected blue color in the Selected color row"></p>
+
+If it picked the wrong color — a gridline, say — use **Tools ▾ → Pick Color** and click directly on your curve. To trace a second curve, press the green **+** in the Selected color row, select the new slot and Pick Color again.
+
+> **Tip:** resolution is the single biggest factor in accuracy. A figure under ~700 px wide gives OCR only a few pixels per digit; re-export it at a higher DPI if you can.
+
+### Step 2 — Read the axes (OCR mode)
+
+**Advanced ▾ → Axis Scale Detection → Run Axis Detection.**
+
+<p align="center"><img src="docs/assets/tutorial/04_advanced_menu.png" width="800" alt="Advanced menu with the Axis Scale Detection submenu open"></p>
+
+LinePilot finds the plot region, reads the tick labels on both axes with OCR, and fills the four **Min-Max Coordinates** boxes — here `X 200 → 1800`, `Y 0 → 1.0`. The orange marks on the image show which tick labels it locked on to.
+
+<p align="center"><img src="docs/assets/tutorial/05_axis_detected.png" width="800" alt="Axis detection filled in X min 200, X max 1800, Y min 0, Y max 1.0"></p>
+
+**Always glance at the four boxes.** OCR is good, not perfect — a dropped minus sign or a misread `8`/`0` would silently rescale every exported value. If anything is off, just type the correct number into the box.
+
+### Step 3 — Calibrate
+
+Calibration tells LinePilot exactly where the plotted area sits in the image. **Tools ▾ → Calibration** offers both routes:
+
+<p align="center"><img src="docs/assets/tutorial/06_tools_calibration_menu.png" width="800" alt="Tools menu with the Calibration submenu: Coordinate-Mediated, Manual, Enhanced Human Click"></p>
+
+**OCR route — Coordinate-Mediated Calibration.** Because you ran Axis Detection, this snaps a dashed green box onto the plot area automatically. Nothing to click.
+
+<p align="center"><img src="docs/assets/tutorial/07_calibrated.png" width="800" alt="Dashed green calibration box fitted to the plot area"></p>
+
+**Manual route — Manual Calibration (standard / enhanced).** A green banner walks you through four clicks on the image: **X MIN → X MAX → Y MIN → Y MAX**. You are clicking *positions on the picture* (the tick marks), not typing numbers.
+
+<p align="center"><img src="docs/assets/tutorial/08_manual_banner.png" width="800" alt="Manual calibration banner: Step 1 of 4, now click X MIN"></p>
+
+Turn on **Enhanced Human Click** first and each click is snapped to the center of the nearest tick or axis stroke, at sub-pixel precision. The status bar says exactly what happened — *"vertical line found, corrected x by 0.03 px"* — and a click with no feature nearby is left exactly where you put it. **Ctrl+Z** undoes the last click.
+
+<p align="center"><img src="docs/assets/tutorial/09_manual_two_clicks.png" width="800" alt="Two manual clicks placed; status bar reports the enhanced-click correction"></p>
+
+After the fourth click the banner turns to **Manual calibration complete** and the green box is drawn. In manual mode, type the four axis values into the Min-Max boxes yourself (or run Axis Detection to fill them).
+
+<p align="center"><img src="docs/assets/tutorial/10_manual_done.png" width="800" alt="Manual calibration complete banner with the calibration box drawn"></p>
+
+If the box doesn't sit exactly on your axes, hover over an edge until the cursor becomes a resize arrow and drag it.
+
+### Step 4 — Mask anything that isn't data *(optional)*
+
+If a legend, label or annotation shares the curve's color, blank it out first: **Advanced ▾ → Masking** can erase detected text and numbers automatically, hide everything outside the plot box, or let you draw mask rectangles by hand (**Manual Mask Mode**). **Clear Masks** undoes them.
+
+### Step 5 — Place points
+
+**Tools ▾ → Place Points → Run.**
+
+<p align="center"><img src="docs/assets/tutorial/11_tools_place_points_menu.png" width="800" alt="Tools menu with Place Points submenu open"></p>
+
+LinePilot scans every image column for the selected color, links the matches into one continuous path, and overlays the result on your figure in the inverse color so you can check it at a glance. The status bar reports the count — here *1,199 points*.
+
+<p align="center"><img src="docs/assets/tutorial/12_points_placed.png" width="800" alt="Extracted points overlaid in orange on the blue spectrum"></p>
+
+Points are not clipped to the calibration box by default — a tick read slightly short would otherwise cut the ends off your curve. (The CLI flag `--limit-to-calibration` turns clipping on.)
+
+### Step 6 — Export
+
+**Export ▾ → Export CSV → Raw values** (or **Export Excel** for an `.xlsx`). With several curves, tick the slots you want under **Colors to Export**. A normal Save dialog opens; note the folder.
+
+<p align="center"><img src="docs/assets/tutorial/13_export_menu.png" width="800" alt="Export menu with Export CSV, Export Excel and Colors to Export"></p>
+
+Each row is one point: the color slot, its RGB, the **data value** and the original **pixel position**.
+
+```csv
+color_slot,color_r,color_g,color_b,x,y,x_px,y_px
+1,31,95,168,201.040769,0.015625,138.0,706.0
+1,31,95,168,202.390300,0.011285,139.0,708.5
+1,31,95,168,203.729423,0.009549,140.0,709.5
+```
+
+The command line additionally writes an overlay image next to the CSV — the calibration box, the OCR regions and every extracted point drawn on your figure:
+
+<p align="center"><img src="docs/assets/tutorial/14_overlay_output.png" width="620" alt="Overlay output image: calibration box, OCR regions and extracted points"></p>
+
+Export needs both the four Min-Max boxes filled **and** a calibration; if either is missing the status bar says so.
+
+### Log-scale axes
+
+Flip the small **log** buttons beside the X or Y Min-Max boxes (they turn green) and enter the axis values exactly as printed on the plot (e.g. `1` and `1000`). Values must be positive.
+
+### About, citation and acknowledgments
+
+**About ▾** in the top-right corner opens the credits: authors and links, a **Cite** tab with a one-click **Copy BibTeX**, the NSF POSE / SpectraGuru acknowledgment, and third-party licenses.
+
+<p align="center"><img src="docs/assets/tutorial/16_about_cite.png" width="520" alt="About dialog, Cite tab with Copy BibTeX button"></p>
 
 ---
 

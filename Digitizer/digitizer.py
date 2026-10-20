@@ -7,7 +7,7 @@ from app_version import APP_TITLE
 from digitizer_2_11 import configure_runtime_paths
 
 
-USAGE = r"""Data Digitizer __VERSION__ - command line
+USAGE = r"""LinePilot Digitizer __VERSION__ - command line
 
 Digitize one image. With no options it auto-detects the curve color and the axes
 (via OCR) and saves the CSV + overlay to your Downloads folder:
