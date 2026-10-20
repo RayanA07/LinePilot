@@ -1,6 +1,5 @@
 # LinePilot Digitizer <!-- vX.Y --> (Windows)
 
-<!-- Paste this into the GitHub release body. Replace the "New in this release" block each time; keep the rest. -->
 
 Turn a picture of a line plot into numbers — a CSV plus an overlay image showing the detected points. No install, no Python: the Tesseract OCR engine is bundled inside the app.
 
