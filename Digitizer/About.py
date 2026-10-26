@@ -18,18 +18,18 @@ PAPER_PDF_URL = "https://arxiv.org/pdf/2609.19377"
 
 PAPER_TITLE = "LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration"
 AUTHORS = (
-    "Fengbo Ma*, Rayan Akhtar*, Aakash H. Joshi*, Xiaoting Li, Haijian Sun, "
+    "Fengbo Ma*, Rayan Akhtar*, Aakash Joshi*, Xiaoting Li, Haijian Sun, "
     "Zhen Xiang†, Xianyan Chen†, Yiping Zhao†"
 )
 AFFILIATIONS = "University of Georgia · University of Pennsylvania"
 CITATION_TEXT = (
-    "Fengbo Ma, Rayan Akhtar, Aakash H. Joshi, Xiaoting Li, Haijian Sun, Zhen Xiang, "
+    "Fengbo Ma, Rayan Akhtar, Aakash Joshi, Xiaoting Li, Haijian Sun, Zhen Xiang, "
     "Xianyan Chen, Yiping Zhao. LinePilot Digitizer: Line-Plot Recovery with Manual and "
     "Automatic Calibration. arXiv:2609.19377, 2026. https://arxiv.org/abs/2609.19377"
 )
 BIBTEX = """@article{ma2026linepilot,
   title   = {LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration},
-  author  = {Ma, Fengbo and Akhtar, Rayan and Joshi, Aakash H. and Li, Xiaoting and
+  author  = {Ma, Fengbo and Akhtar, Rayan and Joshi, Aakash and Li, Xiaoting and
              Sun, Haijian and Xiang, Zhen and Chen, Xianyan and Zhao, Yiping},
   journal = {arXiv preprint arXiv:2609.19377},
   year    = {2026},
@@ -182,7 +182,9 @@ class AboutDialog(QtWidgets.QDialog):
             for name, license_, url in THIRD_PARTY
         )
         lic_lay.addWidget(_text(
-            "LinePilot builds on these open-source projects:"
+            "LinePilot Digitizer is released under the "
+            '<a href="https://github.com/RayanA07/LinePilot/blob/main/LICENSE">Apache License 2.0</a>.'
+            "<br><br>It builds on these open-source projects:"
             f'<table style="margin-top:6px;">{rows}</table>'
         ))
         lic_lay.addStretch(1)

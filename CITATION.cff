@@ -4,7 +4,7 @@ title: "LinePilot Digitizer"
 type: software
 repository-code: "https://github.com/RayanA07/LinePilot"
 url: "https://rayana07.github.io/LinePilot/"
-license: NOASSERTION
+license: Apache-2.0
 authors:
   - family-names: Ma
     given-names: Fengbo
@@ -13,7 +13,7 @@ authors:
     given-names: Rayan
     affiliation: University of Georgia
   - family-names: Joshi
-    given-names: Aakash H.
+    given-names: Aakash
     affiliation: University of Pennsylvania
   - family-names: Li
     given-names: Xiaoting
@@ -43,7 +43,7 @@ preferred-citation:
     - family-names: Akhtar
       given-names: Rayan
     - family-names: Joshi
-      given-names: Aakash H.
+      given-names: Aakash
     - family-names: Li
       given-names: Xiaoting
     - family-names: Sun

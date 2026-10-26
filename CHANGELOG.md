@@ -24,6 +24,8 @@ on GitHub; download the apps from the [Releases page](https://github.com/RayanA0
   (Tesseract bundled) and attaches them to the release for every `v*` tag.
 - `CITATION.cff`, a screenshot walkthrough in the README, and the project website in `docs/`.
 
+- **License:** the project is now released under the Apache License 2.0 (`LICENSE`).
+
 Digitization is unchanged from 2.15.
 
 ## 2.15
