@@ -15,6 +15,7 @@ REPO_URL = "https://github.com/RayanA07/LinePilot"
 ISSUES_URL = "https://github.com/RayanA07/LinePilot/issues"
 PAPER_URL = "https://arxiv.org/abs/2609.19377"
 PAPER_PDF_URL = "https://arxiv.org/pdf/2609.19377"
+CONTACT_EMAIL = "Fengbo.Ma@uga.edu"
 
 PAPER_TITLE = "LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration"
 AUTHORS = (
@@ -131,7 +132,10 @@ class AboutDialog(QtWidgets.QDialog):
             "can check its work.<br><br>"
             f"<b>Authors</b><br>{AUTHORS}<br>"
             f'<span style="color:#555;">{AFFILIATIONS}<br>'
-            "* equal contribution &nbsp; † corresponding authors</span>"
+            "* equal contribution &nbsp; † corresponding authors</span><br><br>"
+            f'<b>Contact</b> &nbsp;<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a> '
+            "(questions, suggestions, collaborations) &nbsp;·&nbsp; "
+            f'<a href="{ISSUES_URL}">GitHub Issues</a> (bug reports, feature requests)'
         ))
         about_lay.addWidget(_link_row(
             ("Project website", PROJECT_URL),
@@ -226,6 +230,7 @@ def build_about_button(window: QtWidgets.QMainWindow, style: str) -> QtWidgets.Q
     menu.addAction("Paper on arXiv").triggered.connect(lambda: _open(PAPER_URL))
     menu.addAction("Source code on GitHub").triggered.connect(lambda: _open(REPO_URL))
     menu.addAction("Report an issue").triggered.connect(lambda: _open(ISSUES_URL))
+    menu.addAction("Contact the team (email)").triggered.connect(lambda: _open(f"mailto:{CONTACT_EMAIL}?subject=LinePilot%20Digitizer"))
     button.setMenu(menu)
     window.about_button = button
     window.about_menu = menu

@@ -31,18 +31,23 @@ The paper also introduces **[DigitizerBench](#digitizerbench)**, the first bench
 > *LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration.* arXiv:2609.19377, 2026.
 > [[arXiv](https://arxiv.org/abs/2609.19377)] · [[PDF](https://arxiv.org/pdf/2609.19377)] · [[Online appendix](docs/assets/LinePilot_Online_Appendix.pdf)] · [[Website](https://rayana07.github.io/LinePilot/)] · [[Cite](#citation)]
 
+> **Contact:** questions, suggestions and collaborations → **[Fengbo.Ma@uga.edu](mailto:Fengbo.Ma@uga.edu)** (Zhao lab, University of Georgia). Bug reports and feature requests → **[GitHub Issues](https://github.com/RayanA07/LinePilot/issues)**.
+
 ---
 
 ## Contents
 
 - [How it works](#how-it-works)
 - [Results](#results)
+- [Demo on a real spectrum](#demo-on-a-real-spectrum)
 - [Install](#install)
 - [Using the desktop app](#using-the-desktop-app)
 - [Command line, batch mode and Python API](#command-line-batch-mode-and-python-api)
 - [DigitizerBench](#digitizerbench)
 - [Repository layout](#repository-layout)
 - [Citation](#citation)
+- [License](#license)
+- [Contact](#contact)
 - [Acknowledgment](#acknowledgment)
 
 ---
@@ -96,6 +101,24 @@ One example from DigitizerBench (`D0001-overlapping-altair`, Fig. 1b in the pape
 | **LinePilot (enhanced)** | **0.081** | **100 %** | **93.3 %** | **1,027** |
 
 *FPC-NRMSE* (failure-penalized capped normalized RMSE) assigns a full unit of error to any image whose output is missing, structurally unusable or catastrophically wrong, so it measures reliability as well as accuracy. *Trusted usability* requires the correct line count, finite error on every match, at least 20 valid points and ≥ 80 % coverage. Values are from Table 3 of the paper; the full comparison with LineEX, WebPlotDigitizer and Engauge Digitizer on the example above is in the [online appendix](docs/assets/LinePilot_Online_Appendix.pdf).
+
+---
+
+## Demo on a real spectrum
+
+A Raman spectrum from the lab, saved as an ordinary PNG, digitized in OCR mode with **no clicks at all**. The data behind the figure is known, so the recovered numbers can be checked against it: **916 points, R² = 0.9992, nRMSE = 0.58 % of the y-range, OCR axis confidence 96 %, 4.2 s.**
+
+<p align="center"><img src="docs/assets/demo/real_spectrum_demo.png" alt="Input Raman spectrum PNG; LinePilot overlay with calibration box and extracted points; digitized curve over ground truth with residuals" width="900"></p>
+
+<p align="center"><img src="docs/assets/demo/real_spectrum_demo.gif" alt="Animated walkthrough: import, axis detection, calibration, place points, export" width="620"></p>
+
+Reproduce it from the repository with the files in [`docs/assets/demo/`](docs/assets/demo/):
+
+```bash
+cd Digitizer
+python digitizer.py ../docs/assets/demo/example_raman.png --out demo_out --verbose 1
+python ../AccuracyTester/accuracy_batch_cli.py --digitized-dir demo_out --ground-truth-dir ../docs/assets/demo --out demo_scores
+```
 
 ---
 
@@ -334,7 +357,15 @@ If LinePilot or DigitizerBench is useful in your work, please cite the paper —
 
 ## License
 
-LinePilot Digitizer is released under the [Apache License 2.0](LICENSE). Third-party components keep their own licenses (Tesseract OCR and RapidOCR: Apache-2.0; PyQt6: GPL v3; NumPy: BSD-3; Pillow: MIT-CMU; openpyxl: MIT).
+LinePilot Digitizer is released under the [Apache License 2.0](LICENSE). Third-party components keep their own licenses — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full list and what it means for the prebuilt executables (PyQt6 is GPL-3.0, so the combined `.exe` is distributed on GPL-3.0 terms with this repository as its source).
+
+## Contact
+
+| | |
+| --- | --- |
+| **Questions, suggestions, collaborations** | [Fengbo.Ma@uga.edu](mailto:Fengbo.Ma@uga.edu) — managed by the Zhao lab, University of Georgia |
+| **Bug reports and feature requests** | [GitHub Issues](https://github.com/RayanA07/LinePilot/issues) — attach the figure that caused trouble if you can |
+| **Corresponding authors (paper)** | zhaoy@uga.edu · zxiangaa@uga.edu · xychen@uga.edu |
 
 ## Acknowledgment
 
