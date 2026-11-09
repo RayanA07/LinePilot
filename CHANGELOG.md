@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Versions follow the release tags
 on GitHub; download the apps from the [Releases page](https://github.com/RayanA07/LinePilot/releases/latest).
 
+## Unreleased
+
+### Added
+
+- **DigitizerBench is on Hugging Face:**
+  [huggingface.co/datasets/LinePilot/DigitizerBench](https://huggingface.co/datasets/LinePilot/DigitizerBench).
+  Linked from the README, the project website and the app's *About ▾* menu and About dialog.
+
 ## 2.16
 
 ### Changed

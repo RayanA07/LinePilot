@@ -15,6 +15,7 @@ REPO_URL = "https://github.com/RayanA07/LinePilot"
 ISSUES_URL = "https://github.com/RayanA07/LinePilot/issues"
 PAPER_URL = "https://arxiv.org/abs/2609.19377"
 PAPER_PDF_URL = "https://arxiv.org/pdf/2609.19377"
+BENCHMARK_URL = "https://huggingface.co/datasets/LinePilot/DigitizerBench"
 CONTACT_EMAIL = "Fengbo.Ma@uga.edu"
 
 PAPER_TITLE = "LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration"
@@ -140,6 +141,7 @@ class AboutDialog(QtWidgets.QDialog):
         about_lay.addWidget(_link_row(
             ("Project website", PROJECT_URL),
             ("Paper (arXiv)", PAPER_URL),
+            ("DigitizerBench", BENCHMARK_URL),
             ("Source code", REPO_URL),
             ("Report an issue", ISSUES_URL),
         ))
@@ -228,6 +230,7 @@ def build_about_button(window: QtWidgets.QMainWindow, style: str) -> QtWidgets.Q
     menu.addSeparator()
     menu.addAction("Project website").triggered.connect(lambda: _open(PROJECT_URL))
     menu.addAction("Paper on arXiv").triggered.connect(lambda: _open(PAPER_URL))
+    menu.addAction("DigitizerBench on Hugging Face").triggered.connect(lambda: _open(BENCHMARK_URL))
     menu.addAction("Source code on GitHub").triggered.connect(lambda: _open(REPO_URL))
     menu.addAction("Report an issue").triggered.connect(lambda: _open(ISSUES_URL))
     menu.addAction("Contact the team (email)").triggered.connect(lambda: _open(f"mailto:{CONTACT_EMAIL}?subject=LinePilot%20Digitizer"))

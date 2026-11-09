@@ -6,7 +6,7 @@
   <a href="https://arxiv.org/abs/2609.19377"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2609.19377-BA0C2F.svg"></a>
   <a href="https://rayana07.github.io/LinePilot/"><img alt="Project website" src="https://img.shields.io/badge/website-rayana07.github.io%2FLinePilot-000000.svg"></a>
   <a href="https://github.com/RayanA07/LinePilot/releases/latest"><img alt="Download" src="https://img.shields.io/badge/download-Windows%20app-00A3AD.svg"></a>
-  <a href="#digitizerbench"><img alt="DigitizerBench" src="https://img.shields.io/badge/benchmark-DigitizerBench-9EA2A2.svg"></a>
+  <a href="https://huggingface.co/datasets/LinePilot/DigitizerBench"><img alt="DigitizerBench on Hugging Face" src="https://img.shields.io/badge/%F0%9F%A4%97%20dataset-DigitizerBench-FFD21E.svg"></a>
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-004E60.svg"></a>
 </p>
 
@@ -29,7 +29,7 @@ The paper also introduces **[DigitizerBench](#digitizerbench)**, the first bench
 
 > **Paper:** Fengbo Ma\*, Rayan Akhtar\*, Aakash Joshi\*, Xiaoting Li, Haijian Sun, Zhen Xiang†, Xianyan Chen†, Yiping Zhao†.
 > *LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration.* arXiv:2609.19377, 2026.
-> [[arXiv](https://arxiv.org/abs/2609.19377)] · [[PDF](https://arxiv.org/pdf/2609.19377)] · [[Online appendix](docs/assets/LinePilot_Online_Appendix.pdf)] · [[Website](https://rayana07.github.io/LinePilot/)] · [[Cite](#citation)]
+> [[arXiv](https://arxiv.org/abs/2609.19377)] · [[PDF](https://arxiv.org/pdf/2609.19377)] · [[Online appendix](docs/assets/LinePilot_Online_Appendix.pdf)] · [[Website](https://rayana07.github.io/LinePilot/)] · [[DigitizerBench](https://huggingface.co/datasets/LinePilot/DigitizerBench)] · [[Cite](#citation)]
 
 > **Contact:** questions, suggestions and collaborations → **[Fengbo.Ma@uga.edu](mailto:Fengbo.Ma@uga.edu)** (Zhao lab, University of Georgia). Bug reports and feature requests → **[GitHub Issues](https://github.com/RayanA07/LinePilot/issues)**.
 
@@ -312,7 +312,7 @@ DigitizerBench evaluates digitizers under **controlled, orthogonally balanced** 
 
 **What it found.** For automatic digitization, image presentation matters far more than signal complexity: figure width has the largest effect, then DPI and renderer; noise and most curve-shape factors are not significant, and width × DPI interact. For human-guided digitization, one-pixel lines are the main failure mode — performance stabilizes at 3–5 px.
 
-**Download:** the benchmark package will be released on Hugging Face — *link coming soon*. <!-- TODO: https://huggingface.co/datasets/… -->
+**Download:** [huggingface.co/datasets/LinePilot/DigitizerBench](https://huggingface.co/datasets/LinePilot/DigitizerBench) — DigitizerBench-Lite (60 images) and DigitizerBench-Full (2,980 images), with the rendered PNGs, exact curve and tick ground truth, the image manifest and factor levels.
 
 ---
 
