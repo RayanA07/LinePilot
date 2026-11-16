@@ -29,7 +29,7 @@ The paper also introduces **[DigitizerBench](#digitizerbench)**, the first bench
   <sub>Column-by-column color matching, linked by dynamic programming into one continuous path per curve.</sub>
 </p>
 
-> **Paper:** Fengbo Ma\*, Rayan Akhtar\*, Aakash Joshi\*, Xiaoting Li, Haijian Sun, Zhen Xiang†, Xianyan Chen†, Yiping Zhao†.
+> **Paper:** Fengbo Ma\*, Rayan Akhtar\*, Aakash H. Joshi\*, Xiaoting Li, Haijian Sun, Zhen Xiang†, Xianyan Chen†, Yiping Zhao†.
 > *LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration.* arXiv:2609.19377, 2026.
 > [[arXiv](https://arxiv.org/abs/2609.19377)] · [[PDF](https://arxiv.org/pdf/2609.19377)] · [[Online appendix](docs/assets/LinePilot_Online_Appendix.pdf)] · [[Website](https://rayana07.github.io/LinePilot/)] · [[DigitizerBench](https://huggingface.co/datasets/LinePilot/DigitizerBench)] · [[Cite](#citation)]
 
@@ -389,7 +389,7 @@ If LinePilot or DigitizerBench is useful in your work, please cite the paper —
 ```bibtex
 @article{ma2026linepilot,
   title   = {LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration},
-  author  = {Ma, Fengbo and Akhtar, Rayan and Joshi, Aakash and Li, Xiaoting and
+  author  = {Ma, Fengbo and Akhtar, Rayan and Joshi, Aakash H. and Li, Xiaoting and
              Sun, Haijian and Xiang, Zhen and Chen, Xianyan and Zhao, Yiping},
   journal = {arXiv preprint arXiv:2609.19377},
   year    = {2026},
