@@ -30,8 +30,8 @@ release notes, with every download tested on a clean machine before it is attach
   Tesseract is removed, then the *built* app digitizes the lab's Raman spectrum with its
   bundled OCR (axes must read 400 / 1800 / 2000 / 14000; curve within 2 % of the true
   data), and both apps must open and stay open. The end-to-end smoke test now runs on
-  Windows as well as both Mac chips. See [TESTING.md](TESTING.md).
-- **[TESTING.md](TESTING.md)** — what is checked automatically, and a nine-step hands-on
+  Windows as well as both Mac chips. See [TESTING.md](https://github.com/RayanA07/LinePilot/blob/main/TESTING.md).
+- **[TESTING.md](https://github.com/RayanA07/LinePilot/blob/main/TESTING.md)** — what is checked automatically, and a nine-step hands-on
   checklist for independent Windows and Mac computers, with a results log.
 - **GitHub issue forms** for installation reports and bug reports (they ask for the OS,
   version and how the app was run).
@@ -57,7 +57,7 @@ release notes, with every download tested on a clean machine before it is attach
   `Digitizer/platform_info.py` (Tesseract search paths, the undo-key label — ⌘Z on a Mac —,
   the log folder, and the commands shown in `--help`). Windows behaviour and output are
   unchanged; `test_platform_info.py` pins the Windows help text byte for byte.
-- One workflow, [`release.yml`](.github/workflows/release.yml), builds and tests all three
+- One workflow, [`release.yml`](https://github.com/RayanA07/LinePilot/blob/main/.github/workflows/release.yml), builds and tests all three
   platforms and publishes one release; it replaces the separate Windows and macOS
   workflows.
 

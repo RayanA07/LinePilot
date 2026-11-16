@@ -39,7 +39,7 @@ If double-clicking does **nothing at all**, Smart App Control is silently blocki
 2. First launch only: macOS says it *"cannot verify"* the app — click **Done**, then open **System Settings → Privacy & Security**, scroll down and click **Open Anyway**. The app simply isn't notarized with a paid Apple Developer ID.
 3. That's it. If macOS ever calls the app *"damaged"*, run `xattr -dr com.apple.quarantine /Applications/Digitizer.app` once in Terminal.
 
-Step-by-step guide with screenshots: [Install on Windows](https://github.com/RayanA07/LinePilot/blob/main/Digitizer/README.md#on-windows) · [Install on macOS](https://github.com/RayanA07/LinePilot/blob/main/Digitizer/README.md#on-a-mac) · [README](https://github.com/RayanA07/LinePilot#readme) · Project site: https://rayana07.github.io/LinePilot/
+Step-by-step guides: [Install on Windows](https://github.com/RayanA07/LinePilot/blob/main/Digitizer/README.md#on-windows) · [Install on macOS](https://github.com/RayanA07/LinePilot/blob/main/Digitizer/README.md#on-a-mac) · [README](https://github.com/RayanA07/LinePilot#readme) · Project site: https://rayana07.github.io/LinePilot/
 
 ## Known limitations
 - OCR can drop minus signs on negative tick labels and misread superscript / power-of-ten axes. Pass `--axis` or type the values in by hand in the app.
@@ -50,14 +50,14 @@ Step-by-step guide with screenshots: [Install on Windows](https://github.com/Ray
 
 ## If you find LinePilot useful, please cite our paper
 
-> Fengbo Ma, Rayan Akhtar, Aakash H. Joshi, Xiaoting Li, Haijian Sun, Zhen Xiang, Xianyan Chen, Yiping Zhao.
+> Fengbo Ma, Rayan Akhtar, Aakash Joshi, Xiaoting Li, Haijian Sun, Zhen Xiang, Xianyan Chen, Yiping Zhao.
 > **LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration.** arXiv:2609.19377, 2026.
 > https://arxiv.org/abs/2609.19377
 
 ```bibtex
 @article{ma2026linepilot,
   title   = {LinePilot Digitizer: Line-Plot Recovery with Manual and Automatic Calibration},
-  author  = {Ma, Fengbo and Akhtar, Rayan and Joshi, Aakash H. and Li, Xiaoting and
+  author  = {Ma, Fengbo and Akhtar, Rayan and Joshi, Aakash and Li, Xiaoting and
              Sun, Haijian and Xiang, Zhen and Chen, Xianyan and Zhao, Yiping},
   journal = {arXiv preprint arXiv:2609.19377},
   year    = {2026},
