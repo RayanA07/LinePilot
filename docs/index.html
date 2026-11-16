@@ -230,6 +230,15 @@
   ol.steps li b{font-weight:600;color:var(--black)}
   .note{border-left:4px solid var(--teal);background:#fff;padding:12px 16px;border-radius:0 4px 4px 0;font-size:.93rem;color:var(--ink-soft);margin:0 0 1em}
   .dl{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px}
+  .dl-note{font-size:.9rem;color:var(--ink-soft);margin:-6px 0 14px}
+  .dl-note a{color:var(--ink);border-bottom-color:var(--line)}
+  .install{width:100%;border-collapse:collapse;font-size:.93rem;margin:0 0 18px;background:#fff}
+  .install th,.install td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  .install th{background:var(--mist);font-family:var(--head);font-weight:500;color:var(--black)}
+  .install td:first-child{white-space:nowrap;color:var(--slate,#555)}
+  .os-tabs{display:flex;gap:6px;margin:0 0 8px}
+  .os-tabs button{font-family:var(--head);font-size:.95rem;padding:6px 14px;border:1.5px solid var(--line);background:#fff;border-radius:4px;cursor:pointer;color:var(--ink-soft)}
+  .os-tabs button[aria-selected="true"]{border-color:var(--black);background:var(--black);color:#fff}
   details{border:1px solid var(--line);border-radius:6px;padding:0 16px;background:#fff;margin-bottom:10px}
   summary{cursor:pointer;font-family:var(--head);font-weight:500;font-size:1.05rem;padding:12px 0;color:var(--black);list-style:none;display:flex;align-items:center;gap:10px}
   summary::-webkit-details-marker{display:none}
@@ -292,15 +301,20 @@
       <h1>Turn a picture of a line plot into numbers.</h1>
       <p class="lead">LinePilot reads the axes, follows each colored curve column by column, and hands back a CSV you can re-analyze. Three calibration modes let you choose between full automation and precise manual control — the curve recovery is the same either way.</p>
       <div class="cta">
-        <a class="btn primary" href="https://github.com/RayanA07/LinePilot/releases/latest" target="_blank" rel="noopener">
+        <a class="btn primary" id="dl-win" href="https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer.exe">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.6l3.3-3.3 1.4 1.4L12 17.4l-4.7-4.7 1.4-1.4 3.3 3.3V3h2zM4 19h16v2H4z"/></svg>
           Download for Windows
+        </a>
+        <a class="btn primary" id="dl-mac" href="https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-AppleSilicon.zip">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.6l3.3-3.3 1.4 1.4L12 17.4l-4.7-4.7 1.4-1.4 3.3 3.3V3h2zM4 19h16v2H4z"/></svg>
+          Download for macOS
         </a>
         <a class="btn outline" href="https://arxiv.org/abs/2609.19377" target="_blank" rel="noopener">Read the paper</a>
         <a class="btn quiet" href="#start">Get started</a>
       </div>
+      <p class="dl-note">Windows 10 / 11 · macOS 15+ on Apple Silicon (M1–M4) — <a href="https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-Intel.zip">Intel Mac?</a> · <a href="https://github.com/RayanA07/LinePilot/releases/latest" target="_blank" rel="noopener">all downloads &amp; release notes</a></p>
       <p class="free"><strong>FREE</strong> and open source — no install, no Python needed.</p>
-      <p class="meta">Windows app · macOS build via <a href="https://github.com/RayanA07/digitizer_mac" target="_blank" rel="noopener">digitizer_mac</a> · command line &amp; Python API · Apache-2.0 license · arXiv:2609.19377 · Contact: <a href="mailto:Fengbo.Ma@uga.edu">Fengbo.Ma@uga.edu</a></p>
+      <p class="meta">Windows &amp; macOS apps · command line &amp; Python API · Apache-2.0 license · arXiv:2609.19377 · Contact: <a href="mailto:Fengbo.Ma@uga.edu">Fengbo.Ma@uga.edu</a></p>
     </div>
 
     <!-- live demo: a plot digitizing itself -->
@@ -565,9 +579,16 @@
       <div class="reveal">
         <h3>Desktop app</h3>
         <div class="dl">
-          <a class="btn primary" href="https://github.com/RayanA07/LinePilot/releases/latest" target="_blank" rel="noopener">Windows · Digitizer.exe</a>
-          <a class="btn outline" href="https://github.com/RayanA07/digitizer_mac" target="_blank" rel="noopener">macOS · Digitizer.app</a>
+          <a class="btn primary" href="https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer.exe">Windows · Digitizer.exe</a>
+          <a class="btn primary" href="https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-AppleSilicon.zip">macOS · Apple Silicon</a>
+          <a class="btn outline" href="https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-Intel.zip">macOS · Intel</a>
         </div>
+        <table class="install">
+          <tr><th></th><th>Windows 10 / 11</th><th>macOS 15 or later</th></tr>
+          <tr><td>Open it</td><td>Double-click <code>Digitizer.exe</code></td><td>Double-click the zip, then <code>Digitizer.app</code></td></tr>
+          <tr><td>First run only</td><td>SmartScreen: <b>More info → Run anyway</b></td><td><b>Done</b>, then System Settings → Privacy &amp; Security → <b>Open Anyway</b></td></tr>
+          <tr><td>Step by step</td><td><a href="https://github.com/RayanA07/LinePilot/blob/main/Digitizer/README.md#on-windows" target="_blank" rel="noopener">Windows guide</a></td><td><a href="https://github.com/RayanA07/LinePilot/blob/main/Digitizer/README.md#on-a-mac" target="_blank" rel="noopener">Mac guide</a></td></tr>
+        </table>
         <ol class="steps">
           <li><b>Import</b> your plot image, or paste a screenshot. The curve color is guessed automatically; use <b>Tools → Pick Color</b> to change it or add a second curve.</li>
           <li><b>Calibrate.</b> Run <b>Axis Detection</b> for OCR mode, or choose <b>Tools → Calibration</b> and click X min, X max, Y min, Y max. Turn on <b>Enhanced Human Click</b> to snap clicks to tick centers.</li>
@@ -575,13 +596,17 @@
           <li><b>Place Points</b> to extract the curve and review the overlay.</li>
           <li><b>Export</b> as CSV or Excel. Each row has the data value, the pixel position and the color slot.</li>
         </ol>
-        <p class="note">Windows SmartScreen will warn on first run because the app isn't code-signed. Choose <b>More info → Run anyway</b>. If nothing happens at all, Smart App Control is blocking it — run from source instead.</p>
+        <p class="note">Neither app is code-signed, so the first-run prompts above are expected. On Windows, if nothing happens at all, Smart App Control is blocking it — run from source instead. Not sure which Mac you have? Apple menu → <b>About This Mac</b>: <i>Chip: Apple M…</i> is Apple Silicon, <i>Processor: Intel</i> is Intel.</p>
       </div>
       <div class="reveal">
         <h3>Command line &amp; Python</h3>
-<pre><code># get the source
+<div class="os-tabs" role="tablist" aria-label="Show commands for">
+          <button type="button" role="tab" data-os="win" aria-selected="true">Windows</button>
+          <button type="button" role="tab" data-os="mac" aria-selected="false">macOS</button>
+        </div>
+<pre data-os="win"><code># needs Python 3 and Tesseract (UB Mannheim installer)
 git clone https://github.com/RayanA07/LinePilot.git
-cd LinePilot/Digitizer
+cd LinePilot\Digitizer
 py -m pip install -r requirements.txt
 
 # one image, everything auto-detected (OCR calibration)
@@ -592,6 +617,20 @@ py digitizer.py graph.png --axis 0,10,0,100 --log-y --out results/
 
 # a whole folder, with a per-file report
 py digitizer_batch_cli.py figures/ --out digitized/</code></pre>
+<pre data-os="mac"><code># needs Homebrew: brew install python tesseract
+git clone https://github.com/RayanA07/LinePilot.git
+cd LinePilot/Digitizer
+python3 -m venv .venv && source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+
+# one image, everything auto-detected (OCR calibration)
+python3 digitizer.py graph.png
+
+# set the axis values yourself, log-scale Y, custom output folder
+python3 digitizer.py graph.png --axis 0,10,0,100 --log-y --out results/
+
+# a whole folder, with a per-file report
+python3 digitizer_batch_cli.py figures/ --out digitized/</code></pre>
         <details>
           <summary>Python API</summary>
           <div class="body">
@@ -617,7 +656,7 @@ out.point_count, out.used_ocr, out.ocr_confidence</code></pre>
         <details>
           <summary>Accuracy Tester</summary>
           <div class="body">
-            <p>A companion app (<code>AccuracyTester.exe</code>, or <code>accuracy_batch_cli.py</code> for folders) that scores a digitized CSV against a reference CSV: MAE, RMSE, R², bias, MAPE/sMAPE/WAPE, with overlay, residual and outlier plots.</p>
+            <p>A companion app (<code>AccuracyTester.exe</code> on Windows, <code>AccuracyTester.app</code> on macOS — same release — or <code>accuracy_batch_cli.py</code> for folders) that scores a digitized CSV against a reference CSV: MAE, RMSE, R², bias, MAPE/sMAPE/WAPE, with overlay, residual and outlier plots.</p>
           </div>
         </details>
       </div>
@@ -731,8 +770,8 @@ out.point_count, out.used_ocr, out.ocr_confidence</code></pre>
       <h4>Project</h4>
       <ul>
         <li><a href="https://github.com/RayanA07/LinePilot" target="_blank" rel="noopener">Source code on GitHub</a></li>
-        <li><a href="https://github.com/RayanA07/LinePilot/releases" target="_blank" rel="noopener">Windows releases</a></li>
-        <li><a href="https://github.com/RayanA07/digitizer_mac" target="_blank" rel="noopener">macOS build</a></li>
+        <li><a href="https://github.com/RayanA07/LinePilot/releases" target="_blank" rel="noopener">Downloads (Windows &amp; macOS)</a></li>
+        <li><a href="https://github.com/RayanA07/LinePilot/blob/main/Digitizer/README.md" target="_blank" rel="noopener">User guide</a></li>
         <li><a href="https://huggingface.co/datasets/LinePilot/DigitizerBench" target="_blank" rel="noopener">DigitizerBench (Hugging Face)</a></li>
       </ul>
     </div>
@@ -863,6 +902,29 @@ out.point_count, out.used_ocr, out.ocr_confidence</code></pre>
     } catch (e) { cb.textContent = 'Select & copy'; }
   });
 
+})();
+</script>
+<script>
+/* Download buttons and command tabs follow the visitor's computer. */
+(function(){
+  var plat = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+  var isMac = /mac/i.test(plat) && (navigator.maxTouchPoints || 0) < 2;   // not an iPad
+  if (isMac) {
+    var w = document.getElementById('dl-win'), m = document.getElementById('dl-mac');
+    if (w && m) w.parentNode.insertBefore(m, w);
+  }
+  document.querySelectorAll('.os-tabs').forEach(function(tabs){
+    var box = tabs.parentNode;
+    function show(os){
+      tabs.querySelectorAll('button[data-os]').forEach(function(b){ b.setAttribute('aria-selected', String(b.dataset.os === os)); });
+      box.querySelectorAll('pre[data-os]').forEach(function(p){ p.hidden = p.dataset.os !== os; });
+    }
+    tabs.addEventListener('click', function(e){
+      var b = e.target.closest('button[data-os]');
+      if (b) show(b.dataset.os);
+    });
+    show(isMac ? 'mac' : 'win');
+  });
 })();
 </script>
 </body>
