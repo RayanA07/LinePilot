@@ -1,0 +1,315 @@
+name: Build, test and release (Windows + macOS)
+
+# One pipeline for every platform, so a release always ships the same code on Windows and
+# macOS with one set of release notes.
+#
+#   push / pull request              -> tests + builds on Windows and both Mac chips;
+#                                       the apps are downloadable from the run's artifacts
+#   create tag v2.17 (GitHub web UI) -> release "LinePilot Digitizer v2.17" with all six files
+#   Actions -> Run workflow, release_tag = v2.17
+#                                    -> rebuild that tag and (re)attach the files to its release
+#
+# Every build is checked the way a new user would meet it: the build machine's own
+# Tesseract OCR is removed, then the BUILT app digitizes a real Raman spectrum with the OCR
+# engine bundled inside it (axes must be read correctly, curve within 2% of the true data),
+# and both apps must open and stay open.
+#
+# Asset names carry no version, so these links always point at the newest release:
+#   https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer.exe
+#   https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-AppleSilicon.zip
+#   https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-Intel.zip
+#
+# macOS builds run on macOS 15, not 26, on purpose: the bundled Homebrew Tesseract only loads
+# on the macOS it was compiled on or newer (tools/macho_minos.py), and build_macos.sh stamps
+# that minimum into the app.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing tag to rebuild and attach to its release (e.g. v2.17). Empty = build only."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+env:
+  RAMAN_IMAGE: docs/assets/demo/example_raman.png
+  RAMAN_TRUTH: docs/assets/demo/example_raman_ground_truth.csv
+
+jobs:
+  # ---------------------------------------------------------------------------------------
+  windows:
+    name: Windows — test, build, clean-machine check
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Tesseract OCR (vendored into the exe)
+        shell: pwsh
+        run: |
+          choco install tesseract --no-progress -y
+          $src = "C:\Program Files\Tesseract-OCR"
+          if (-not (Test-Path "$src\tesseract.exe")) { throw "Tesseract not found at $src" }
+          New-Item -ItemType Directory -Force -Path "Digitizer\vendor\tesseract" | Out-Null
+          Copy-Item -Recurse -Force "$src\*" "Digitizer\vendor\tesseract\"
+          & "Digitizer\vendor\tesseract\tesseract.exe" --version
+
+      - name: Unit tests + end-to-end smoke test
+        shell: pwsh
+        env:
+          QT_QPA_PLATFORM: offscreen
+          PYTHONUTF8: "1"
+        run: |
+          py -m pip install --upgrade pip
+          py -m pip install -r Digitizer/requirements.txt -r Digitizer/requirements-dev.txt
+          py -m pip install -r AccuracyTester/requirements.txt -r AccuracyTester/requirements-dev.txt
+          Push-Location Digitizer; py -m pytest -q; if ($LASTEXITCODE) { exit 1 }; Pop-Location
+          Push-Location AccuracyTester; py -m pytest -q; if ($LASTEXITCODE) { exit 1 }; Pop-Location
+          py -m pytest -q tools/test_macho_minos.py
+          if ($LASTEXITCODE) { exit 1 }
+          py tools/smoke_test.py
+          if ($LASTEXITCODE) { exit 1 }
+
+      - name: Build Digitizer.exe
+        shell: pwsh
+        working-directory: Digitizer
+        run: |
+          py -m PyInstaller --clean --noconfirm digitizer.spec
+          if (-not (Test-Path "dist\Digitizer.exe")) { throw "Digitizer.exe was not produced" }
+
+      - name: Build AccuracyTester.exe
+        shell: pwsh
+        working-directory: AccuracyTester
+        run: |
+          py -m PyInstaller --clean --noconfirm accuracytester.spec
+          if (-not (Test-Path "dist\AccuracyTester.exe")) { throw "AccuracyTester.exe was not produced" }
+
+      - name: Remove the runner's own Tesseract (the app must not depend on it)
+        shell: pwsh
+        run: |
+          Rename-Item "C:\Program Files\Tesseract-OCR" "Tesseract-OCR.removed-for-test"
+          Rename-Item "Digitizer\vendor" "vendor.removed-for-test"
+          if (Get-Command tesseract -ErrorAction SilentlyContinue) { throw "a system tesseract is still on PATH" }
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\clean" | Out-Null
+          Copy-Item "Digitizer\dist\Digitizer.exe", "AccuracyTester\dist\AccuracyTester.exe" "$env:RUNNER_TEMP\clean\"
+          Write-Host "No system Tesseract left; apps copied to a clean folder."
+
+      - name: Built app digitizes a real spectrum with its bundled OCR
+        shell: pwsh
+        run: |
+          $env:LINEPILOT_SELFTEST = (Resolve-Path $env:RAMAN_IMAGE).Path
+          $env:LINEPILOT_SELFTEST_OUT = "$env:RUNNER_TEMP\selftest"
+          $env:LINEPILOT_SELFTEST_REPORT = "$env:RUNNER_TEMP\selftest.json"
+          $p = Start-Process -FilePath "$env:RUNNER_TEMP\clean\Digitizer.exe" -PassThru
+          if (-not $p.WaitForExit(240000)) { Stop-Process -Id $p.Id -Force; throw "self-test timed out" }
+          if (-not (Test-Path $env:LINEPILOT_SELFTEST_REPORT)) { throw "self-test wrote no report" }
+          py tools/check_selftest.py $env:LINEPILOT_SELFTEST_REPORT --app-marker vendor --forbid "Program Files"
+          if ($LASTEXITCODE) { exit 1 }
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\truth" | Out-Null
+          Copy-Item $env:RAMAN_TRUTH "$env:RUNNER_TEMP\truth\example_raman.csv"
+          Push-Location AccuracyTester
+          py accuracy_batch_cli.py --digitized-dir "$env:RUNNER_TEMP\selftest" --ground-truth-dir "$env:RUNNER_TEMP\truth" --output-dir "$env:RUNNER_TEMP\acc"
+          if ($LASTEXITCODE) { exit 1 }
+          Pop-Location
+          py tools/check_selftest.py --score "$env:RUNNER_TEMP\acc\accuracy_report.csv"
+          if ($LASTEXITCODE) { exit 1 }
+
+      - name: Both apps open and stay open
+        shell: pwsh
+        run: |
+          foreach ($app in "Digitizer.exe", "AccuracyTester.exe") {
+            $p = Start-Process -FilePath "$env:RUNNER_TEMP\clean\$app" -PassThru
+            Start-Sleep -Seconds 30
+            if ($p.HasExited) { throw "$app exited during startup (code $($p.ExitCode))" }
+            Stop-Process -Id $p.Id -Force
+            Write-Host "$app launched and stayed up for 30 s"
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LinePilot-Windows
+          path: |
+            Digitizer/dist/Digitizer.exe
+            AccuracyTester/dist/AccuracyTester.exe
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------------------
+  macos-test:
+    name: macOS tests (${{ matrix.label }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: macos-15, label: Apple Silicon }
+          - { runner: macos-15-intel, label: Intel }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Tesseract
+        run: brew install tesseract
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r Digitizer/requirements.txt -r Digitizer/requirements-dev.txt
+          python -m pip install -r AccuracyTester/requirements.txt -r AccuracyTester/requirements-dev.txt
+
+      - name: Unit tests
+        run: |
+          (cd Digitizer && python -m pytest -q)
+          (cd AccuracyTester && python -m pytest -q)
+          python -m pytest -q tools/test_macho_minos.py
+
+      - name: CLI help must not print Windows-only text
+        run: PYTHON=python bash tools/check_help_text.sh
+
+      - name: End-to-end smoke test (render charts, batch digitize, score)
+        run: python tools/smoke_test.py
+
+  macos-build:
+    name: macOS build + clean-machine check (${{ matrix.label }})
+    needs: macos-test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: macos-15, label: Apple Silicon, arch: AppleSilicon }
+          - { runner: macos-15-intel, label: Intel, arch: Intel }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Homebrew packages
+        run: brew install tesseract dylibbundler
+
+      - name: Build Digitizer.app
+        run: PYTHON=python bash Digitizer/build_macos.sh
+
+      - name: Build AccuracyTester.app
+        run: PYTHON=python bash AccuracyTester/build_macos.sh
+
+      - name: Info.plist matches version.json
+        run: |
+          for app in Digitizer AccuracyTester; do
+            plist="$app/dist/$app.app/Contents/Info.plist"
+            want=$(python -c "import json; print(json.load(open('$app/version.json'))['version'])")
+            got=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$plist")
+            minos=$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$plist")
+            echo "$app.app: version $got (version.json $want), requires macOS $minos, $(uname -m)"
+            if [ "$want" != "$got" ]; then echo "::error::$app.app Info.plist says $got, version.json says $want"; exit 1; fi
+          done
+
+      - name: Remove the runner's own Tesseract (the app must not depend on it)
+        run: |
+          brew uninstall --ignore-dependencies --force tesseract leptonica
+          if command -v tesseract; then echo "::error::a system tesseract is still on PATH"; exit 1; fi
+          echo "No system Tesseract left."
+
+      - name: Built app digitizes a real spectrum with its bundled OCR
+        run: |
+          LINEPILOT_SELFTEST="$PWD/$RAMAN_IMAGE" \
+          LINEPILOT_SELFTEST_OUT="$RUNNER_TEMP/selftest" \
+          LINEPILOT_SELFTEST_REPORT="$RUNNER_TEMP/selftest.json" \
+            Digitizer/dist/Digitizer.app/Contents/MacOS/Digitizer > /dev/null
+          python tools/check_selftest.py "$RUNNER_TEMP/selftest.json" --app-marker Digitizer.app
+          mkdir -p "$RUNNER_TEMP/truth"
+          cp "$RAMAN_TRUTH" "$RUNNER_TEMP/truth/example_raman.csv"
+          (cd AccuracyTester && python accuracy_batch_cli.py --digitized-dir "$RUNNER_TEMP/selftest" \
+             --ground-truth-dir "$RUNNER_TEMP/truth" --output-dir "$RUNNER_TEMP/acc")
+          python tools/check_selftest.py --score "$RUNNER_TEMP/acc/accuracy_report.csv"
+
+      - name: Both apps open and stay open
+        run: |
+          for app in Digitizer/dist/Digitizer.app/Contents/MacOS/Digitizer \
+                     AccuracyTester/dist/AccuracyTester.app/Contents/MacOS/AccuracyTester; do
+            "$app" > "$RUNNER_TEMP/launch.log" 2>&1 &
+            pid=$!
+            sleep 30
+            if ! kill -0 "$pid" 2>/dev/null; then
+              cat "$RUNNER_TEMP/launch.log"
+              echo "::error::$(basename "$app") exited during startup"
+              exit 1
+            fi
+            kill "$pid"
+            echo "$(basename "$app") launched and stayed up for 30 s"
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LinePilot-macOS-${{ matrix.arch }}
+          path: |
+            Digitizer/dist/*.zip
+            AccuracyTester/dist/*.zip
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------------------
+  release:
+    name: Publish release
+    needs: [windows, macos-build]
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.release_tag != ''
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.release_tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      # Artifacts keep their Digitizer/dist/ and AccuracyTester/dist/ folders: flatten them so
+      # the release gets plain file names, and insist on all six.
+      - name: Collect the files
+        run: |
+          find dist -mindepth 2 -type f \( -name '*.zip' -o -name '*.exe' \) -exec mv -t dist {} +
+          ls -l dist
+          for f in Digitizer.exe AccuracyTester.exe \
+                   Digitizer-macOS-AppleSilicon.zip Digitizer-macOS-Intel.zip \
+                   AccuracyTester-macOS-AppleSilicon.zip AccuracyTester-macOS-Intel.zip; do
+            test -f "dist/$f" || { echo "::error::missing $f"; exit 1; }
+          done
+
+      - name: Release notes
+        run: python3 tools/release_notes.py "${TAG#v}" dist > release_body.md && head -40 release_body.md
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: LinePilot Digitizer ${{ env.TAG }}
+          body_path: release_body.md
+          fail_on_unmatched_files: true
+          files: |
+            dist/Digitizer.exe
+            dist/AccuracyTester.exe
+            dist/Digitizer-macOS-AppleSilicon.zip
+            dist/Digitizer-macOS-Intel.zip
+            dist/AccuracyTester-macOS-AppleSilicon.zip
+            dist/AccuracyTester-macOS-Intel.zip

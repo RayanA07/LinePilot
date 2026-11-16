@@ -1,0 +1,53 @@
+name: Bug report
+description: Something didn't work — the app, the command line, or the instructions.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: LinePilot version
+      description: From the window title or `python digitizer.py --help`, e.g. "LinePilot Digitizer 2.17".
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Computer
+      options:
+        - Windows 11
+        - Windows 10
+        - Mac — Apple Silicon (M1–M4)
+        - Mac — Intel
+        - Linux (from source)
+    validations:
+      required: true
+  - type: dropdown
+    id: how
+    attributes:
+      label: How were you running it?
+      options:
+        - Downloaded app (Digitizer.exe / Digitizer.app)
+        - From source — the desktop app
+        - From source — command line or batch
+        - Python API (digitize_image)
+        - Accuracy Tester
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Attach the figure that caused trouble if you can share it — it is the fastest way to a fix.
+  - type: textarea
+    id: log
+    attributes:
+      label: Error log or terminal output
+      description: In the app, Advanced → Error Log. On the command line, add `--verbose 1` and paste the output.
+      render: text

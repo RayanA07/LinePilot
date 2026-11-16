@@ -1,12 +1,12 @@
-# Data Digitizer 2.15 — User Guide
+# LinePilot Digitizer 2.17 — User Guide
 
 ## What is this?
 
-**Data Digitizer** turns a *picture of a graph* into *numbers you can use*. You give it an image of a chart (a screenshot, a scan, a figure from a paper), and it reads the curve off the picture and hands you back a **spreadsheet-friendly table of data points** (a CSV file) plus an **overlay image** that shows you exactly which points it detected, drawn on top of your original graph. That way you can check its work at a glance.
+**LinePilot Digitizer** turns a *picture of a graph* into *numbers you can use*. You give it an image of a chart (a screenshot, a scan, a figure from a paper), and it reads the curve off the picture and hands you back a **spreadsheet-friendly table of data points** (a CSV file) plus an **overlay image** that shows you exactly which points it detected, drawn on top of your original graph. That way you can check its work at a glance.
 
 There are **two ways to use it**:
 
-- **The click-and-go app** — a normal Windows program. Double-click and follow the on-screen steps. No coding, nothing to install. **This is what most people want.**
+- **The click-and-go app** — a normal program for **Windows** and **macOS**. Double-click and follow the on-screen steps. No coding, nothing to install. **This is what most people want.**
 - **The command line** — a one-line typed command for people who like terminals or want to process images quickly. This needs Python and the source files (see [Using the command line](#using-the-command-line)).
 
 If you just want your data out, head to the [Quick start](#quick-start).
@@ -17,43 +17,55 @@ If you just want your data out, head to the [Quick start](#quick-start).
 
 ## Quick start
 
-1. Go to the **[Releases page](https://github.com/aj24by7/DataDigitizer/releases/tag/v2.15)**. Scroll down until you see a heading called **Assets**, then click the file named **`Digitizer.exe`** to download it. (See [Download & install](#download--install-no-python-needed) for exactly what that page looks like.)
-2. **Double-click `Digitizer.exe`** to open it. (*Double-click* means quickly press the left mouse button twice in a row on the file's icon.) On the very first run, Windows shows a blue warning box — click the small **More info** text, then the **Run anyway** button. This is normal and safe; the full explanation is in [Download & install](#the-first-run-windows-warning-expected).
+1. **Download the app for your computer** from the **[latest release](https://github.com/RayanA07/LinePilot/releases/latest)** — scroll to the heading **Assets**:
+   - **Windows:** `Digitizer.exe`
+   - **Mac:** `Digitizer-macOS-AppleSilicon.zip` (M1–M4 Macs) or `Digitizer-macOS-Intel.zip` (Intel Macs)
+
+   (Exact clicks for each, with what the pages look like: [On Windows](#on-windows) · [On a Mac](#on-a-mac).)
+2. **Open it.** Windows: double-click `Digitizer.exe`. Mac: double-click the zip, then double-click `Digitizer.app`. (*Double-click* means quickly press the mouse button twice in a row on the icon.) The very first time, your computer shows a security warning — that's expected; here is what to click on [Windows](#the-first-run-windows-warning-expected) and on a [Mac](#the-first-run-mac-warning-expected).
 3. In the app, work top to bottom: **Import** your graph image → set the **curve color** → run **Axis Detection** → run **Calibration** → **Place Points** → **Export** to CSV.
 
-That's the whole flow. **Don't worry if those words mean nothing yet** — each one is explained, with exactly what to click, in [Using the app](#using-the-app-step-by-step) below.
+That's the whole flow. **Don't worry if those words mean nothing yet** — each one is explained, with exactly what to click, in [Using the app](#using-the-app-step-by-step) below. The app looks and works the same on Windows and Mac.
 
 ---
 
 ## Download & install (no Python needed)
 
-You do **not** need Python, and you do **not** need to install anything. The OCR engine (the part that reads the axis numbers) is already built into the app.
+You do **not** need Python, and you do **not** need to install anything. The OCR engine (the part that reads the axis numbers) is already built into the app, on both Windows and Mac.
 
-### Step 1 — Open the Releases page
+| | **Windows** 10 / 11 (64-bit) | **Mac** — macOS 15 Sequoia or later |
+| --- | --- | --- |
+| **File to download** | `Digitizer.exe` | `Digitizer-macOS-AppleSilicon.zip` or `Digitizer-macOS-Intel.zip` |
+| **Direct link** | [Digitizer.exe](https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer.exe) | [Apple Silicon](https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-AppleSilicon.zip) · [Intel](https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-Intel.zip) |
+| **First-run warning** | SmartScreen → [what to click](#the-first-run-windows-warning-expected) | Gatekeeper → [what to click](#the-first-run-mac-warning-expected) |
 
-Go to <https://github.com/aj24by7/DataDigitizer/releases/tag/v2.15>.
+### On Windows
+
+#### Step 1 — Open the Releases page
+
+Go to <https://github.com/RayanA07/LinePilot/releases/latest>.
 
 This is a GitHub *release page*. It shows a title and a description at the top. **Scroll down** past the description until you see a grey heading called **Assets** with a small triangle next to it. If the list under it looks collapsed, click the word **Assets** to open it.
 
-### Step 2 — Download the program
+#### Step 2 — Download the program
 
-In the **Assets** list, click the file named **`Digitizer.exe`**. (Ignore the green **Source code (zip)** and **Source code (tar.gz)** links — you do not need those.)
+In the **Assets** list, click the file named **`Digitizer.exe`**. (Ignore the green **Source code (zip)** and **Source code (tar.gz)** links — you do not need those, and ignore the `macOS` zips, which are for Macs.)
 
 Your browser will **download** the file rather than open it. Edge or Chrome may warn that the file is "not commonly downloaded" and offer **Keep** or **Discard** — choose **Keep** (then **Keep anyway** if it asks again). If you accidentally chose Discard, nothing is harmed — just click `Digitizer.exe` again and choose Keep.
 
 > *Optional:* if you also want the accuracy-checking tool, download **`AccuracyTester.exe`** the same way — see the [last section](#accuracy-tester-optional).
 
-### Step 3 — Find the downloaded file
+#### Step 3 — Find the downloaded file
 
 The file lands in your **Downloads** folder. To get there: open **File Explorer** (the yellow folder icon on the taskbar, or press the **Windows key + E**), then click **Downloads** in the left-hand list.
 
 You can leave it there, or drag it somewhere easy to find like your **Desktop**. There is nothing to "install" — the `.exe` *is* the program.
 
-### Step 4 — Launch it
+#### Step 4 — Launch it
 
 **Double-click `Digitizer.exe`** (quickly press the left mouse button twice in a row on its icon) to open the app.
 
-### The first-run Windows warning (expected)
+#### The first-run Windows warning (expected)
 
 The first time you run it, Windows SmartScreen may show a blue box that says **"Windows protected your PC."** This is **not** a virus warning. It appears because the file is not "code-signed" (a paid certificate the author hasn't bought), and Windows is cautious about any program it hasn't seen before.
 
@@ -64,7 +76,59 @@ To run it:
 
 *(If you accidentally clicked **Don't run**, nothing bad happened — just double-click `Digitizer.exe` again and try the steps above.)*
 
-You'll only need to do this once.
+You'll only need to do this once. If double-clicking does **nothing at all** — no window and no warning — see [Troubleshooting](#troubleshooting) (*Smart App Control*).
+
+### On a Mac
+
+#### Step 1 — Check which kind of Mac you have
+
+Click the **Apple menu** (the Apple logo in the top-left corner of the screen) → **About This Mac**.
+
+- If it says **Chip: Apple M1** (or M2, M3, M4…), you have an **Apple Silicon** Mac.
+- If it says **Processor: …Intel…**, you have an **Intel** Mac.
+
+The app needs **macOS 15 Sequoia or later** (the same window shows your macOS version). The exact minimum for each download is printed at the top of the release page; on Sequoia, install the latest updates first (**System Settings → General → Software Update**).
+
+#### Step 2 — Download the program
+
+Go to <https://github.com/RayanA07/LinePilot/releases/latest>, scroll down to the grey **Assets** heading (click it if the list is collapsed), and click:
+
+- **`Digitizer-macOS-AppleSilicon.zip`** for an Apple Silicon Mac, or
+- **`Digitizer-macOS-Intel.zip`** for an Intel Mac.
+
+(Ignore **Source code**, and ignore the `.exe` files — those are for Windows.)
+
+> *Optional:* the accuracy-checking tool is **`AccuracyTester-macOS-AppleSilicon.zip`** / **`AccuracyTester-macOS-Intel.zip`** — see the [last section](#accuracy-tester-optional).
+
+#### Step 3 — Unzip it
+
+Open your **Downloads** folder (in the Dock, or in **Finder → Downloads**) and **double-click the zip**. macOS unpacks it into **`Digitizer.app`** right next to it.
+
+There is nothing to "install" — `Digitizer.app` *is* the program. You can drag it into your **Applications** folder so it shows up in Launchpad, or leave it where it is.
+
+#### Step 4 — Launch it
+
+**Double-click `Digitizer.app`** to open the app.
+
+#### The first-run Mac warning (expected)
+
+The first time you open it, macOS shows a box saying it **could not verify** that *"Digitizer" is free of malware*. This is **not** a virus warning. It appears because the app isn't "notarized" (a check that needs a paid Apple Developer account the authors haven't bought), and macOS is cautious about any app downloaded from the internet.
+
+To open it:
+
+1. Click **Done** in that box (not *Move to Trash*).
+2. Open **System Settings** (Apple menu → System Settings) → **Privacy & Security**.
+3. Scroll down to the message *"Digitizer" was blocked to protect your Mac* and click **Open Anyway**. Confirm with your password or Touch ID, then click **Open Anyway** once more.
+
+You'll only need to do this once; after that it opens with a normal double-click.
+
+> If macOS says the app **"is damaged and can't be opened"**, the download's quarantine flag is stuck. Open **Terminal** (press **⌘ + Space**, type *Terminal*, press Return), paste the line below (change the path if the app isn't in Applications), press Return, and open the app again:
+>
+> ```bash
+> xattr -dr com.apple.quarantine /Applications/Digitizer.app
+> ```
+>
+> If macOS says **"You can't use this version of the application with this version of macOS"**, your Mac is older than the download supports — update macOS, or [run from source](#run-from-source-for-developers), which works on older versions too.
 
 ---
 
@@ -76,7 +140,7 @@ When the app opens you'll see your future graph in the big main area, a floating
 - **Cursor Zoom** is just a magnifying glass — it shows an enlarged view of whatever is under your mouse so you can click precisely. It's a helper only; it has nothing to do with exporting.
 - **Import, Tools, Advanced, and Export are buttons along the top of the window.** Clicking one opens a small menu of choices. Throughout this guide, "open the **Tools** button → **Pick Color**" means: click **Tools** at the top, then click **Pick Color** in the menu that drops down.
 
-Follow these steps in order.
+Follow these steps in order. **On a Mac** everything works the same; the only differences are that undo is **⌘Z** instead of **Ctrl+Z**, and dialogs look like normal Mac dialogs.
 
 ### 1. Load your graph image
 
@@ -142,9 +206,9 @@ Open the **Export** button and choose:
 - **Export CSV → Raw values** — a plain text spreadsheet file that opens in Excel, Google Sheets, Python, etc.
 - **Export Excel → Raw values** — a real Excel `.xlsx` workbook.
 
-A standard Windows **Save As** dialog appears. **Note which folder is shown at the top** (Downloads or Desktop are easy choices so you can find it again), keep the suggested name **`digitized_points.csv`**, and click **Save**.
+A standard **Save** dialog appears (**Save As** on Windows). **Note which folder is shown at the top** (Downloads or Desktop are easy choices so you can find it again), keep the suggested name **`digitized_points.csv`**, and click **Save**.
 
-**That's it — you now have a spreadsheet of your graph's data.** To open it, go to the folder you just saved into and **double-click the CSV file**; it opens in Excel by default, where you'll see your X and Y columns.
+**That's it — you now have a spreadsheet of your graph's data.** To open it, go to the folder you just saved into and **double-click the CSV file**; it opens in Excel by default (Numbers on a Mac, if Excel isn't installed), where you'll see your X and Y columns.
 
 ### Where your files go
 
@@ -197,15 +261,25 @@ Most plots are linear, so leave this alone for a normal graph — but if your gr
 
 ## Using the command line
 
-> **Important:** The command line runs from the **source files with Python installed** — see [Run from source](#run-from-source-for-developers). The prebuilt **`Digitizer.exe` is the click-and-go app only**: it always opens the graphical window and ignores any command-line options. If you want to type commands, you need the source code and Python, not the `.exe`.
+> **Important:** The command line runs from the **source files with Python installed** — see [Run from source](#run-from-source-for-developers). The prebuilt **`Digitizer.exe` / `Digitizer.app` is the click-and-go app only**: it always opens the graphical window and ignores any command-line options. If you want to type commands, you need the source code and Python, not the downloaded app.
 
 ### Open a terminal in the Digitizer folder
+
+**On Windows**
 
 1. Open the folder that contains the Digitizer source files in **File Explorer**.
 2. **Right-click an empty area** inside the folder.
 3. Choose **Open in Terminal** (or **Open PowerShell window here**).
 
 A blue/black window opens, already pointed at the right folder. Type your commands there.
+
+**On a Mac**
+
+1. In **Finder**, find the `Digitizer` folder inside the source code.
+2. **Right-click** (or Control-click) the folder and choose **New Terminal at Folder**. *(Not in the menu? Turn it on once in System Settings → Keyboard → Keyboard Shortcuts → Services → Files and Folders.)*
+3. If you made the virtual environment in [Run from source](#run-from-source-for-developers), activate it: `source .venv/bin/activate`.
+
+> **Windows and Mac commands differ in one word.** The examples below are written for Windows, where Python is started with **`py`**. **On a Mac, type `python3` instead of `py`** (inside the virtual environment, `python` works too). Everything after that word is the same. The command line's own `--help` and `template` output already print the Mac form when run on a Mac, and paths look like `~/Downloads/graph.png` instead of `C:\Users\You\Downloads\graph.png`.
 
 > The examples below use the placeholder image name **`graph.png`**. Substitute the real name of your own image file. The image must be either in the folder the terminal is pointed at, or in your Downloads folder, or you must give its full path in quotes.
 
@@ -258,7 +332,7 @@ py digitizer.py template
 
 This **prints a fill-in-the-blank line** (it does **not** digitize anything). It shows a minimal example, a full example listing every option, and a short legend explaining each value.
 
-You can then run that **function-call form** — one quoted line. In PowerShell, wrap the whole `digitizer_cli(...)` call in **single quotes** so the inner double quotes survive.
+You can then run that **function-call form** — one quoted line. In PowerShell and in the Mac Terminal alike, wrap the whole `digitizer_cli(...)` call in **single quotes** so the inner double quotes survive.
 
 **Minimal example** (just the image; everything else auto-detected). This is the form to copy first:
 
@@ -369,17 +443,16 @@ The CSV columns:
 
 ## Run from source (for developers)
 
-You'll need a **recent Python 3** installed (from <https://python.org> — tick *"Add python.exe to PATH"* during setup).
+The source code is the same on every platform: **<https://github.com/RayanA07/LinePilot>**. Download it with the green **Code → Download ZIP** button (then unzip it), or clone it with git. You also need **Python 3** and, for the OCR features, the **Tesseract** program (the downloaded apps bundle it; running from source does not).
 
-1. Get the source code — download it from the [repo](https://github.com/aj24by7/DataDigitizer) or clone it:
+### On Windows
 
-   ```powershell
-   git clone https://github.com/aj24by7/DataDigitizer.git
-   ```
-
-2. Open a terminal in the `Digitizer` folder and install the dependencies:
+1. Install **Python 3** from <https://python.org> — tick *"Add python.exe to PATH"* during setup — and **Tesseract** from the [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki).
+2. Get the code and install the libraries ([open a terminal](#open-a-terminal-in-the-digitizer-folder) in the `Digitizer` folder):
 
    ```powershell
+   git clone https://github.com/RayanA07/LinePilot.git
+   cd LinePilot\Digitizer
    py -m pip install -r requirements.txt
    ```
 
@@ -389,9 +462,35 @@ You'll need a **recent Python 3** installed (from <https://python.org> — tick 
    py digitizer_2_11.py
    ```
 
-The command-line interface ([above](#using-the-command-line)) also runs from this same source setup.
+### On a Mac
 
-The dependencies are: `PyInstaller` (for building the exe), `PyQt6` (the window), `numpy`, `pillow` (image handling), `pytesseract` (OCR), and `openpyxl` (Excel export).
+1. Install **[Homebrew](https://brew.sh)** if `brew --version` doesn't work yet (paste the one-line command from brew.sh into Terminal, then close and reopen Terminal), then install Python and Tesseract:
+
+   ```bash
+   brew install python tesseract
+   ```
+
+2. Get the code and install the libraries in a private **virtual environment** — Homebrew's Python refuses system-wide `pip install` (*"externally-managed-environment"*):
+
+   ```bash
+   git clone https://github.com/RayanA07/LinePilot.git
+   cd LinePilot/Digitizer
+   python3 -m venv .venv
+   source .venv/bin/activate
+   python3 -m pip install -r requirements.txt
+   ```
+
+   Next time, just `cd` into the folder and run `source .venv/bin/activate` again.
+
+3. Launch the graphical app:
+
+   ```bash
+   python3 digitizer_2_11.py
+   ```
+
+The command-line interface ([above](#using-the-command-line)) runs from this same source setup on both platforms.
+
+The dependencies are: `PyInstaller` (for building the apps), `PyQt6` (the window), `numpy`, `pillow` (image handling), `pytesseract` (OCR), and `openpyxl` (Excel export).
 
 ---
 
@@ -401,9 +500,11 @@ The project is plain Python (a PyQt6 GUI plus a small CLI). There are three "sha
 
 | Target | What it is | How it's made |
 | --- | --- | --- |
-| **CLI** | `python3 digitizer.py …` | No build needed — it runs straight from the source files with Python (see [Run from source](#run-from-source-for-developers)). |
+| **CLI** | `py digitizer.py …` / `python3 digitizer.py …` | No build needed — it runs straight from the source files with Python (see [Run from source](#run-from-source-for-developers)). |
 | **Windows `.exe`** | a one-file `Digitizer.exe` you double-click | PyInstaller reads `digitizer.spec`, bundles the GUI entry `digitizer_desktop.py` **and** the Tesseract OCR runtime in `vendor\tesseract`, and writes `dist\Digitizer.exe`. |
-| **macOS `.app`** | a `Digitizer.app` bundle | Same tool, the macOS specs/scripts in the separate **[digitizer_mac](https://github.com/RayanA07/digitizer_mac)** repo (`bash build_macos.sh`) produce `Digitizer.app`. |
+| **macOS `.app`** | a `Digitizer.app` bundle, zipped for download | PyInstaller reads `digitizer_macos.spec`, bundles the same entry **and** a self-contained Tesseract copied from Homebrew into `vendor/tesseract`, and writes `dist/Digitizer.app`. |
+
+Windows and macOS share all of the code; the few things that must differ (the undo key shown in hints, where Tesseract is looked for, the log folder, the example commands in `--help`) live in **`platform_info.py`**.
 
 ### Starter command (Windows)
 
@@ -418,20 +519,63 @@ py -m pip install -r requirements.txt
 
 Either way the result is **`dist\Digitizer.exe`** — a windowed, one-file app you can double-click. The **Tesseract OCR runtime** under `vendor\tesseract` is **bundled into the exe**, so OCR features (axis-value detection and the text/number/legend masking tools) work without anyone needing a separate Tesseract install.
 
-> **macOS starter:** in the `digitizer_mac` repo it's `bash build_macos.sh` (in each app folder), which vendors Tesseract via Homebrew and produces the `.app`. That repo also builds on a GitHub Actions macOS runner automatically.
+### Starter command (macOS)
+
+With Homebrew installed, from the repository folder:
+
+```bash
+brew install tesseract dylibbundler
+bash Digitizer/build_macos.sh
+```
+
+The result is **`dist/Digitizer.app`** plus a ready-to-share zip, `dist/Digitizer-macOS-AppleSilicon.zip` (or `-Intel.zip`, matching the Mac that built it). The script copies a self-contained Tesseract (binary, libraries and English language data) into `vendor/tesseract`, records the lowest macOS the app can run on in its `Info.plist`, and signs the app so it can launch. The app runs on the **same chip** as the Mac that built it and on **that Mac's macOS version or newer**, because the bundled Tesseract comes from Homebrew, which compiles for the build machine (`python3 tools/macho_minos.py dist/Digitizer.app --report` shows which file sets the limit).
+
+### Releases
+
+You normally don't build by hand: every push to GitHub is built and tested by **[`release.yml`](../.github/workflows/release.yml)** on Windows and on Apple Silicon and Intel Macs, and creating a `v*` tag publishes all six downloads in one release with one set of notes. Each build is checked on a clean machine before it is attached — see [TESTING.md](../TESTING.md).
 
 ---
 
 ## Troubleshooting
 
+### Opening the app on Windows
+
 **"Windows protected your PC" when I open the .exe.**
 Expected on the first run — the file just isn't code-signed. Click the small **More info** text, then **Run anyway**. (Full explanation in [Download & install](#the-first-run-windows-warning-expected).)
+
+**Double-clicking `Digitizer.exe` does nothing at all — no window, no warning.**
+**Smart App Control** (on by default on new Windows 11 installs) is silently blocking unsigned programs. [Run from source](#run-from-source-for-developers) instead; that path is not blocked. Turning Smart App Control off is a one-way door, so prefer running from source.
 
 **I can't find `Digitizer.exe` after downloading it.**
 It's in your **Downloads** folder. Open **File Explorer** (the yellow folder icon on the taskbar, or **Windows key + E**) and click **Downloads** on the left.
 
 **"`py` is not recognized" in the terminal.**
 Python isn't installed (or wasn't added to your PATH). Install it from <https://python.org> and make sure to tick **"Add python.exe to PATH"** during setup. Then open a fresh terminal and try again. (Reminder: the command line needs Python; the `.exe` does not.)
+
+### Opening the app on a Mac
+
+**"Apple could not verify 'Digitizer' is free of malware" when I open the app.**
+Expected on the first launch — the app just isn't notarized. Click **Done**, then **System Settings → Privacy & Security → Open Anyway**. (Full explanation in [Download & install](#the-first-run-mac-warning-expected).)
+
+**"Digitizer is damaged and can't be opened."**
+The download's quarantine flag is stuck. In **Terminal** run `xattr -dr com.apple.quarantine /Applications/Digitizer.app` (adjust the path if the app isn't in Applications), then open it again.
+
+**"You can't use this version of the application with this version of macOS."**
+Your Mac is older than this download supports (the minimum is on the release page). Update macOS, or [run from source](#on-a-mac-1), which works on older versions.
+
+**I downloaded the wrong zip (Apple Silicon vs Intel).**
+An Intel Mac can't open the Apple Silicon build. Check **Apple menu → About This Mac** and download the matching zip. (Apple Silicon Macs can usually run the Intel build too, but the Apple Silicon one is faster.)
+
+**I can't find `Digitizer.app` after downloading.**
+Double-click the downloaded zip in **Finder → Downloads**; `Digitizer.app` appears next to it. Safari sometimes unzips automatically, so the app may already be there.
+
+**`python3: command not found`, or `pip install` fails with "externally-managed-environment".**
+Install Python with `brew install python`, open a new Terminal window, and use the [virtual environment](#on-a-mac-1) — Homebrew's Python refuses system-wide installs.
+
+**`zsh: no matches found` when using the `digitizer_cli(...)` form.**
+Keep the single quotes around the whole `'digitizer_cli(...)'` call — the Mac shell treats unquoted brackets as file patterns.
+
+### Using the app and the command line
 
 **It picked the wrong curve color.**
 - *In the app:* use **Tools → Pick Color** and click your curve (step 2).
@@ -446,14 +590,20 @@ OCR can misread numbers. Always check them.
 - *On the command line:* give them with `--axis xmin,xmax,ymin,ymax` (flags) or `axis_values=(xmin,xmax,ymin,ymax)` (function-call form). Run with `--verbose 1` to see the **OCR confidence score** — a low number is a strong hint that you should type the axis values in yourself with `--axis`.
 
 **"Image file not found" on the command line.**
-Put the image in your **Downloads** folder or in the folder the terminal is pointed at (a bare filename is searched in both), or pass the **full path in quotes**, e.g. `py digitizer.py "C:\Users\You\Pictures\graph.png"`.
+Put the image in your **Downloads** folder or in the folder the terminal is pointed at (a bare filename is searched in both), or pass the **full path in quotes**, e.g. `py digitizer.py "C:\Users\You\Pictures\graph.png"` on Windows or `python3 digitizer.py ~/Pictures/graph.png` on a Mac.
+
+**OCR says "Tesseract OCR executable not found" (running from source).**
+The downloaded apps bundle Tesseract; source code doesn't. Windows: install it from the [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki). Mac: `brew install tesseract`, then open a new Terminal window. To point at a specific copy, set `TESSERACT_CMD` to its full path.
 
 **Export does nothing in the app.**
 Check the status bar (the thin strip at the bottom). You need **all four Min-Max Coordinate boxes filled** *and* **a calibration run** (the dashed green box). Finish whichever is missing, then export again.
 
 **Where did my files go?**
-- *In the app:* wherever you chose in the **Save As** dialog.
+- *In the app:* wherever you chose in the **Save** dialog.
 - *On the command line:* your **Downloads** folder by default, or the folder you set with `--out` / `output_dir=`.
+
+**Where is the error log?**
+Open it in the app with **Advanced → Error Log**. On disk it's in `%LOCALAPPDATA%\DataDigitizer\<version>\logs` on Windows (paste that into File Explorer's address bar) and `~/Library/Application Support/DataDigitizer/<version>/logs` on a Mac (Finder → **Go → Go to Folder…**).
 
 ---
 
@@ -473,12 +623,18 @@ AxisReader.py       # OCR axis detection
 Calibration.py      # Calibration strategies
 Masking.py          # OCR / manual masking helpers
 ErrorLogger.py      # Error logging utilities
-digitizer.spec      # PyInstaller spec (Digitizer.exe)
-build_windows.ps1   # Build script
+platform_info.py    # What differs between Windows, macOS and Linux
+digitizer.spec      # PyInstaller spec — Windows (Digitizer.exe)
+build.cmd           # One-click Windows build (runs build_windows.ps1)
+build_windows.ps1   # Windows build script
+digitizer_macos.spec        # PyInstaller spec — macOS (Digitizer.app)
+build_macos.sh              # macOS build script (zip ready to share)
+vendor_tesseract_macos.sh   # Copies a self-contained Tesseract from Homebrew
+make_macos_icons.py         # Makes the macOS icon from the Windows .ico
 requirements.txt    # Python dependencies
-version.json        # App name + version
-assets/             # Application icon
-vendor/tesseract/   # Bundled Tesseract OCR runtime
+version.json        # App name + version (the single source of every version string)
+assets/             # Application icons
+vendor/tesseract/   # Bundled Tesseract OCR runtime (created by the build; not in git)
 ```
 
 ---
@@ -489,15 +645,17 @@ This is a **separate, optional** tool. It's completely independent of the main D
 
 **What it does:** it measures how faithfully a digitized curve reproduces a reference curve. You load **two CSV files** — an *original* reference and a *digitized* one — and it lines them up on a common X grid and reports accuracy numbers (MAE, RMSE, R-squared, bias, MAPE/sMAPE/WAPE, and more) alongside diagnostic plots: the curve overlay, residuals, absolute error, and zoomable outliers. It cleans messy data (drops non-numeric rows, collapses duplicate X values), can filter by color slot, and can optionally optimize a constant X-shift before comparing. Results can be exported to a comparison CSV.
 
-**Run the app (no Python needed):**
-Double-click **`AccuracyTester.exe`** (download it from [Releases](https://github.com/aj24by7/DataDigitizer/releases/tag/v2.15), or, if you built from source, find it in the `AccuracyTester` folder). It's a windowed, one-file app — no install or console needed.
+**Run the app (no Python needed):** download it from the **[latest release](https://github.com/RayanA07/LinePilot/releases/latest)** like the Digitizer —
+- **Windows:** double-click **`AccuracyTester.exe`** — a windowed, one-file app, no install or console needed.
+- **Mac:** double-click **`AccuracyTester-macOS-AppleSilicon.zip`** (or `-Intel.zip`), then open **`AccuracyTester.app`**; the first launch needs the same [Open Anyway](#the-first-run-mac-warning-expected) step.
 
-**Run from source:**
+**Run from source** (in the `AccuracyTester` folder, after `pip install -r requirements.txt`):
 
 ```powershell
-py accuracytester_desktop.py
+py accuracytester_desktop.py          # Windows
+python3 accuracytester_desktop.py     # Mac
 ```
 
 ---
 
-*Runtime logs are written to `%LOCALAPPDATA%\DataDigitizer\2.15\logs` (you can also view them in-app via **Advanced → Error Log**).*
+*Runtime logs are written to `%LOCALAPPDATA%\DataDigitizer\2.17\logs` on Windows and `~/Library/Application Support/DataDigitizer/2.17/logs` on a Mac (you can also view them in-app via **Advanced → Error Log**).*

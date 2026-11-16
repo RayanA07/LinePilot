@@ -5,9 +5,10 @@ from pathlib import Path
 
 from app_version import APP_TITLE
 from digitizer_2_11 import configure_runtime_paths
+from platform_info import for_this_os
 
 
-USAGE = r"""LinePilot Digitizer __VERSION__ - command line
+USAGE = for_this_os(r"""LinePilot Digitizer __VERSION__ - command line
 
 Digitize one image. With no options it auto-detects the curve color and the axes
 (via OCR) and saves the CSV + overlay to your Downloads folder:
@@ -56,7 +57,7 @@ that folder (digitized_csvs/ and digitized_overlays/) plus a batch_report:
 To open the graphical app instead:
 
   py digitizer_2_11.py
-""".replace("__VERSION__", APP_TITLE.split()[-1])
+""".replace("__VERSION__", APP_TITLE.split()[-1]))
 
 
 def _first_positional(args: list[str]) -> str | None:

@@ -3,13 +3,65 @@
 All notable changes to this project are documented here. Versions follow the release tags
 on GitHub; download the apps from the [Releases page](https://github.com/RayanA07/LinePilot/releases/latest).
 
-## Unreleased
+## 2.17
+
+One release for **Windows and macOS**: the same code, the same version and one set of
+release notes, with every download tested on a clean machine before it is attached.
 
 ### Added
 
+- **macOS apps in the main release.** `Digitizer` and `AccuracyTester` for **Apple Silicon
+  and Intel** Macs now ship next to the Windows `.exe` files in this repository's releases
+  (`Digitizer-macOS-AppleSilicon.zip`, `Digitizer-macOS-Intel.zip`, and the same for the
+  Accuracy Tester). The separate [digitizer_mac](https://github.com/RayanA07/digitizer_mac)
+  repository, which had been a hand-kept copy, is merged here and retired.
+  - The Mac build includes every fix from 2.15 and 2.16 (largest-ink-run point picking so a
+    legend sample can't drag points, scientific-notation and en-dash axis labels,
+    thick-spine border rejection, log-space `y_norm`, the locked-file export guard, the
+    About menu, the LinePilot name).
+  - **OCR on macOS 15:** the old Mac builds came from a macOS 26 machine, and the Tesseract
+    they bundle only loads on the macOS it was compiled on or newer — the published
+    digitizer_mac 2.15 app's OCR needed macOS 26.4+. Mac builds now come from macOS 15, and
+    each app records its real minimum (`LSMinimumSystemVersion`), so an older Mac gets a
+    clear message instead of an app whose axis detection fails.
+  - Finder's *Get Info* shows the real version; the bundled Tesseract and its libraries
+    are re-signed after `dylibbundler` patches them, as Apple Silicon requires.
+- **Clean-machine check for every build, on Windows and macOS.** The build machine's own
+  Tesseract is removed, then the *built* app digitizes the lab's Raman spectrum with its
+  bundled OCR (axes must read 400 / 1800 / 2000 / 14000; curve within 2 % of the true
+  data), and both apps must open and stay open. The end-to-end smoke test now runs on
+  Windows as well as both Mac chips. See [TESTING.md](TESTING.md).
+- **[TESTING.md](TESTING.md)** — what is checked automatically, and a nine-step hands-on
+  checklist for independent Windows and Mac computers, with a results log.
+- **GitHub issue forms** for installation reports and bug reports (they ask for the OS,
+  version and how the app was run).
 - **DigitizerBench is on Hugging Face:**
   [huggingface.co/datasets/LinePilot/DigitizerBench](https://huggingface.co/datasets/LinePilot/DigitizerBench).
-  Linked from the README, the project website and the app's *About ▾* menu and About dialog.
+  Linked from the README, the user guide, the project website, the release notes and the
+  app's *About ▾* menu and About dialog.
+- **Website:** a *Download for macOS* button next to *Download for Windows*, which
+  highlights the one for the visitor's computer, and Mac install steps in *Get started*.
+
+### Changed
+
+- **One version everywhere.** The Accuracy Tester now carries the release version (2.17;
+  it had stayed at 2.13), so every window title, `Info.plist`, file and note agrees.
+- **Stable download names** — `Digitizer.exe`, `Digitizer-macOS-AppleSilicon.zip`, … — so
+  links to `releases/latest/download/<file>` from the website and README never go stale.
+- **Documentation for both platforms.** The README's install section and the user guide
+  (`Digitizer/README.md`, which still said *Data Digitizer 2.15* and pointed at the old
+  repository) now give Windows and macOS the same step-by-step treatment: download,
+  first-run warning, running from source, building, and troubleshooting. The separate
+  macOS guide is folded into the user guide.
+- Everything that differs between Windows, macOS and Linux lives in
+  `Digitizer/platform_info.py` (Tesseract search paths, the undo-key label — ⌘Z on a Mac —,
+  the log folder, and the commands shown in `--help`). Windows behaviour and output are
+  unchanged; `test_platform_info.py` pins the Windows help text byte for byte.
+- One workflow, [`release.yml`](.github/workflows/release.yml), builds and tests all three
+  platforms and publishes one release; it replaces the separate Windows and macOS
+  workflows.
+
+Digitization is unchanged from 2.16.
 
 ## 2.16
 

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions, suggestions and collaborations
+    url: https://rayana07.github.io/LinePilot/#contact
+    about: Email the LinePilot team at Fengbo.Ma@uga.edu (Zhao lab, University of Georgia).
+  - name: User guide and troubleshooting
+    url: https://github.com/RayanA07/LinePilot/blob/main/Digitizer/README.md#troubleshooting
+    about: Most installation and first-launch questions are answered here.

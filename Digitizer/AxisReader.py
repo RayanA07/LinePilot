@@ -4,10 +4,11 @@ from dataclasses import dataclass
 import os
 from pathlib import Path
 import re
-import shutil
 from typing import List, Optional, Tuple
 
 from PyQt6 import QtGui
+
+import platform_info
 
 try:
     import pytesseract
@@ -123,29 +124,11 @@ def _configure_tesseract() -> None:
 def _resolve_tesseract_executable() -> Optional[Path]:
     here = Path(__file__).resolve()
     env_cmd = os.environ.get("TESSERACT_CMD", "").strip().strip('"')
-    candidates = [
-        Path(env_cmd) if env_cmd else None,
-        here.parent / "vendor" / "tesseract" / "tesseract.exe",
-        here.parent.parent / "vendor" / "tesseract" / "tesseract.exe",
-        Path(r"C:\Program Files\Tesseract-OCR\tesseract.exe"),
-        Path(r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"),
-    ]
-    for path in candidates:
-        if path is None:
-            continue
-        if path.is_file():
-            return path
-    on_path = shutil.which("tesseract")
-    if on_path:
-        return Path(on_path)
-    return None
+    return platform_info.find_tesseract(env_cmd, (here.parent, here.parent.parent))
 
 
 def _missing_tesseract_message() -> str:
-    return (
-        "Tesseract OCR executable not found. Install Tesseract and add it to PATH, "
-        "or set TESSERACT_CMD, or place it at vendor/tesseract/tesseract.exe."
-    )
+    return platform_info.missing_tesseract_message()
 
 
 def _is_tesseract_not_found(exc: BaseException) -> bool:

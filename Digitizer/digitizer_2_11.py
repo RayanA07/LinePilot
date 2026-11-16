@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from app_version import APP_NAME, APP_TITLE, APP_VERSION
+from platform_info import IS_MAC, IS_WINDOWS, find_tesseract, for_this_os
 
 import os
-import shutil
 import sys
 from pathlib import Path
 
@@ -82,6 +82,15 @@ def configure_runtime_paths() -> None:
     tesseract_cmd = _resolve_tesseract_cmd(bundle_root)
     if tesseract_cmd is not None:
         os.environ.setdefault("TESSERACT_CMD", str(tesseract_cmd))
+        if IS_MAC:
+            # The macOS build vendors Tesseract's dylibs into vendor/tesseract/lib and
+            # rewrites the binary to load them from @executable_path/lib; this is a
+            # belt-and-braces fallback for a hand-assembled vendor folder.
+            lib_dir = tesseract_cmd.parent / "lib"
+            if lib_dir.is_dir():
+                current = os.environ.get("DYLD_LIBRARY_PATH", "")
+                os.environ["DYLD_LIBRARY_PATH"] = os.pathsep.join(
+                    [str(lib_dir)] + ([current] if current else []))
         try:
             import pytesseract
 
@@ -137,7 +146,7 @@ def launch_digitizer_gui() -> int:
 
 
 def print_help() -> None:
-    print(
+    print(for_this_os(
         "\n".join(
             [
                 APP_TITLE,
@@ -164,7 +173,7 @@ def print_help() -> None:
                 "  py digitizer.py --help",
             ]
         )
-    )
+    ))
 
 
 def _looks_like_cli_invocation(args: list[str]) -> bool:
@@ -213,9 +222,17 @@ def _folder_positional(args: list[str]) -> str | None:
 
 
 def _user_app_data_dir() -> Path:
-    base = os.environ.get("LOCALAPPDATA")
-    if base:
-        return Path(base) / APP_NAME / APP_VERSION
+    if IS_WINDOWS:
+        base = os.environ.get("LOCALAPPDATA")
+        if base:
+            return Path(base) / APP_NAME / APP_VERSION
+    else:
+        # XDG_DATA_HOME first so a test or sandboxed run can redirect it.
+        base = os.environ.get("XDG_DATA_HOME")
+        if base:
+            return Path(base) / APP_NAME / APP_VERSION
+        if IS_MAC:
+            return Path.home() / "Library" / "Application Support" / APP_NAME / APP_VERSION
     return Path.home() / f".{APP_NAME.lower()}" / APP_VERSION
 
 
@@ -224,18 +241,7 @@ def _resolve_tesseract_cmd(bundle_root: Path) -> Path | None:
     # standard installs, then PATH - so a PATH-only Tesseract install is found
     # here too instead of relying on the OCR modules to re-resolve later.
     env_cmd = os.environ.get("TESSERACT_CMD", "").strip().strip('"')
-    candidates = [
-        Path(env_cmd) if env_cmd else None,
-        bundle_root / "vendor" / "tesseract" / "tesseract.exe",
-        Path(__file__).resolve().parent / "vendor" / "tesseract" / "tesseract.exe",
-        Path(r"C:\Program Files\Tesseract-OCR\tesseract.exe"),
-        Path(r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"),
-    ]
-    for candidate in candidates:
-        if candidate is not None and candidate.is_file():
-            return candidate
-    on_path = shutil.which("tesseract")
-    return Path(on_path) if on_path else None
+    return find_tesseract(env_cmd, (bundle_root, Path(__file__).resolve().parent))
 
 
 if __name__ == "__main__":

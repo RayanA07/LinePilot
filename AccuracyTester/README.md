@@ -6,7 +6,19 @@ metrics. Independent of the Digitizer app — you don't need it to get your data
 Two ways to use it: the **desktop app** (two files at a time, with diagnostic plots) and
 the **batch CLI** (a whole folder, scored by file name).
 
+## Download the app (no Python needed)
+
+From the **[latest release](https://github.com/RayanA07/LinePilot/releases/latest)**, under *Assets*:
+
+| Windows 10 / 11 | Mac (macOS 15 or later) |
+| --- | --- |
+| **`AccuracyTester.exe`** — double-click it. First run: SmartScreen → **More info → Run anyway**. | **`AccuracyTester-macOS-AppleSilicon.zip`** or **`-Intel.zip`** — double-click the zip, open **`AccuracyTester.app`**. First launch: **Done**, then System Settings → Privacy & Security → **Open Anyway**. |
+
+Step-by-step help for both platforms is in the [Digitizer user guide](../Digitizer/README.md#download--install-no-python-needed) — the Accuracy Tester installs exactly the same way.
+
 ## Run from source
+
+On a Mac, use `python3` wherever this page says `py` (inside a virtual environment if you use Homebrew's Python — see the [user guide](../Digitizer/README.md#on-a-mac-1)).
 
 ```powershell
 py -m pip install -r requirements.txt
@@ -19,14 +31,15 @@ is installed; otherwise click the panels to browse for files.
 ## Batch CLI — score a whole folder
 
 ```powershell
-py accuracy_batch_cli.py --digitized-dir "path\to\digitized_csvs" --ground-truth-dir "path\to\truth"
+py accuracy_batch_cli.py --digitized-dir "path\to\digitized_csvs" --ground-truth-dir "path\to\truth"       # Windows
+python3 accuracy_batch_cli.py --digitized-dir path/to/digitized_csvs --ground-truth-dir path/to/truth   # Mac
 ```
 
 Writes, next to the digitized CSVs:
 
-- **`accuracy_report\accuracy_report.csv`** — one row per image: RMSE, correlation, MSE,
+- **`accuracy_report/accuracy_report.csv`** — one row per image: RMSE, correlation, MSE,
   R2, MAE, bias, MAPE/sMAPE/WAPE, `nrmse_range_pct`, point count, plus a `status`.
-- **`accuracy_report\accuracy_summary.json`** — totals and the overall failure rate.
+- **`accuracy_report/accuracy_summary.json`** — totals and the overall failure rate.
 
 Pairs are matched by file-name stem after stripping a `_digitized_points` / `_digitized` /
 `_points` / `_ground_truth` / `_gt` suffix. Exact matches take priority, and a tie between
@@ -64,13 +77,14 @@ py -m pip install -r requirements-dev.txt
 py -m pytest test_accuracy_core.py test_batch_scoring.py -q
 ```
 
-## Build the Windows executable
+## Build the apps
 
-```powershell
-.\build_windows.ps1
-```
+| | Windows | macOS |
+| --- | --- | --- |
+| **Command** | `.\build_windows.ps1` | `bash build_macos.sh` |
+| **Output** | `dist\AccuracyTester.exe` — a windowed, one-file app | `dist/AccuracyTester.app` + `dist/AccuracyTester-macOS-<chip>.zip` |
 
-Output: `dist\AccuracyTester.exe` — a windowed, one-file app (double-click to open).
+Releases are built and tested automatically for both platforms by `.github/workflows/release.yml`.
 
 ## Folder contents
 
@@ -83,9 +97,12 @@ accuracy_batch_cli.py    # Batch CLI entry point
 test_accuracy_core.py    # Tests for the scoring maths
 test_batch_scoring.py    # Tests for file matching + pair scoring
 requirements-dev.txt     # Test-only deps (pytest, scipy, scikit-learn)
-accuracytester.spec      # PyInstaller spec (AccuracyTester.exe)
-build_windows.ps1        # Build script
+accuracytester.spec      # PyInstaller spec — Windows (AccuracyTester.exe)
+build_windows.ps1        # Windows build script
+accuracytester_macos.spec# PyInstaller spec — macOS (AccuracyTester.app)
+build_macos.sh           # macOS build script
+make_macos_icons.py      # Makes the macOS icon from the Windows .ico
 requirements.txt         # Python dependencies
-version.json             # App name + version
+version.json             # App name + version (shares the LinePilot release version)
 assets/                  # Application icon
 ```

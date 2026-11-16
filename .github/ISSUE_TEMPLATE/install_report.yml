@@ -1,0 +1,54 @@
+name: Installation report
+description: Record a hands-on install test on a Windows PC or Mac (see TESTING.md).
+title: "[Install] LinePilot <version> on <OS>"
+labels: ["installation report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing! Follow the checklist in [TESTING.md](https://github.com/RayanA07/LinePilot/blob/main/TESTING.md#2-hands-on-installation-test--independent-computers) on a computer that has never had LinePilot, Python or Tesseract installed.
+  - type: input
+    id: version
+    attributes:
+      label: LinePilot version
+      description: From the window title, e.g. "LinePilot Digitizer 2.17".
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Computer
+      options:
+        - Windows 11
+        - Windows 10
+        - Mac — Apple Silicon (M1–M4)
+        - Mac — Intel
+    validations:
+      required: true
+  - type: input
+    id: os_version
+    attributes:
+      label: OS version
+      description: Windows — Settings → System → About. Mac — Apple menu → About This Mac.
+      placeholder: e.g. Windows 11 24H2, or macOS 15.8.1
+    validations:
+      required: true
+  - type: checkboxes
+    id: steps
+    attributes:
+      label: Checklist (tick the steps that matched the expected result)
+      options:
+        - label: 1. The website's download button gave the right file
+        - label: 2. The first-run warning matched the guide, and the app opened
+        - label: 3. Axis detection on example_raman.png read 400 / 1800 / 2000 / 14000
+        - label: 4. Coordinate-Mediated Calibration and Place Points covered the whole spectrum
+        - label: 5. CSV export opened in Excel / Numbers
+        - label: 6. Enhanced Human Click snapped, and undo (Ctrl+Z / ⌘Z) worked
+        - label: 7. Every link in the About menu opened the right page
+        - label: 8. Accuracy Tester opened and scored the export at R² above 0.99
+        - label: 9. The app reopened without a warning
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything unexpected?
+      description: Extra warnings, antivirus prompts, slow start-up, wording in the guide that didn't match the screen. Screenshots help.

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Optional, Sequence
 
 from app_version import APP_TITLE
+from platform_info import for_this_os
 from digitizer_api import DigitizerCliError, DigitizerOutputs, digitize_image
 
 
@@ -151,7 +152,7 @@ def build_parser() -> argparse.ArgumentParser:
             "Digitize a plot image into a CSV (+ overlay). With just an image path it "
             "auto-detects the curve color and the axes (OCR) and saves to your Downloads folder."
         ),
-        epilog=(
+        epilog=for_this_os(
             "Examples:\n"
             "  py digitizer.py plot2.png\n"
             "  py digitizer.py plot2.png --verbose 1\n"
@@ -312,7 +313,7 @@ def _looks_like_verbose_level(token: str) -> bool:
 
 
 def print_function_call_usage() -> None:
-    print(
+    print(for_this_os(
         "\n".join(
             [
                 f"{APP_TITLE} CLI",
@@ -327,13 +328,13 @@ def print_function_call_usage() -> None:
                 "  py digitizer.py 'digitizer_cli(pic_dir=\"C:\\Users\\User\\Pictures\\Screenshots\\Example 2.png\", , , , output_dir=\"C:\\Users\\User\\Downloads\\testcli\")'",
             ]
         )
-    )
+    ))
 
 
 def print_template() -> None:
     """Print a ready-to-copy digitizer_cli(...) line that users can edit."""
 
-    print(
+    print(for_this_os(
         "\n".join(
             [
                 "Function-call template - copy a line below, then change the values.",
@@ -363,7 +364,7 @@ def print_template() -> None:
                 "  limit_to_calibration=True   (optional) drop points outside the calibration box (off by default)",
             ]
         )
-    )
+    ))
 
 
 def is_function_call_syntax(argv: Sequence[str]) -> bool:

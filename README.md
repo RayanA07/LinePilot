@@ -5,7 +5,9 @@
 <p align="center">
   <a href="https://arxiv.org/abs/2609.19377"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2609.19377-BA0C2F.svg"></a>
   <a href="https://rayana07.github.io/LinePilot/"><img alt="Project website" src="https://img.shields.io/badge/website-rayana07.github.io%2FLinePilot-000000.svg"></a>
-  <a href="https://github.com/RayanA07/LinePilot/releases/latest"><img alt="Download" src="https://img.shields.io/badge/download-Windows%20app-00A3AD.svg"></a>
+  <a href="https://github.com/RayanA07/LinePilot/releases/latest"><img alt="Download for Windows" src="https://img.shields.io/badge/download-Windows-00A3AD.svg"></a>
+  <a href="https://github.com/RayanA07/LinePilot/releases/latest"><img alt="Download for macOS" src="https://img.shields.io/badge/download-macOS-00A3AD.svg"></a>
+  <a href="https://github.com/RayanA07/LinePilot/actions/workflows/release.yml"><img alt="Build and test on Windows and macOS" src="https://github.com/RayanA07/LinePilot/actions/workflows/release.yml/badge.svg"></a>
   <a href="https://huggingface.co/datasets/LinePilot/DigitizerBench"><img alt="DigitizerBench on Hugging Face" src="https://img.shields.io/badge/%F0%9F%A4%97%20dataset-DigitizerBench-FFD21E.svg"></a>
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-004E60.svg"></a>
 </p>
@@ -64,7 +66,7 @@ Digitization is two problems. **Calibration** maps image pixels to data coordina
 
 **Curve extraction.** Target colors are detected automatically or picked by you. In each image column, pixels within a color tolerance are grouped into vertical runs; each run's midpoint is a candidate center-line position and its thickness is extra stroke evidence. Dynamic programming links candidates across columns, rewarding sustained support and penalizing abrupt vertical jumps and gaps, so isolated color-matched objects lose to the real line. Only image-supported points are exported — missing columns are never filled with synthesized values.
 
-Also in the app: text and legend masking, out-of-plot masking, a color picker with multiple color slots, cursor zoom, Ctrl+Z for calibration clicks, CSV / Excel export, and a batch CLI.
+Also in the app: text and legend masking, out-of-plot masking, a color picker with multiple color slots, cursor zoom, Ctrl+Z (⌘Z on a Mac) for calibration clicks, CSV / Excel export, and a batch CLI.
 
 ---
 
@@ -124,28 +126,65 @@ python ../AccuracyTester/accuracy_batch_cli.py --digitized-dir demo_out --ground
 
 ## Install
 
-### Windows — no Python needed
+LinePilot runs on **Windows** and **macOS**. Both apps are built from the same code, ship in the same [release](https://github.com/RayanA07/LinePilot/releases/latest), and bundle the Tesseract OCR engine — no Python, nothing to install.
 
-1. Open the **[latest release](https://github.com/RayanA07/LinePilot/releases/latest)** and download **`Digitizer.exe`** from *Assets*. (Optional: `AccuracyTester.exe`, see below.)
-2. Double-click it. Nothing to install — the Tesseract OCR engine is bundled inside.
-3. On first run Windows SmartScreen may say *"Windows protected your PC"*. Click **More info → Run anyway**. The app simply isn't code-signed.
+| | **Windows** 10 / 11 (64-bit) | **macOS** 15 Sequoia or later |
+| --- | --- | --- |
+| **Download** | [`Digitizer.exe`](https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer.exe) | [`Digitizer-macOS-AppleSilicon.zip`](https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-AppleSilicon.zip) (M1–M4) · [`Digitizer-macOS-Intel.zip`](https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-Intel.zip) |
+| **Open it** | Double-click `Digitizer.exe` | Double-click the zip, then open `Digitizer.app` |
+| **First launch only** | SmartScreen: **More info → Run anyway** | **Done**, then System Settings → Privacy & Security → **Open Anyway** |
+| **Accuracy Tester** *(optional)* | [`AccuracyTester.exe`](https://github.com/RayanA07/LinePilot/releases/latest/download/AccuracyTester.exe) | [`AccuracyTester-macOS-AppleSilicon.zip`](https://github.com/RayanA07/LinePilot/releases/latest/download/AccuracyTester-macOS-AppleSilicon.zip) · [`…-Intel.zip`](https://github.com/RayanA07/LinePilot/releases/latest/download/AccuracyTester-macOS-Intel.zip) |
+| **Step-by-step guide** | [User guide → On Windows](Digitizer/README.md#on-windows) | [User guide → On a Mac](Digitizer/README.md#on-a-mac) |
+
+### Windows
+
+1. Download **[`Digitizer.exe`](https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer.exe)** (or open the [latest release](https://github.com/RayanA07/LinePilot/releases/latest) and pick it from *Assets*).
+2. Double-click it. Nothing to install — the `.exe` is the program.
+3. First run only: Windows SmartScreen may say *"Windows protected your PC"*. Click **More info → Run anyway**. The app simply isn't code-signed.
 
 > If double-clicking does *nothing at all* — no window, no warning — **Smart App Control** (on by default on new Windows 11 installs) is silently blocking unsigned programs. Run from source instead (below); that path is not blocked. Turning Smart App Control off is a one-way door, so prefer running from source.
 
 ### macOS
 
-A `Digitizer.app` bundle is built from the companion **[digitizer_mac](https://github.com/RayanA07/digitizer_mac)** repository (`bash build_macos.sh`), which also builds automatically on GitHub Actions.
+1. Check your Mac's chip: Apple menu → **About This Mac**. *Chip: Apple M…* → Apple Silicon; *Processor: …Intel…* → Intel.
+2. Download **[`Digitizer-macOS-AppleSilicon.zip`](https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-AppleSilicon.zip)** or **[`Digitizer-macOS-Intel.zip`](https://github.com/RayanA07/LinePilot/releases/latest/download/Digitizer-macOS-Intel.zip)** and double-click it to unpack **`Digitizer.app`**. Drag it into **Applications** if you like.
+3. First launch only: macOS says it *"cannot verify"* the app — click **Done**, then open **System Settings → Privacy & Security**, scroll down and click **Open Anyway**. The app simply isn't notarized with a paid Apple Developer ID.
 
-### From source (Windows / macOS / Linux)
+> The exact minimum macOS for each Mac build is printed at the top of its release notes (it follows the bundled OCR engine). If macOS ever calls the app *"damaged"*, run `xattr -dr com.apple.quarantine /Applications/Digitizer.app` once in Terminal.
 
-```bash
+### From source (Windows, macOS, Linux)
+
+Needs Python 3 (the releases are built with 3.12) and the **Tesseract** program for OCR (`pytesseract` alone is not enough; the prebuilt apps bundle it).
+
+**Windows** (PowerShell) — install Tesseract from the [UB Mannheim build](https://github.com/UB-Mannheim/tesseract/wiki), then:
+
+```powershell
 git clone https://github.com/RayanA07/LinePilot.git
-cd LinePilot/Digitizer
-python -m pip install -r requirements.txt     # PyQt6, numpy, pillow, pytesseract, openpyxl, PyInstaller
-python digitizer_2_11.py                      # launches the GUI
+cd LinePilot\Digitizer
+py -m pip install -r requirements.txt
+py digitizer_2_11.py                 # launches the app
 ```
 
-Running from source needs the **Tesseract** program installed for OCR features (`pytesseract` alone is not enough); the prebuilt `.exe` bundles it. On Windows, `build.cmd` rebuilds `dist\Digitizer.exe` with PyInstaller.
+**macOS** (Terminal) — with [Homebrew](https://brew.sh):
+
+```bash
+brew install python tesseract
+git clone https://github.com/RayanA07/LinePilot.git
+cd LinePilot/Digitizer
+python3 -m venv .venv && source .venv/bin/activate   # Homebrew Python needs a virtual environment
+python3 -m pip install -r requirements.txt
+python3 digitizer_2_11.py            # launches the app
+```
+
+### Building the apps
+
+| | Windows | macOS |
+| --- | --- | --- |
+| **Command** | double-click `Digitizer\build.cmd` | `bash Digitizer/build_macos.sh` (needs Homebrew) |
+| **Output** | `Digitizer\dist\Digitizer.exe` | `Digitizer/dist/Digitizer.app` + zip |
+| **OCR bundled from** | `Digitizer\vendor\tesseract` | Homebrew Tesseract, via `vendor_tesseract_macos.sh` |
+
+Every push is built and tested on Windows and on Apple Silicon and Intel Macs by [`release.yml`](.github/workflows/release.yml); tagging `v*` publishes all six downloads in one release. See [TESTING.md](TESTING.md) for what is checked automatically and the hands-on installation checklist.
 
 ---
 
@@ -155,7 +194,7 @@ Running from source needs the **Tesseract** program installed for OCR features (
 
 ### Step 0 — Open the app
 
-Double-click `Digitizer.exe`. Everything you need is in the four menus along the top — **Import, Tools, Advanced, Export** — worked left to right. The thin **status bar** at the very bottom confirms every action or tells you why something didn't run, so keep an eye on it. **Cursor Zoom** (top right) is a live magnifier of whatever is under your mouse, handy for clicking ticks precisely. **About ▾** (top right) holds the citation and acknowledgments.
+Double-click `Digitizer.exe` (Windows) or `Digitizer.app` (macOS); the app looks and works the same on both. Everything you need is in the four menus along the top — **Import, Tools, Advanced, Export** — worked left to right. The thin **status bar** at the very bottom confirms every action or tells you why something didn't run, so keep an eye on it. **Cursor Zoom** (top right) is a live magnifier of whatever is under your mouse, handy for clicking ticks precisely. **About ▾** (top right) holds the citation and acknowledgments.
 
 <p align="center"><img src="docs/assets/tutorial/01_empty.png" width="800" alt="The empty LinePilot window with Import, Tools, Advanced, Export and About menus"></p>
 
@@ -260,7 +299,7 @@ Flip the small **log** buttons beside the X or Y Min-Max boxes (they turn green)
 
 ## Command line, batch mode and Python API
 
-All three run from the source folder (`LinePilot/Digitizer`) with Python installed.
+All three run from the source folder (`LinePilot/Digitizer`) with Python installed ([setup](#from-source-windows-macos-linux)). The examples say `python`; on Windows `py` works too, and on macOS use `python3` (or `python` inside the virtual environment).
 
 ```bash
 # one image, everything auto-detected (OCR calibration), output to Downloads
@@ -293,7 +332,7 @@ out.csv_path, out.overlay_path, out.point_count, out.used_ocr, out.ocr_confidenc
 
 ### Accuracy Tester
 
-A separate, optional tool (`AccuracyTester.exe`, or `python accuracytester_desktop.py` from `AccuracyTester/`) that measures how faithfully a digitized curve reproduces a reference curve: MAE, RMSE, R², bias, MAPE / sMAPE / WAPE, with overlay, residual and outlier plots, optional constant X-shift optimization, and CSV export. `accuracy_batch_cli.py` scores whole folders.
+A separate, optional tool (`AccuracyTester.exe` on Windows, `AccuracyTester.app` on macOS, or `python accuracytester_desktop.py` from `AccuracyTester/`) that measures how faithfully a digitized curve reproduces a reference curve: MAE, RMSE, R², bias, MAPE / sMAPE / WAPE, with overlay, residual and outlier plots, optional constant X-shift optimization, and CSV export. `accuracy_batch_cli.py` scores whole folders.
 
 ---
 
@@ -326,15 +365,20 @@ LinePilot/
 │   ├── digitizer_batch_cli.py
 │   ├── digitizer_api.py     digitize_image(...)
 │   ├── Calibration.py / EnhancedClick.py / AxisReader.py / PointPlacer.py / Masking.py
-│   └── build.cmd            one-click Windows build (PyInstaller)
-├── AccuracyTester/      # reference-vs-digitized scoring app and batch CLI
+│   ├── platform_info.py     the few things that differ between Windows and macOS
+│   ├── build.cmd            Windows build → dist\Digitizer.exe (PyInstaller)
+│   └── build_macos.sh       macOS build → dist/Digitizer.app (PyInstaller)
+├── AccuracyTester/      # reference-vs-digitized scoring app and batch CLI (build_windows.ps1 / build_macos.sh)
+├── tools/               # release checks: smoke test, built-app self-test, release notes, minimum-macOS scan
 ├── docs/                # project website (GitHub Pages) and figures used in this README
+├── .github/             # release.yml (Windows + macOS build, test, release), issue forms
+├── TESTING.md           # automated checks and the hands-on installation checklist
 ├── CHANGELOG.md
 ├── CITATION.cff
 └── LICENSE              # Apache License 2.0
 ```
 
-This repository carries the full commit history of the project. Earlier releases (2.11 – 2.15, published as *Data Digitizer*) are at [aj24by7/DataDigitizer](https://github.com/aj24by7/DataDigitizer); the [changelog](CHANGELOG.md) covers every version.
+This repository carries the full commit history of the project. Earlier releases (2.11 – 2.15, published as *Data Digitizer*) are at [aj24by7/DataDigitizer](https://github.com/aj24by7/DataDigitizer), and macOS builds up to 2.16 at [RayanA07/digitizer_mac](https://github.com/RayanA07/digitizer_mac), now merged here; the [changelog](CHANGELOG.md) covers every version.
 
 ---
 
@@ -357,14 +401,14 @@ If LinePilot or DigitizerBench is useful in your work, please cite the paper —
 
 ## License
 
-LinePilot Digitizer is released under the [Apache License 2.0](LICENSE). Third-party components keep their own licenses — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full list and what it means for the prebuilt executables (PyQt6 is GPL-3.0, so the combined `.exe` is distributed on GPL-3.0 terms with this repository as its source).
+LinePilot Digitizer is released under the [Apache License 2.0](LICENSE). Third-party components keep their own licenses — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full list and what it means for the prebuilt executables (PyQt6 is GPL-3.0, so the combined `.exe` and `.app` are distributed on GPL-3.0 terms with this repository as its source).
 
 ## Contact
 
 | | |
 | --- | --- |
 | **Questions, suggestions, collaborations** | [Fengbo.Ma@uga.edu](mailto:Fengbo.Ma@uga.edu) — managed by the Zhao lab, University of Georgia |
-| **Bug reports and feature requests** | [GitHub Issues](https://github.com/RayanA07/LinePilot/issues) — attach the figure that caused trouble if you can |
+| **Bug reports, feature requests, installation reports** | [GitHub Issues](https://github.com/RayanA07/LinePilot/issues/new/choose) — forms ask for your OS and version; attach the figure that caused trouble if you can |
 | **Corresponding authors (paper)** | zhaoy@uga.edu · zxiangaa@uga.edu · xychen@uga.edu |
 
 ## Acknowledgment

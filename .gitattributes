@@ -1,0 +1,4 @@
+# Shell scripts must keep LF endings or bash on macOS fails with "\r: command not found"
+# when they are edited or checked out on Windows.
+*.sh text eol=lf
+*.command text eol=lf

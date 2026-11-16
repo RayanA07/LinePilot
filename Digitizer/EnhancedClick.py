@@ -54,6 +54,8 @@ from typing import Literal, Optional, Tuple
 
 from PyQt6 import QtGui
 
+from platform_info import UNDO_HINT
+
 Kind = Literal["cross", "line-x", "line-y", "none", "rejected"]
 
 # Defaults; the UI exposes search_radius as a slider.
@@ -249,4 +251,4 @@ def snap(
         msg = f"Enhanced click: vertical line found, corrected x by {abs(nx - ox):.2f} px."
     else:
         msg = f"Enhanced click: horizontal line found, corrected y by {abs(ny - oy):.2f} px."
-    return SnapResult(nx, ny, kind, moved, msg + "  Ctrl+Z to undo.")
+    return SnapResult(nx, ny, kind, moved, f"{msg}  {UNDO_HINT} to undo.")

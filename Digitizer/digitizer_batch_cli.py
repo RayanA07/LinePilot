@@ -36,6 +36,7 @@ from typing import Optional, Sequence
 
 from digitizer_api import DigitizerCliError, digitize_image
 from digitizer_cli import parse_numbers, parse_points, parse_rgb
+from platform_info import for_this_os
 
 SUPPORTED_EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff")
 CSV_SUBFOLDER = "digitized_csvs"
@@ -305,7 +306,7 @@ def build_parser() -> argparse.ArgumentParser:
             "non-plot images, OCR failures) are recorded in the batch report and never "
             "stop the run; non-image files are reported as skipped."
         ),
-        epilog=(
+        epilog=for_this_os(
             "Examples:\n"
             "  py digitizer_batch_cli.py C:\\charts\n"
             "  py digitizer_batch_cli.py --input-dir C:\\charts --output-dir D:\\results\n"

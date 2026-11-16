@@ -10,6 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 from About import build_about_button
 from app_version import APP_TITLE
+from platform_info import UNDO_HINT
 
 from AxisReader import AxisDetectionError, AxisScaleResult, detect_axis_scale
 import EnhancedClick
@@ -285,7 +286,8 @@ class DigitizerWindow(QtWidgets.QMainWindow):
         self.act_enhanced_click.setChecked(False)
         self.act_enhanced_click.setToolTip(
             "During manual calibration, snap each click onto the crosshair, corner or axis "
-            "line nearest it. Corrects the ~0.9 px error of a human click. Ctrl+Z undoes a click.")
+            "line nearest it. Corrects the ~0.9 px error of a human click. "
+            f"{UNDO_HINT} undoes a click.")
         self.act_enhanced_settings = self.calibration_menu.addAction("Enhanced Click Settings...")
         self.act_calib_line.setVisible(False)  # hidden in 2.12
         self.tools_menu.addMenu(self.calibration_menu)
@@ -1607,7 +1609,7 @@ class DigitizerWindow(QtWidgets.QMainWindow):
             "for a crosshair, corner or axis line near the click and moves the point onto "
             "its exact centre.<br><br>"
             "The slider sets how far a click may be moved. If the status bar says a feature "
-            "was <i>N px away (limit ...)</i>, raise this above N, press <b>Ctrl+Z</b>, and "
+            f"was <i>N px away (limit ...)</i>, raise this above N, press <b>{UNDO_HINT}</b>, and "
             "click again — the new limit applies immediately.<br><br>"
             "Radial miss distance is Rayleigh-distributed, so the share of clicks landing "
             "further than R from the target is exp(-R&sup2;/2&sigma;&sup2;):<br>"

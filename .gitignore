@@ -10,3 +10,8 @@ logs/
 *.egg-info/
 Thumbs.db
 .DS_Store
+
+# macOS build outputs
+*.app
+*.icns
+smoke_out/

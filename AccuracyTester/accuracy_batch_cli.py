@@ -40,6 +40,7 @@ import argparse
 import csv
 import json
 import sys
+import os
 from pathlib import Path
 from typing import Optional, Sequence
 
@@ -117,7 +118,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     print(f"Matching rule: {match_settings.describe()}")
     for idx in (gt_index, dig_index):
         for name in idx.ignored:
-            print(f"  note: ignored pipeline report file {idx.folder.name}\\{name}")
+            print(f"  note: ignored pipeline report file {idx.folder.name}{os.sep}{name}")
 
     matches = match_pairs(gt_index, dig_index)
     rows: list[dict] = []
@@ -234,6 +235,12 @@ def _grid_points_type(text: str) -> int:
     return value
 
 
+if sys.platform == "win32":
+    _PY, _OUT, _TRUTH = "py", "C:\\out", "C:\\truth"
+else:  # the Windows launcher and drive letters mean nothing on macOS / Linux
+    _PY, _OUT, _TRUTH = "python3", "~/Desktop/out", "~/Desktop/truth"
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="accuracy-batch",
@@ -245,8 +252,8 @@ def build_parser() -> argparse.ArgumentParser:
         ),
         epilog=(
             "Examples:\n"
-            "  py accuracy_batch_cli.py --digitized-dir C:\\out --ground-truth-dir C:\\truth\n"
-            "  py accuracy_batch_cli.py --digitized-dir C:\\out --ground-truth-dir C:\\truth "
+            f"  {_PY} accuracy_batch_cli.py --digitized-dir {_OUT} --ground-truth-dir {_TRUTH}\n"
+            f"  {_PY} accuracy_batch_cli.py --digitized-dir {_OUT} --ground-truth-dir {_TRUTH} "
             "--grid-mode common_uniform --grid-points 500\n"
             "accuracy_report.csv holds one row per image with every statistic and a "
             "status column; accuracy_summary.json holds the failure rate."
@@ -258,7 +265,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ground-truth-dir", required=True,
                         help="Folder of ground-truth CSVs.")
     parser.add_argument("--output-dir", "--out", "-o", dest="output_dir",
-                        help="Report folder (created if absent). Default: <digitized-dir>\\accuracy_report.")
+                        help=f"Report folder (created if absent). Default: <digitized-dir>{os.sep}accuracy_report.")
     parser.add_argument("--x-col", default="x", help="X column name in both CSVs (default: x).")
     parser.add_argument("--y-col", default="y", help="Y column name in both CSVs (default: y).")
     parser.add_argument("--grid-mode", default="original_x",
