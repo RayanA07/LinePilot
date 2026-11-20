@@ -3,4 +3,5 @@ numpy
 pandas
 matplotlib
 tkinterdnd2
+tzdata
 pillow

@@ -40,6 +40,24 @@ APPS = {
 }
 
 
+# Tcl/Tk files that the Python distributions on Windows and macOS package differently and
+# that Tk never uses: Tcl's own timezone database (only for `clock -timezone`), its C
+# example sources, its test framework and its SQLite database driver. Both Accuracy Tester
+# specs drop them, so the .exe and the .app carry the same Tcl/Tk library.
+_UNUSED_TCL = ("_tcl_data/tzdata/", "AppInit.c", "/tcltest-", "/tdbc/")
+
+
+def drop_unused_tcl_files(datas):
+    """Filter a PyInstaller TOC (Analysis.datas) with the rule above."""
+    out = []
+    for entry in datas:
+        dest = str(entry[0]).replace("\\", "/")
+        if dest.startswith(("_tcl_data/", "_tk_data/", "tcl8/")) and any(p in dest for p in _UNUSED_TCL):
+            continue
+        out.append(entry)
+    return type(datas)(out) if not isinstance(datas, list) else out
+
+
 def version_of(app_dir: Path) -> str:
     return json.loads((Path(app_dir) / "version.json").read_text(encoding="utf-8"))["version"]
 

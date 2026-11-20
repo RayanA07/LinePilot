@@ -301,6 +301,7 @@ jobs:
           merge-multiple: true
 
       - name: Compare the inventories
+        shell: bash   # -eo pipefail, so "| tee" cannot hide a failed comparison
         run: |
           find inventories -type f -name '*.json' | sort
           python tools/bundle_inventory.py --compare $(find inventories -type f -name '*.json' | sort) | tee parity.txt

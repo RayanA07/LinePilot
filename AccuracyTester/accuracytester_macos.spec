@@ -24,6 +24,10 @@ datas += collect_data_files("tkinterdnd2")
 # tkinterdnd2 ships its own PyInstaller hook in tkinterdnd2/__pyinstaller; collecting that
 # too would bundle PyInstaller itself into the app.
 hiddenimports = collect_submodules("tkinterdnd2", filter=lambda name: "__pyinstaller" not in name)
+# pandas needs the tzdata package on Windows (no system timezone database there); bundle it
+# on macOS too so both apps carry the same timezone data instead of one using the OS copy.
+hiddenimports += ["tzdata"]
+datas += collect_data_files("tzdata")
 
 # make_macos_icons.py writes assets/accuracytester.icns from the same .ico Windows uses.
 icon_path = root / "assets" / "accuracytester.icns"
@@ -42,6 +46,8 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
+
+a.datas = build_common.drop_unused_tcl_files(a.datas)
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
