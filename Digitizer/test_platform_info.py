@@ -5,6 +5,7 @@ so making the code cross-platform cannot change a single character of what Windo
 see. The rest checks the macOS / Linux rewrite and the Tesseract search order.
 """
 
+import os
 from pathlib import Path
 
 import platform_info
@@ -61,3 +62,41 @@ def test_vendored_tesseract_uses_this_os_binary_name(tmp_path):
 def test_undo_hint_matches_the_key_qt_actually_binds():
     expected = "⌘Z" if platform_info.IS_MAC else "Ctrl+Z"
     assert platform_info.UNDO_HINT == expected
+
+
+def test_vendored_tesseract_gets_its_own_tessdata(tmp_path, monkeypatch):
+    vendor = tmp_path / "vendor" / "tesseract"
+    (vendor / "tessdata").mkdir(parents=True)
+    (vendor / "tessdata" / "eng.traineddata").write_bytes(b"model")
+    exe = vendor / platform_info.TESSERACT_BINARY
+    exe.write_bytes(b"")
+    monkeypatch.delenv("TESSDATA_PREFIX", raising=False)
+    monkeypatch.setattr(platform_info, "_SYSTEM_TESSERACT", ())
+    found = platform_info.find_tesseract("", [tmp_path])
+    assert found == exe
+    assert os.environ["TESSDATA_PREFIX"] == str(vendor / "tessdata")
+
+
+def test_existing_tessdata_prefix_with_models_is_kept(tmp_path, monkeypatch):
+    vendor = tmp_path / "vendor" / "tesseract"
+    (vendor / "tessdata").mkdir(parents=True)
+    (vendor / "tessdata" / "eng.traineddata").write_bytes(b"model")
+    (vendor / platform_info.TESSERACT_BINARY).write_bytes(b"")
+    mine = tmp_path / "my_tessdata"
+    mine.mkdir()
+    (mine / "eng.traineddata").write_bytes(b"model")
+    monkeypatch.setenv("TESSDATA_PREFIX", str(mine))
+    monkeypatch.setattr(platform_info, "_SYSTEM_TESSERACT", ())
+    platform_info.find_tesseract("", [tmp_path])
+    assert os.environ["TESSDATA_PREFIX"] == str(mine)
+
+
+def test_stale_tessdata_prefix_is_replaced(tmp_path, monkeypatch):
+    vendor = tmp_path / "vendor" / "tesseract"
+    (vendor / "tessdata").mkdir(parents=True)
+    (vendor / "tessdata" / "eng.traineddata").write_bytes(b"model")
+    (vendor / platform_info.TESSERACT_BINARY).write_bytes(b"")
+    monkeypatch.setenv("TESSDATA_PREFIX", str(tmp_path / "nowhere"))
+    monkeypatch.setattr(platform_info, "_SYSTEM_TESSERACT", ())
+    platform_info.find_tesseract("", [tmp_path])
+    assert os.environ["TESSDATA_PREFIX"] == str(vendor / "tessdata")

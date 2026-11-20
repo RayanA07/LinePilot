@@ -157,7 +157,7 @@ def _read_app_bundle(path: Path) -> tuple[list[str], set[str], dict[str, bytes],
     tess = contents / "Resources" / "vendor" / "tesseract"
     if not (tess / "tesseract").exists():
         tess = contents / "Frameworks" / "vendor" / "tesseract"
-    return sorted(files), mods, wanted, (tess if (tess / "tesseract").exists() else None)
+    return sorted(files), mods, wanted, (tess.resolve() if (tess / "tesseract").exists() else None)
 
 
 def _python_version(files: list[str]) -> str:
@@ -192,6 +192,7 @@ def _tesseract_info(tess_dir: Path | None) -> dict:
 
 
 def inventory(path: Path) -> dict:
+    path = Path(path).resolve()
     with tempfile.TemporaryDirectory() as tmp:
         if path.suffix.lower() == ".exe":
             files, mods, wanted, tess_dir = _read_onefile_exe(path, Path(tmp))

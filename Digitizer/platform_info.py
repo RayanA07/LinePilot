@@ -10,6 +10,7 @@ survives the rewrite, so a new example added later cannot leak through unnoticed
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import sys
@@ -54,9 +55,28 @@ def tesseract_candidates(env_cmd: str, vendor_roots: Iterable[Path]) -> list[Pat
 def find_tesseract(env_cmd: str, vendor_roots: Iterable[Path]) -> Optional[Path]:
     for candidate in tesseract_candidates(env_cmd, vendor_roots):
         if candidate.is_file():
+            use_bundled_tessdata(candidate)
             return candidate
     on_path = shutil.which("tesseract")
     return Path(on_path) if on_path else None
+
+
+def use_bundled_tessdata(tesseract_cmd: Path) -> None:
+    """Point Tesseract at the language data that ships next to it.
+
+    A vendored copy (vendor/tesseract/tesseract[.exe]) carries its models in
+    vendor/tesseract/tessdata. Without TESSDATA_PREFIX, Tesseract looks in the data folder
+    it was compiled with - next to the .exe on Windows, but on macOS the build machine's
+    install folder - so the pairing is made explicit, the same way on every platform. A
+    TESSDATA_PREFIX that already holds the English model is left alone.
+    """
+    tessdata = Path(tesseract_cmd).parent / "tessdata"
+    if not (tessdata / "eng.traineddata").is_file():
+        return
+    current = os.environ.get("TESSDATA_PREFIX", "")
+    if current and (Path(current) / "eng.traineddata").is_file():
+        return
+    os.environ["TESSDATA_PREFIX"] = str(tessdata)
 
 
 def missing_tesseract_message() -> str:
