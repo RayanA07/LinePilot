@@ -37,13 +37,13 @@ You need the demo image and its true data: [`example_raman.png`](docs/assets/dem
 | # | Do this | Expected result |
 | --- | --- | --- |
 | 1 | Open [rayana07.github.io/LinePilot](https://rayana07.github.io/LinePilot/) and click the download button for your computer. | The right file downloads: `Digitizer.exe` on Windows; `Digitizer-macOS-AppleSilicon.zip` or `-Intel.zip` on a Mac. |
-| 2 | Open it, following the [user guide](Digitizer/README.md#download--install-no-python-needed) for the first-run warning. | The warning matches the guide; after the documented clicks the app opens. The title bar reads **LinePilot Digitizer 2.17** (or the version being tested). |
+| 2 | Open it, following the [user guide](Digitizer/README.md#download--install-no-python-needed) for the first-run warning. | The warning matches the guide; after the documented clicks the app opens. The title bar reads **LinePilot Digitizer 2.17.1** (or the version being tested). |
 | 3 | **Import ▾ → Import Image** → `example_raman.png`, then **Advanced ▾ → Axis Scale Detection → Run Axis Detection**. | The Min-Max boxes read **400, 1800, 2000, 14000**. |
 | 4 | **Tools ▾ → Calibration → Coordinate-Mediated Calibration**, then **Tools ▾ → Place Points → Run**. | A dashed calibration box and points along the whole spectrum. |
 | 5 | **Export ▾ → Export CSV → Raw values**, save it, and open the file. | It opens in Excel / Numbers with `x`, `y` columns. |
 | 6 | Calibrate by hand with **Enhanced Human Click** on; click a tick, then undo (Ctrl+Z on Windows, ⌘Z on a Mac). | The click snaps to the tick; undo removes it. |
 | 7 | **About ▾** → click Project website, Paper on arXiv, DigitizerBench on Hugging Face and Report an issue. | Each opens the right page in the browser. |
-| 8 | Install the **Accuracy Tester** the same way; compare the exported CSV with `example_raman_ground_truth.csv`. | It opens after the same first-run step; the title bar reads **LinePilot Accuracy Tester 2.17**; R² is above 0.99. |
+| 8 | Install the **Accuracy Tester** the same way; compare the exported CSV with `example_raman_ground_truth.csv`. | It opens after the same first-run step; the title bar reads **LinePilot Accuracy Tester 2.17.1**; R² is above 0.99. |
 | 9 | Quit and reopen Digitizer. | It opens straight away, with no security warning. |
 
 Anything that doesn't match: file a **[bug report](https://github.com/RayanA07/LinePilot/issues/new?template=bug_report.yml)** with the OS version and a screenshot, and fix the guide or the app before announcing.

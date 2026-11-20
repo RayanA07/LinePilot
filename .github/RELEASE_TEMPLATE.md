@@ -36,7 +36,7 @@ Windows and macOS are built from the same code, and every file below was tested 
 If double-clicking does **nothing at all**, Smart App Control is silently blocking unsigned programs; run from source instead (see the guide).
 
 ### macOS
-**Requires** <!-- macos-min -->. On Sequoia, install the latest updates first (System Settings → General → Software Update).
+**Requires** <!-- macos-min -->.
 1. Download the zip for your Mac's chip and double-click it to unpack **`Digitizer.app`**. Drag it into **Applications** if you like.
 2. First launch only: macOS says it *"cannot verify"* the app — click **Done**, then open **System Settings → Privacy & Security**, scroll down and click **Open Anyway**. The app simply isn't notarized with a paid Apple Developer ID.
 3. That's it. If macOS ever calls the app *"damaged"*, run `xattr -dr com.apple.quarantine /Applications/Digitizer.app` once in Terminal.

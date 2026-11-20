@@ -5,8 +5,8 @@ type: software
 repository-code: "https://github.com/RayanA07/LinePilot"
 url: "https://rayana07.github.io/LinePilot/"
 license: Apache-2.0
-version: "2.17"
-date-released: "2026-11-16"
+version: "2.17.1"
+date-released: "2026-11-20"
 authors:
   - family-names: Ma
     given-names: Fengbo

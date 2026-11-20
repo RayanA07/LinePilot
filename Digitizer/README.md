@@ -1,4 +1,4 @@
-# LinePilot Digitizer 2.17 — User Guide
+# LinePilot Digitizer 2.17.1 — User Guide
 
 ## What is this?
 
@@ -101,7 +101,7 @@ Click the **Apple menu** (the Apple logo in the top-left corner of the screen) �
 - If it says **Chip: Apple M1** (or M2, M3, M4…), you have an **Apple Silicon** Mac.
 - If it says **Processor: …Intel…**, you have an **Intel** Mac.
 
-The app needs **macOS 15 Sequoia or later** (the same window shows your macOS version). The exact minimum for each download is printed at the top of the release page; on Sequoia, install the latest updates first (**System Settings → General → Software Update**).
+The app needs **macOS 15 Sequoia or later** (the same window shows your macOS version). The exact minimum for each download is printed at the top of the release page. If it says a newer macOS is needed, install the latest updates (System Settings → General → Software Update).
 
 #### Step 2 — Download the program
 
@@ -852,4 +852,4 @@ python3 accuracytester_desktop.py
 
 ---
 
-*Runtime logs are written to `%LOCALAPPDATA%\DataDigitizer\2.17\logs` on Windows and `~/Library/Application Support/DataDigitizer/2.17/logs` on a Mac (you can also view them in-app via **Advanced → Error Log**).*
+*Runtime logs are written to `%LOCALAPPDATA%\DataDigitizer\2.17.1\logs` on Windows and `~/Library/Application Support/DataDigitizer/2.17.1/logs` on a Mac (you can also view them in-app via **Advanced → Error Log**).*

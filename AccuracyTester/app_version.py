@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Optional
 
 # Used only if version.json is unreadable. Kept in step with version.json by the tests.
-_FALLBACK_VERSION = "2.17"
+_FALLBACK_VERSION = "2.17.1"
 
 
 def _version_json_path() -> Optional[Path]:

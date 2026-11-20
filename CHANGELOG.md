@@ -3,7 +3,10 @@
 All notable changes to this project are documented here. Versions follow the release tags
 on GitHub; download the apps from the [Releases page](https://github.com/RayanA07/LinePilot/releases/latest).
 
-## Unreleased
+## 2.17.1
+
+A packaging release: the Windows and macOS apps are now built identically. How
+LinePilot digitizes is unchanged from 2.17.
 
 ### Packaging — Windows and macOS built identically
 
@@ -38,7 +41,7 @@ same pinned inputs, and CI proves they contain the same things.
   blocks the release on any difference. Tests now run against the Tesseract each build
   bundles, and the Windows launch check looks for the app's own window, so a crash dialog
   can no longer pass for a running app.
-- The Accuracy Tester's window says **LinePilot Accuracy Tester 2.17** (it said *Data
+- The Accuracy Tester's window says **LinePilot Accuracy Tester 2.17.1** (it said *Data
   Digitizer - Accuracy Tester*, with no version).
 - Release notes list the main components inside every download.
 
