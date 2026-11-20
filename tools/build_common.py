@@ -58,6 +58,20 @@ def drop_unused_tcl_files(datas):
     return type(datas)(out) if not isinstance(datas, list) else out
 
 
+_LICENSES = Path(__file__).resolve().parent / "licenses"
+_TCL_TK_LICENSES = {
+    "_tcl_data/license.terms": _LICENSES / "tcl-license.terms",
+    "_tk_data/license.terms": _LICENSES / "tk-license.terms",
+}
+
+
+def add_tcl_tk_licenses(datas):
+    """Ship the same Tcl and Tk license files on every platform (see tools/licenses/)."""
+    out = [e for e in datas if str(e[0]).replace("\\", "/") not in _TCL_TK_LICENSES]
+    out += [(dest, str(src), "DATA") for dest, src in _TCL_TK_LICENSES.items()]
+    return out
+
+
 def version_of(app_dir: Path) -> str:
     return json.loads((Path(app_dir) / "version.json").read_text(encoding="utf-8"))["version"]
 

@@ -47,7 +47,7 @@ a = Analysis(
     noarchive=False,
 )
 
-a.datas = build_common.drop_unused_tcl_files(a.datas)
+a.datas = build_common.add_tcl_tk_licenses(build_common.drop_unused_tcl_files(a.datas))
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
