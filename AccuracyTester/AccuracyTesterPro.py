@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+from app_version import APP_TITLE
+
 try:
     from tkinterdnd2 import DND_FILES, TkinterDnD
     HAS_DND = True
@@ -37,7 +39,7 @@ class ColorSlotOption:
 class AccuracyTesterPro:
     def __init__(self, root: tk.Tk):
         self.root = root
-        self.root.title("Data Digitizer - Accuracy Tester")
+        self.root.title(APP_TITLE)
         self.root.geometry("1180x840")
 
         self.original_df: Optional[pd.DataFrame] = None
@@ -68,9 +70,9 @@ class AccuracyTesterPro:
 
         ttk.Label(
             main,
-            text="Data Digitizer  ·  Accuracy Tester",
+            text="LinePilot  ·  Accuracy Tester",
             font=("Arial", 15, "bold"),
-            foreground="#1a7f37",  # matches the Data Digitizer accent green
+            foreground="#1a7f37",  # matches the Digitizer accent green
         ).grid(row=0, column=0, columnspan=2, sticky="w")
 
         self.status_var = tk.StringVar(value=self.initial_status_text)

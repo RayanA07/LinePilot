@@ -168,37 +168,43 @@ LinePilot runs on **Windows** and **macOS**. Both apps are built from the same c
 
 ### From source (Windows, macOS, Linux)
 
-Needs Python 3 (the releases are built with 3.12) and the **Tesseract** program for OCR (`pytesseract` alone is not enough; the prebuilt apps bundle it).
+Needs Python 3.12 (the version in [`.python-version`](.python-version), which every release is built with) and the **Tesseract** program for OCR (`pytesseract` alone is not enough; the prebuilt apps bundle it). `-c ../constraints.txt` installs exactly the package versions inside the downloadable apps.
 
-**Windows** (PowerShell) — install Tesseract from the [UB Mannheim build](https://github.com/UB-Mannheim/tesseract/wiki), then:
+**Windows** (PowerShell) — install Python 3.12 from [python.org](https://www.python.org/downloads/) and Tesseract from the [official Windows build](https://github.com/tesseract-ocr/tesseract/releases), then:
 
 ```powershell
 git clone https://github.com/RayanA07/LinePilot.git
 cd LinePilot\Digitizer
-py -m pip install -r requirements.txt
+py -m pip install -r requirements.txt -c ..\constraints.txt
 py digitizer_2_11.py                 # launches the app
 ```
 
 **macOS** (Terminal) — with [Homebrew](https://brew.sh):
 
 ```bash
-brew install python tesseract
+brew install python@3.12 tesseract
 git clone https://github.com/RayanA07/LinePilot.git
 cd LinePilot/Digitizer
-python3 -m venv .venv && source .venv/bin/activate   # Homebrew Python needs a virtual environment
-python3 -m pip install -r requirements.txt
+python3.12 -m venv .venv && source .venv/bin/activate   # Homebrew Python needs a virtual environment
+python3 -m pip install -r requirements.txt -c ../constraints.txt
 python3 digitizer_2_11.py            # launches the app
 ```
 
 ### Building the apps
 
+Windows and macOS are packaged the same way, from the same pinned inputs, so the `.exe` and the `.app` contain the same things:
+
 | | Windows | macOS |
 | --- | --- | --- |
-| **Command** | double-click `Digitizer\build.cmd` | `bash Digitizer/build_macos.sh` (needs Homebrew) |
-| **Output** | `Digitizer\dist\Digitizer.exe` | `Digitizer/dist/Digitizer.app` + zip |
-| **OCR bundled from** | `Digitizer\vendor\tesseract` | Homebrew Tesseract, via `vendor_tesseract_macos.sh` |
+| **Command** | double-click `Digitizer\build.cmd` / `AccuracyTester\build.cmd` (or run `build_windows.ps1`) | `bash Digitizer/build_macos.sh` / `bash AccuracyTester/build_macos.sh` |
+| **Needs** | Python 3.12 | Python 3.12 and [Homebrew](https://brew.sh) |
+| **Python** | [`.python-version`](.python-version) — 3.12 | same |
+| **Python packages** | a clean `.build-venv` with exactly the versions in [`constraints.txt`](constraints.txt) | same |
+| **PyInstaller settings** | `digitizer.spec` / `accuracytester.spec`, sharing excludes, version and names via [`tools/build_common.py`](tools/build_common.py) | `digitizer_macos.spec` / `accuracytester_macos.spec`, same shared settings |
+| **OCR engine** | Tesseract version, models and checksums from [`Digitizer/tesseract-lock.json`](Digitizer/tesseract-lock.json): the official Windows build of that version (`vendor_tesseract_windows.ps1`) | the same version, compiled from its checksum-pinned source (`vendor_tesseract_macos.sh`) |
+| **Output** | `dist\Digitizer.exe`, plus an inventory of what is inside | `dist/Digitizer.app` and its zip, plus the same inventory |
 
-Every push is built and tested on Windows and on Apple Silicon and Intel Macs by [`release.yml`](.github/workflows/release.yml); tagging `v*` publishes all six downloads in one release. See [TESTING.md](TESTING.md) for what is checked automatically and the hands-on installation checklist.
+Every push is built and tested on Windows and on Apple Silicon and Intel Macs by [`release.yml`](.github/workflows/release.yml), which then compares the three builds' inventories ([`tools/bundle_inventory.py`](tools/bundle_inventory.py)) and refuses to release if they differ in anything but OS plumbing. Tagging `v*` publishes all six downloads in one release. See [TESTING.md](TESTING.md) for what is checked automatically and the hands-on installation checklist.
 
 ---
 
@@ -401,10 +407,15 @@ LinePilot/
 │   ├── digitizer_api.py     digitize_image(...)
 │   ├── Calibration.py / EnhancedClick.py / AxisReader.py / PointPlacer.py / Masking.py
 │   ├── platform_info.py     the few things that differ between Windows and macOS
-│   ├── build.cmd            Windows build → dist\Digitizer.exe (PyInstaller)
-│   └── build_macos.sh       macOS build → dist/Digitizer.app (PyInstaller)
-├── AccuracyTester/      # reference-vs-digitized scoring app and batch CLI (build_windows.ps1 / build_macos.sh)
-├── tools/               # release checks: smoke test, built-app self-test, release notes, minimum-macOS scan
+│   ├── build.cmd / build_windows.ps1   Windows build → dist\Digitizer.exe
+│   ├── build_macos.sh                  macOS build → dist/Digitizer.app
+│   ├── tesseract-lock.json             the bundled OCR engine: version, models, checksums
+│   └── vendor_tesseract_windows.ps1 / vendor_tesseract_macos.sh
+├── AccuracyTester/      # reference-vs-digitized scoring app and batch CLI (build.cmd / build_windows.ps1 / build_macos.sh)
+├── tools/               # build_common.py (settings both platforms share), bundle_inventory.py (Windows/macOS parity),
+│                        #   smoke test, built-app self-test, release notes, minimum-macOS scan
+├── .python-version      # the Python every build uses
+├── constraints.txt      # the exact version of every Python package, on every platform
 ├── docs/                # project website (GitHub Pages) and figures used in this README
 ├── .github/             # release.yml (Windows + macOS build, test, release), issue forms
 ├── TESTING.md           # automated checks and the hands-on installation checklist

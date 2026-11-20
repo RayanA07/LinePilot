@@ -15,3 +15,7 @@ Thumbs.db
 *.app
 *.icns
 smoke_out/
+
+# Build environments and the pinned Tesseract build (see build_*.sh / build_*.ps1)
+.build-venv/
+.tesseract-build/

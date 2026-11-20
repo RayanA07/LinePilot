@@ -615,17 +615,17 @@ The CSV columns:
 
 ## Run from source (for developers)
 
-The source code is the same on every platform: **<https://github.com/RayanA07/LinePilot>**. Download it with the green **Code → Download ZIP** button (then unzip it), or clone it with git. You also need **Python 3** and, for the OCR features, the **Tesseract** program (the downloaded apps bundle it; running from source does not).
+The source code is the same on every platform: **<https://github.com/RayanA07/LinePilot>**. Download it with the green **Code → Download ZIP** button (then unzip it), or clone it with git. You also need **Python 3.12** (the version every release is built with; newer ones usually work too) and, for the OCR features, the **Tesseract** program (the downloaded apps bundle it; running from source does not). The install commands below use `-c ../constraints.txt`, which gives you exactly the library versions inside the downloadable apps.
 
 ### On Windows
 
-1. Install **Python 3** from <https://python.org> — tick *"Add python.exe to PATH"* during setup — and **Tesseract** from the [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki).
+1. Install **Python 3.12** from <https://python.org> — tick *"Add python.exe to PATH"* during setup — and **Tesseract** from the [official Windows build](https://github.com/tesseract-ocr/tesseract/releases) (the `tesseract-ocr-w64-setup-….exe` file).
 2. Get the code and install the libraries ([open a terminal](#open-a-terminal-in-the-digitizer-folder) in the `Digitizer` folder):
 
    ```powershell
    git clone https://github.com/RayanA07/LinePilot.git
    cd LinePilot\Digitizer
-   py -m pip install -r requirements.txt
+   py -m pip install -r requirements.txt -c ..\constraints.txt
    ```
 
 3. Launch the graphical app:
@@ -639,7 +639,7 @@ The source code is the same on every platform: **<https://github.com/RayanA07/Li
 1. Install **[Homebrew](https://brew.sh)** if `brew --version` doesn't work yet (paste the one-line command from brew.sh into Terminal, then close and reopen Terminal), then install Python and Tesseract:
 
    ```bash
-   brew install python tesseract
+   brew install python@3.12 tesseract
    ```
 
 2. Get the code and install the libraries in a private **virtual environment** — Homebrew's Python refuses system-wide `pip install` (*"externally-managed-environment"*):
@@ -647,9 +647,9 @@ The source code is the same on every platform: **<https://github.com/RayanA07/Li
    ```bash
    git clone https://github.com/RayanA07/LinePilot.git
    cd LinePilot/Digitizer
-   python3 -m venv .venv
+   python3.12 -m venv .venv
    source .venv/bin/activate
-   python3 -m pip install -r requirements.txt
+   python3 -m pip install -r requirements.txt -c ../constraints.txt
    ```
 
    Next time, just `cd` into the folder and run `source .venv/bin/activate` again.
@@ -674,33 +674,44 @@ The project is plain Python (a PyQt6 GUI plus a small CLI). There are three "sha
 | --- | --- | --- |
 | **CLI** | `py digitizer.py …` / `python3 digitizer.py …` | No build needed — it runs straight from the source files with Python (see [Run from source](#run-from-source-for-developers)). |
 | **Windows `.exe`** | a one-file `Digitizer.exe` you double-click | PyInstaller reads `digitizer.spec`, bundles the GUI entry `digitizer_desktop.py` **and** the Tesseract OCR runtime in `vendor\tesseract`, and writes `dist\Digitizer.exe`. |
-| **macOS `.app`** | a `Digitizer.app` bundle, zipped for download | PyInstaller reads `digitizer_macos.spec`, bundles the same entry **and** a self-contained Tesseract copied from Homebrew into `vendor/tesseract`, and writes `dist/Digitizer.app`. |
+| **macOS `.app`** | a `Digitizer.app` bundle, zipped for download | PyInstaller reads `digitizer_macos.spec`, bundles the same entry **and** the same Tesseract version in `vendor/tesseract`, and writes `dist/Digitizer.app`. |
 
 Windows and macOS share all of the code; the few things that must differ (the undo key shown in hints, where Tesseract is looked for, the log folder, the example commands in `--help`) live in **`platform_info.py`**.
 
+### Same contents on both platforms
+
+The `.exe` and the `.app` are built from the same pinned inputs, so they contain the same things:
+
+| Input | File | Used by |
+| --- | --- | --- |
+| Python version | [`.python-version`](../.python-version) (3.12) | both build scripts check it |
+| Every Python package's exact version | [`constraints.txt`](../constraints.txt) | each build makes a clean `.build-venv` from it |
+| PyInstaller settings (excluded packages, version metadata, app names) | [`tools/build_common.py`](../tools/build_common.py) | all four `.spec` files |
+| Tesseract version, language models and their SHA-256 checksums | [`tesseract-lock.json`](tesseract-lock.json) | `vendor_tesseract_windows.ps1` and `vendor_tesseract_macos.sh` |
+
+Both vendor scripts produce the same `vendor/tesseract` layout: the `tesseract` program and exactly the libraries it loads, `tessdata/eng.traineddata` and `osd.traineddata`, `tessdata/configs/` and `tessconfigs/`, and Tesseract's `doc/LICENSE`, `AUTHORS` and `README.md`. Each build also writes an inventory of what went into the app (`dist/Digitizer-inventory-<platform>.json`, from [`tools/bundle_inventory.py`](../tools/bundle_inventory.py)); GitHub Actions compares the Windows, Apple Silicon and Intel inventories and refuses to publish a release if they differ in anything but operating-system plumbing (`.dll` vs `.dylib` files, `.exe` vs `.app` packaging).
+
 ### Starter command (Windows)
 
-One-click: double-click **`build.cmd`** in this folder. (It just runs the PowerShell build with the execution policy unblocked, then keeps the window open so you can read the result.)
+Needs **Python 3.12** (the `py` launcher from python.org). One-click: double-click **`build.cmd`** in this folder. (It just runs the PowerShell build with the execution policy unblocked, then keeps the window open so you can read the result.)
 
 Or from a terminal in this folder:
 
 ```powershell
-py -m pip install -r requirements.txt
-.\build_windows.ps1
+.\build_windows.ps1                # add -SkipInstall to reuse the build environment
 ```
 
-Either way the result is **`dist\Digitizer.exe`** — a windowed, one-file app you can double-click. The **Tesseract OCR runtime** under `vendor\tesseract` is **bundled into the exe**, so OCR features (axis-value detection and the text/number/legend masking tools) work without anyone needing a separate Tesseract install.
+The script makes a clean build environment (`.build-venv`) with the pinned packages, runs `vendor_tesseract_windows.ps1` — which downloads the official Windows build of the pinned Tesseract version, checks its SHA-256, installs it silently and copies `tesseract.exe` with exactly the DLLs it loads — and then runs PyInstaller. The result is **`dist\Digitizer.exe`** — a windowed, one-file app you can double-click — and `dist\Digitizer-inventory-Windows.json`. The **Tesseract OCR runtime** is **bundled into the exe**, so OCR features (axis-value detection and the text/number/legend masking tools) work without anyone needing a separate Tesseract install.
 
 ### Starter command (macOS)
 
-With Homebrew installed, from the repository folder:
+Needs **Python 3.12** (`brew install python@3.12`) and Homebrew. From the repository folder:
 
 ```bash
-brew install tesseract dylibbundler
-bash Digitizer/build_macos.sh
+bash Digitizer/build_macos.sh                # SKIP_INSTALL=1 reuses the build environment
 ```
 
-The result is **`dist/Digitizer.app`** plus a ready-to-share zip, `dist/Digitizer-macOS-AppleSilicon.zip` (or `-Intel.zip`, matching the Mac that built it). The script copies a self-contained Tesseract (binary, libraries and English language data) into `vendor/tesseract`, records the lowest macOS the app can run on in its `Info.plist`, and signs the app so it can launch. The app runs on the **same chip** as the Mac that built it and on **that Mac's macOS version or newer**, because the bundled Tesseract comes from Homebrew, which compiles for the build machine (`python3 tools/macho_minos.py dist/Digitizer.app --report` shows which file sets the limit).
+The script makes a clean build environment (`.build-venv`) with the pinned packages, runs `vendor_tesseract_macos.sh` — which compiles the pinned Tesseract version from its git tag (checked against the commit in `tesseract-lock.json`; the first build takes a few minutes and is cached in `.tesseract-build/`) against Homebrew's leptonica and libarchive, and copies it with exactly the libraries it loads — and then runs PyInstaller. The result is **`dist/Digitizer.app`** plus a ready-to-share zip, `dist/Digitizer-macOS-AppleSilicon.zip` (or `-Intel.zip`, matching the Mac that built it), and `dist/Digitizer-inventory-macOS-<chip>.json`. It also records the lowest macOS the app can run on in its `Info.plist` and signs the app so it can launch. The app runs on the **same chip** as the Mac that built it and on **that Mac's macOS version or newer**, because Homebrew compiles its libraries for the build machine (`python3 tools/macho_minos.py dist/Digitizer.app --report` shows which file sets the limit).
 
 ### Releases
 
@@ -765,7 +776,7 @@ OCR can misread numbers. Always check them.
 Put the image in your **Downloads** folder or in the folder the terminal is pointed at (a bare filename is searched in both), or pass the **full path in quotes**, e.g. `py digitizer.py "C:\Users\You\Pictures\graph.png"` on Windows or `python3 digitizer.py ~/Pictures/graph.png` on a Mac.
 
 **OCR says "Tesseract OCR executable not found" (running from source).**
-The downloaded apps bundle Tesseract; source code doesn't. Windows: install it from the [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki). Mac: `brew install tesseract`, then open a new Terminal window. To point at a specific copy, set `TESSERACT_CMD` to its full path.
+The downloaded apps bundle Tesseract; source code doesn't. Windows: install it from the [official Windows build](https://github.com/tesseract-ocr/tesseract/releases) (the `tesseract-ocr-w64-setup-….exe` file). Mac: `brew install tesseract`, then open a new Terminal window. To point at a specific copy, set `TESSERACT_CMD` to its full path.
 
 **Export does nothing in the app.**
 Check the status bar (the thin strip at the bottom). You need **all four Min-Max Coordinate boxes filled** *and* **a calibration run** (the dashed green box). Finish whichever is missing, then export again.
@@ -826,16 +837,16 @@ This is a **separate, optional** tool. It's completely independent of the main D
 **Windows**
 
 ```powershell
-py -m pip install -r requirements.txt
+py -m pip install -r requirements.txt -c ..\constraints.txt
 py accuracytester_desktop.py
 ```
 
 **Mac** — Homebrew's Python needs `python-tk` for this tool's window:
 
 ```bash
-brew install python-tk
-python3 -m venv .venv && source .venv/bin/activate
-python3 -m pip install -r requirements.txt
+brew install python@3.12 python-tk@3.12
+python3.12 -m venv .venv && source .venv/bin/activate
+python3 -m pip install -r requirements.txt -c ../constraints.txt
 python3 accuracytester_desktop.py
 ```
 

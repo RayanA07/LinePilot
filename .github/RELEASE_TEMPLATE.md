@@ -21,6 +21,8 @@ Optional: the **Accuracy Tester** (`AccuracyTester.exe`, `AccuracyTester-macOS-A
 
 Windows and macOS are built from the same code, and every file below was tested before release on a clean machine: the built app read the axes of a real Raman spectrum with its own bundled OCR and matched the true data, and both apps opened.
 
+**Inside every download — identical on Windows and macOS:** <!-- components -->.
+
 ## New in this release
 <!-- bullets -->
 

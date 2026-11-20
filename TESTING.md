@@ -11,12 +11,13 @@ LinePilot is tested two ways before a release is announced: **automatically** on
 | Unit tests — Digitizer, Accuracy Tester, build tools | ✓ | ✓ | ✓ |
 | End-to-end smoke test — render charts with known data → batch-digitize with OCR → score against the truth | ✓ | ✓ | ✓ |
 | Command-line help prints only Mac-appropriate commands and paths | — | ✓ | ✓ |
-| Build both apps (`Digitizer`, `AccuracyTester`) | ✓ | ✓ | ✓ |
-| App reports the same version as `version.json` | — | ✓ | ✓ |
+| Build both apps (`Digitizer`, `AccuracyTester`) with the same build scripts a developer runs, from the same pins: Python 3.12 (`.python-version`), every package's exact version (`constraints.txt`), Tesseract 5.5.3 and its model checksums (`Digitizer/tesseract-lock.json`) | ✓ | ✓ | ✓ |
+| App reports the same version as `version.json` (the `.exe`'s version resource / the `.app`'s `Info.plist`) | ✓ | ✓ | ✓ |
 | **Clean-machine check:** the build machine's own Tesseract is removed, then the **built app** digitizes the lab's Raman spectrum with the OCR engine bundled inside it — axes must read 400 / 1800 / 2000 / 14000 and the curve must be within 2 % of the true data | ✓ | ✓ | ✓ |
-| Both apps open and stay open for 30 s | ✓ | ✓ | ✓ |
+| Both apps open their window (on Windows: the app's own window title, so a crash dialog can't pass for a running app) | ✓ | ✓ | ✓ |
+| **Parity check:** the inventories of all three builds (`tools/bundle_inventory.py`) list the same Python version, third-party packages, data files, PyInstaller hooks, Tesseract version and features, OCR bundle files and model checksums | ✓ | ✓ | ✓ |
 
-The clean-machine check uses the app's built-in self-test (`LINEPILOT_SELFTEST`, see `Digitizer/digitizer_desktop.py`), judged by `tools/check_selftest.py`. Results for every run are on the [Actions page](https://github.com/RayanA07/LinePilot/actions/workflows/release.yml).
+The unit tests and the smoke test run against the Tesseract the build just bundled, not a separately installed one. The clean-machine check uses the app's built-in self-test (`LINEPILOT_SELFTEST`, see `Digitizer/digitizer_desktop.py`), judged by `tools/check_selftest.py`. Results for every run are on the [Actions page](https://github.com/RayanA07/LinePilot/actions/workflows/release.yml).
 
 Run the same tests locally from the repository folder:
 
@@ -24,6 +25,7 @@ Run the same tests locally from the repository folder:
 cd Digitizer && python -m pytest -q && cd ..        # Digitizer unit tests
 cd AccuracyTester && python -m pytest -q && cd ..   # Accuracy Tester unit tests
 python tools/smoke_test.py                          # end to end (needs Tesseract installed)
+python tools/bundle_inventory.py --compare Digitizer/dist/*-inventory-*.json   # after builds on two platforms
 ```
 
 ## 2. Hands-on installation test — independent computers
@@ -41,7 +43,7 @@ You need the demo image and its true data: [`example_raman.png`](docs/assets/dem
 | 5 | **Export ▾ → Export CSV → Raw values**, save it, and open the file. | It opens in Excel / Numbers with `x`, `y` columns. |
 | 6 | Calibrate by hand with **Enhanced Human Click** on; click a tick, then undo (Ctrl+Z on Windows, ⌘Z on a Mac). | The click snaps to the tick; undo removes it. |
 | 7 | **About ▾** → click Project website, Paper on arXiv, DigitizerBench on Hugging Face and Report an issue. | Each opens the right page in the browser. |
-| 8 | Install the **Accuracy Tester** the same way; compare the exported CSV with `example_raman_ground_truth.csv`. | It opens after the same first-run step; R² is above 0.99. |
+| 8 | Install the **Accuracy Tester** the same way; compare the exported CSV with `example_raman_ground_truth.csv`. | It opens after the same first-run step; the title bar reads **LinePilot Accuracy Tester 2.17**; R² is above 0.99. |
 | 9 | Quit and reopen Digitizer. | It opens straight away, with no security warning. |
 
 Anything that doesn't match: file a **[bug report](https://github.com/RayanA07/LinePilot/issues/new?template=bug_report.yml)** with the OS version and a screenshot, and fix the guide or the app before announcing.

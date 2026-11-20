@@ -1,0 +1,30 @@
+{
+  "_comment": "The OCR engine bundled into Digitizer.exe and Digitizer.app. vendor_tesseract_windows.ps1 and vendor_tesseract_macos.sh both read this file, so every platform ships the same Tesseract version, the same language models and the same supporting files. Change the version here, nowhere else.",
+  "version": "5.5.3",
+  "windows": {
+    "installer": "https://github.com/tesseract-ocr/tesseract/releases/download/5.5.3/tesseract-ocr-w64-setup-5.5.3.20260724.exe",
+    "sha256": "bee9e3434bd94fd65387d9be28cd467a41f61b1275383b55b0f59a1331270ae4"
+  },
+  "source": {
+    "repository": "https://github.com/tesseract-ocr/tesseract.git",
+    "tag": "5.5.3",
+    "commit": "db0ec62f81b0737fbbe184d8fea40af5738f8eef"
+  },
+  "tessdata": {
+    "eng.traineddata": {
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/eng.traineddata",
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+    },
+    "osd.traineddata": {
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/osd.traineddata",
+      "sha256": "9cf5d576fcc47564f11265841e5ca839001e7e6f38ff7f7aacf46d15a96b00ff"
+    }
+  },
+  "required_features": ["libarchive", "libcurl"],
+  "bundle": [
+    "tesseract (tesseract.exe on Windows) and the libraries it loads",
+    "tessdata/eng.traineddata, tessdata/osd.traineddata (checked against the SHA-256 above)",
+    "tessdata/configs/, tessdata/tessconfigs/",
+    "doc/AUTHORS, doc/LICENSE, doc/README.md"
+  ]
+}

@@ -604,10 +604,10 @@
           <button type="button" role="tab" data-os="win" aria-selected="true">Windows</button>
           <button type="button" role="tab" data-os="mac" aria-selected="false">macOS</button>
         </div>
-<pre data-os="win"><code># needs Python 3 and Tesseract (UB Mannheim installer)
+<pre data-os="win"><code># needs Python 3.12 and Tesseract (official Windows build)
 git clone https://github.com/RayanA07/LinePilot.git
 cd LinePilot\Digitizer
-py -m pip install -r requirements.txt
+py -m pip install -r requirements.txt -c ..\constraints.txt
 
 # one image, everything auto-detected (OCR calibration)
 py digitizer.py graph.png
@@ -617,11 +617,11 @@ py digitizer.py graph.png --axis 0,10,0,100 --log-y --out results/
 
 # a whole folder, with a per-file report
 py digitizer_batch_cli.py figures/ --out digitized/</code></pre>
-<pre data-os="mac"><code># needs Homebrew: brew install python tesseract
+<pre data-os="mac"><code># needs Homebrew: brew install python@3.12 tesseract
 git clone https://github.com/RayanA07/LinePilot.git
 cd LinePilot/Digitizer
-python3 -m venv .venv && source .venv/bin/activate
-python3 -m pip install -r requirements.txt
+python3.12 -m venv .venv && source .venv/bin/activate
+python3 -m pip install -r requirements.txt -c ../constraints.txt
 
 # one image, everything auto-detected (OCR calibration)
 python3 digitizer.py graph.png

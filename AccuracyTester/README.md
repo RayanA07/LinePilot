@@ -18,20 +18,22 @@ Step-by-step help for both platforms is in the [Digitizer user guide](../Digitiz
 
 ## Run from source
 
-**Windows** (PowerShell, in the `AccuracyTester` folder) — needs Python 3 from <https://python.org>:
+Python 3.12 is the version the apps are built with; `-c ../constraints.txt` installs exactly the library versions inside them.
+
+**Windows** (PowerShell, in the `AccuracyTester` folder) — needs Python 3.12 from <https://python.org>:
 
 ```powershell
-py -m pip install -r requirements.txt
+py -m pip install -r requirements.txt -c ..\constraints.txt
 py accuracytester_desktop.py
 ```
 
 **Mac** (Terminal, in the `AccuracyTester` folder) — with [Homebrew](https://brew.sh). The window uses Tkinter, which Homebrew's Python leaves out unless you add `python-tk`:
 
 ```bash
-brew install python python-tk
-python3 -m venv .venv
+brew install python@3.12 python-tk@3.12
+python3.12 -m venv .venv
 source .venv/bin/activate
-python3 -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt -c ../constraints.txt
 python3 accuracytester_desktop.py
 ```
 
@@ -94,25 +96,26 @@ references, so they need a few packages the app itself does not:
 **Windows**
 
 ```powershell
-py -m pip install -r requirements-dev.txt
-py -m pytest test_accuracy_core.py test_batch_scoring.py -q
+py -m pip install -r requirements-dev.txt -c ..\constraints.txt
+py -m pytest -q
 ```
 
 **Mac** (with the virtual environment active)
 
 ```bash
-python3 -m pip install -r requirements-dev.txt
-python3 -m pytest test_accuracy_core.py test_batch_scoring.py -q
+python3 -m pip install -r requirements-dev.txt -c ../constraints.txt
+python3 -m pytest -q
 ```
 
 ## Build the apps
 
 | | Windows | macOS |
 | --- | --- | --- |
-| **Command** | `.\build_windows.ps1` | `bash build_macos.sh` |
+| **Command** | double-click `build.cmd`, or `.\build_windows.ps1` | `bash build_macos.sh` |
+| **Needs** | Python 3.12 | Python 3.12 with Tkinter (`brew install python@3.12 python-tk@3.12`) |
 | **Output** | `dist\AccuracyTester.exe` — a windowed, one-file app | `dist/AccuracyTester.app` + `dist/AccuracyTester-macOS-<chip>.zip` |
 
-Releases are built and tested automatically for both platforms by `.github/workflows/release.yml`.
+Both scripts make a clean build environment (`.build-venv`) with exactly the packages in [`constraints.txt`](../constraints.txt), use PyInstaller settings shared through [`tools/build_common.py`](../tools/build_common.py), and write an inventory of what went into the app, so the Windows and macOS builds contain the same things. Releases are built, tested and compared automatically for both platforms by `.github/workflows/release.yml`.
 
 ## Folder contents
 
@@ -122,6 +125,7 @@ accuracytester_desktop.py# GUI entry point
 accuracy_core.py         # The scoring maths (alignment, metrics)
 batch_scoring.py         # File matching + pair scoring for batch runs
 accuracy_batch_cli.py    # Batch CLI entry point
+app_version.py           # Name and version (from version.json) for the window title
 test_accuracy_core.py    # Tests for the scoring maths
 test_batch_scoring.py    # Tests for file matching + pair scoring
 requirements-dev.txt     # Test-only deps (pytest, scipy, scikit-learn)

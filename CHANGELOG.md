@@ -5,6 +5,43 @@ on GitHub; download the apps from the [Releases page](https://github.com/RayanA0
 
 ## Unreleased
 
+### Packaging — Windows and macOS built identically
+
+The Windows `.exe` files and the macOS `.app` bundles are now made the same way, from the
+same pinned inputs, and CI proves they contain the same things.
+
+- **One Python, one set of packages.** Every build uses Python 3.12 (`.python-version`) in a
+  clean build environment with exactly the package versions in `constraints.txt`. Before,
+  the Windows builds silently used the newest Python on the build machine (3.15) and one
+  shared environment, so `Digitizer.exe` also carried matplotlib, pandas, scipy, pytest and
+  tzdata, and `AccuracyTester.exe` carried the whole Qt toolkit - none of which they use and
+  none of which the Mac apps had. The Windows downloads shrink accordingly.
+- **One OCR engine.** `Digitizer/tesseract-lock.json` pins Tesseract 5.5.3, its English and
+  orientation models (SHA-256 checked) and its optional features (libarchive, libcurl).
+  Windows uses the official build of that version, checksum-verified; macOS compiles the same
+  version from its pinned source. Before, the three builds shipped 5.5.3, 5.5.4 and 5.5.3,
+  whichever version Chocolatey or Homebrew had that day.
+- **The same OCR bundle.** Both platforms now ship `tesseract` with exactly the libraries it
+  loads, the two models, Tesseract's `configs/` and its license, authors and readme. The
+  Windows exe no longer carries Tesseract's 23 training tools, their manuals, Java jars and
+  uninstaller; the Mac app now carries the license and configs it lacked.
+- **Shared PyInstaller settings.** The four `.spec` files take their excluded packages,
+  version metadata and app names from `tools/build_common.py`; UPX is off on both.
+  `Digitizer.exe` and `AccuracyTester.exe` now carry version information (Properties →
+  Details), like the Mac apps' `Info.plist`. The Accuracy Tester no longer bundles PyInstaller
+  itself (pulled in through tkinterdnd2's own build hook).
+- **Same build scripts locally and in CI, on both platforms.** CI runs `build_windows.ps1`
+  exactly as it runs `build_macos.sh`; `vendor_tesseract_windows.ps1` is the new Windows twin
+  of `vendor_tesseract_macos.sh`; `AccuracyTester/build.cmd` matches `Digitizer/build.cmd`.
+- **Parity check.** Each build writes an inventory of what is inside it
+  (`tools/bundle_inventory.py`); a new CI job compares Windows, Apple Silicon and Intel and
+  blocks the release on any difference. Tests now run against the Tesseract each build
+  bundles, and the Windows launch check looks for the app's own window, so a crash dialog
+  can no longer pass for a running app.
+- The Accuracy Tester's window says **LinePilot Accuracy Tester 2.17** (it said *Data
+  Digitizer - Accuracy Tester*, with no version).
+- Release notes list the main components inside every download.
+
 ### Documentation
 
 - **Mac commands everywhere.** Every command-line example in the user guide
