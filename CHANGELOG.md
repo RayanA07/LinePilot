@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Versions follow the release tags
 on GitHub; download the apps from the [Releases page](https://github.com/RayanA07/LinePilot/releases/latest).
 
+## Unreleased
+
+### Documentation
+
+- **Mac commands everywhere.** Every command-line example in the user guide
+  (`Digitizer/README.md`), the README and the Accuracy Tester guide is now shown twice —
+  **Windows** (PowerShell, `py`) and **Mac** (Terminal, `python3`, `~/` paths) — instead of
+  Windows-only commands with a note. The user guide adds a *Find the instructions for your
+  computer* table, a *Windows and Mac at a glance* table, a step-by-step first run on the
+  bundled Raman spectrum (with its real output), and a batch-mode section.
+- The README's demo scored the digitized curve against a saved copy of its own output
+  (0 % error, plus an "unmatched" warning); it now scores against the true spectrum.
+- Mac source instructions for the Accuracy Tester add `brew install python-tk`, which
+  Homebrew's Python needs for the Tkinter window.
+
 ## 2.17
 
 One release for **Windows and macOS**: the same code, the same version and one set of

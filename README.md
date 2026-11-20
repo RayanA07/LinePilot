@@ -116,11 +116,25 @@ A Raman spectrum from the lab, saved as an ordinary PNG, digitized in OCR mode w
 
 Reproduce it from the repository with the files in [`docs/assets/demo/`](docs/assets/demo/):
 
+**Windows** (PowerShell)
+
+```powershell
+cd Digitizer
+py digitizer.py ..\docs\assets\demo\example_raman.png --out demo_out --verbose 1
+mkdir demo_truth; Copy-Item ..\docs\assets\demo\example_raman_ground_truth.csv demo_truth\
+py ..\AccuracyTester\accuracy_batch_cli.py --digitized-dir demo_out --ground-truth-dir demo_truth --out demo_scores
+```
+
+**macOS** (Terminal, with the [virtual environment](#from-source-windows-macos-linux) active)
+
 ```bash
 cd Digitizer
-python digitizer.py ../docs/assets/demo/example_raman.png --out demo_out --verbose 1
-python ../AccuracyTester/accuracy_batch_cli.py --digitized-dir demo_out --ground-truth-dir ../docs/assets/demo --out demo_scores
+python3 digitizer.py ../docs/assets/demo/example_raman.png --out demo_out --verbose 1
+mkdir -p demo_truth && cp ../docs/assets/demo/example_raman_ground_truth.csv demo_truth/
+python3 ../AccuracyTester/accuracy_batch_cli.py --digitized-dir demo_out --ground-truth-dir demo_truth --out demo_scores
 ```
+
+The last line scores the digitized curve against the true spectrum and prints `Scored 1/1 images ok`; the numbers are in `demo_scores/accuracy_report.csv` (the release builds must stay under 2 % error on this figure).
 
 ---
 
@@ -299,26 +313,47 @@ Flip the small **log** buttons beside the X or Y Min-Max boxes (they turn green)
 
 ## Command line, batch mode and Python API
 
-All three run from the source folder (`LinePilot/Digitizer`) with Python installed ([setup](#from-source-windows-macos-linux)). The examples say `python`; on Windows `py` works too, and on macOS use `python3` (or `python` inside the virtual environment).
+All three run from the source folder (`LinePilot/Digitizer`) with Python installed ([setup](#from-source-windows-macos-linux)). The commands are the same on both systems except for the word that starts Python (`py` on Windows, `python3` on macOS) and how paths are written. The [user guide](Digitizer/README.md#using-the-command-line) walks through a first run step by step on each.
 
-```bash
+**Windows** (PowerShell, in `LinePilot\Digitizer`)
+
+```powershell
 # one image, everything auto-detected (OCR calibration), output to Downloads
-python digitizer.py graph.png
+py digitizer.py graph.png
 
 # give the axis values yourself, read Y on a log scale, choose the output folder
-python digitizer.py graph.png --axis 0,10,0,100 --log-y --out results/
+py digitizer.py graph.png --axis 0,10,0,100 --log-y --out results\
 
 # force the curve color (R,G,B) and show the OCR confidence + full log
-python digitizer.py graph.png --color 130,5,255 --verbose 1
+py digitizer.py graph.png --color 130,5,255 --verbose 1
 
-# a whole folder: digitized_csvs/, digitized_overlays/ and a batch_report.csv/.json
-python digitizer_batch_cli.py figures/ --out digitized/
+# a whole folder: digitized_csvs\, digitized_overlays\ and a batch_report.csv/.json
+py digitizer_batch_cli.py figures\ --out digitized\
 
 # score digitized CSVs against reference CSVs, matched by file name
-python ../AccuracyTester/accuracy_batch_cli.py --digitized-dir digitized/digitized_csvs --ground-truth-dir truth/ --out scores/
+py ..\AccuracyTester\accuracy_batch_cli.py --digitized-dir digitized\digitized_csvs --ground-truth-dir truth\ --out scores\
 ```
 
-Every run writes `<image>_digitized_points.csv` and `<image>_digitized_overlay.png`; `--verbose 1` adds `<image>_log.txt` with the OCR confidence score — a low score is a hint to pass `--axis` yourself. Run `python digitizer.py --help` for every option (`--ticks`, `--log-x`, `--json`, `--normalize-y`, `--limit-to-calibration`, …).
+**macOS** (Terminal, in `LinePilot/Digitizer`, after `source .venv/bin/activate`)
+
+```bash
+# one image, everything auto-detected (OCR calibration), output to ~/Downloads
+python3 digitizer.py graph.png
+
+# give the axis values yourself, read Y on a log scale, choose the output folder
+python3 digitizer.py graph.png --axis 0,10,0,100 --log-y --out results/
+
+# force the curve color (R,G,B) and show the OCR confidence + full log
+python3 digitizer.py graph.png --color 130,5,255 --verbose 1
+
+# a whole folder: digitized_csvs/, digitized_overlays/ and a batch_report.csv/.json
+python3 digitizer_batch_cli.py figures/ --out digitized/
+
+# score digitized CSVs against reference CSVs, matched by file name
+python3 ../AccuracyTester/accuracy_batch_cli.py --digitized-dir digitized/digitized_csvs --ground-truth-dir truth/ --out scores/
+```
+
+Every run writes `<image>_digitized_points.csv` and `<image>_digitized_overlay.png`; `--verbose 1` adds `<image>_log.txt` with the OCR confidence score — a low score is a hint to pass `--axis` yourself. Run `py digitizer.py --help` (Windows) or `python3 digitizer.py --help` (macOS) for every option (`--ticks`, `--log-x`, `--json`, `--normalize-y`, `--limit-to-calibration`, …).
 
 ```python
 from digitizer_api import digitize_image

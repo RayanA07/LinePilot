@@ -18,21 +18,40 @@ Step-by-step help for both platforms is in the [Digitizer user guide](../Digitiz
 
 ## Run from source
 
-On a Mac, use `python3` wherever this page says `py` (inside a virtual environment if you use Homebrew's Python — see the [user guide](../Digitizer/README.md#on-a-mac-1)).
+**Windows** (PowerShell, in the `AccuracyTester` folder) — needs Python 3 from <https://python.org>:
 
 ```powershell
 py -m pip install -r requirements.txt
 py accuracytester_desktop.py
 ```
 
+**Mac** (Terminal, in the `AccuracyTester` folder) — with [Homebrew](https://brew.sh). The window uses Tkinter, which Homebrew's Python leaves out unless you add `python-tk`:
+
+```bash
+brew install python python-tk
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+python3 accuracytester_desktop.py
+```
+
+Next time, `cd` into the folder, run `source .venv/bin/activate`, then `python3 accuracytester_desktop.py`.
+
 Load two CSV files (original vs digitized). Drag-and-drop works when `tkinterdnd2`
 is installed; otherwise click the panels to browse for files.
 
 ## Batch CLI — score a whole folder
 
+**Windows**
+
 ```powershell
-py accuracy_batch_cli.py --digitized-dir "path\to\digitized_csvs" --ground-truth-dir "path\to\truth"       # Windows
-python3 accuracy_batch_cli.py --digitized-dir path/to/digitized_csvs --ground-truth-dir path/to/truth   # Mac
+py accuracy_batch_cli.py --digitized-dir "path\to\digitized_csvs" --ground-truth-dir "path\to\truth"
+```
+
+**Mac**
+
+```bash
+python3 accuracy_batch_cli.py --digitized-dir path/to/digitized_csvs --ground-truth-dir path/to/truth
 ```
 
 Writes, next to the digitized CSVs:
@@ -72,9 +91,18 @@ ignored file is reported rather than silently skipped.
 The tests check the scoring maths against scipy and scikit-learn as independent
 references, so they need a few packages the app itself does not:
 
+**Windows**
+
 ```powershell
 py -m pip install -r requirements-dev.txt
 py -m pytest test_accuracy_core.py test_batch_scoring.py -q
+```
+
+**Mac** (with the virtual environment active)
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+python3 -m pytest test_accuracy_core.py test_batch_scoring.py -q
 ```
 
 ## Build the apps

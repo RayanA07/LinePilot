@@ -13,6 +13,20 @@ If you just want your data out, head to the [Quick start](#quick-start).
 
 > **New to all this?** Don't worry about the technical words yet. Just follow [Quick start](#quick-start) and then [Using the app](#using-the-app-step-by-step) — every button is explained as you go. You can ignore the entire command-line half of this guide.
 
+
+### Find the instructions for your computer
+
+| | **Windows** | **Mac** |
+| --- | --- | --- |
+| Download and open the app | [On Windows](#on-windows) | [On a Mac](#on-a-mac) |
+| The first-launch security warning | [SmartScreen: *Run anyway*](#the-first-run-windows-warning-expected) | [Gatekeeper: *Open Anyway*](#the-first-run-mac-warning-expected) |
+| Install Python to use the command line | [On Windows](#on-windows-1) | [On a Mac](#on-a-mac-1) |
+| Open a terminal | [On Windows](#open-a-terminal-in-the-digitizer-folder) | [On a Mac](#open-a-terminal-in-the-digitizer-folder) |
+| Build the app yourself | [Starter command (Windows)](#starter-command-windows) | [Starter command (macOS)](#starter-command-macos) |
+| Something went wrong | [Opening the app on Windows](#opening-the-app-on-windows) | [Opening the app on a Mac](#opening-the-app-on-a-mac) |
+
+Every command-line example shows the Windows and the Mac command one after the other — start with [Windows and Mac at a glance](#windows-and-mac-at-a-glance) and [Your first run, step by step](#your-first-run-step-by-step).
+
 ---
 
 ## Quick start
@@ -263,6 +277,21 @@ Most plots are linear, so leave this alone for a normal graph — but if your gr
 
 > **Important:** The command line runs from the **source files with Python installed** — see [Run from source](#run-from-source-for-developers). The prebuilt **`Digitizer.exe` / `Digitizer.app` is the click-and-go app only**: it always opens the graphical window and ignores any command-line options. If you want to type commands, you need the source code and Python, not the downloaded app.
 
+Every command on this page is shown twice: once for **Windows** (PowerShell) and once for **Mac** (Terminal). The options are identical on both; only the word that starts Python and the way paths are written differ.
+
+### Windows and Mac at a glance
+
+| | **Windows** | **Mac** |
+| --- | --- | --- |
+| Where you type commands | **PowerShell** / Windows Terminal | **Terminal** (Applications → Utilities, or **⌘ + Space**, type *Terminal*) |
+| Open it in the `Digitizer` folder | right-click inside the folder → **Open in Terminal** | right-click the folder → **New Terminal at Folder** |
+| Before your first command | nothing | `source .venv/bin/activate` (the [virtual environment](#on-a-mac-1)) |
+| Start Python with | `py` | `python3` (or `python` once the virtual environment is active) |
+| A path to an image | `"C:\Users\You\Pictures\graph.png"` | `~/Pictures/graph.png` |
+| Default output folder | `C:\Users\You\Downloads` | `~/Downloads` (`/Users/you/Downloads`) |
+| Open the output folder | `explorer $HOME\Downloads` | `open ~/Downloads` |
+| Built-in help | `py digitizer.py --help` | `python3 digitizer.py --help` |
+
 ### Open a terminal in the Digitizer folder
 
 **On Windows**
@@ -276,19 +305,70 @@ A blue/black window opens, already pointed at the right folder. Type your comman
 **On a Mac**
 
 1. In **Finder**, find the `Digitizer` folder inside the source code.
-2. **Right-click** (or Control-click) the folder and choose **New Terminal at Folder**. *(Not in the menu? Turn it on once in System Settings → Keyboard → Keyboard Shortcuts → Services → Files and Folders.)*
-3. If you made the virtual environment in [Run from source](#run-from-source-for-developers), activate it: `source .venv/bin/activate`.
+2. **Right-click** (or Control-click) the folder and choose **New Terminal at Folder**. *(Not in the menu? Turn it on once in System Settings → Keyboard → Keyboard Shortcuts → Services → Files and Folders. Or open Terminal and type `cd ` — with a space — then drag the `Digitizer` folder onto the Terminal window and press Return.)*
+3. Activate the virtual environment from [Run from source](#on-a-mac-1):
 
-> **Windows and Mac commands differ in one word.** The examples below are written for Windows, where Python is started with **`py`**. **On a Mac, type `python3` instead of `py`** (inside the virtual environment, `python` works too). Everything after that word is the same. The command line's own `--help` and `template` output already print the Mac form when run on a Mac, and paths look like `~/Downloads/graph.png` instead of `C:\Users\You\Downloads\graph.png`.
+   ```bash
+   source .venv/bin/activate
+   ```
 
-> The examples below use the placeholder image name **`graph.png`**. Substitute the real name of your own image file. The image must be either in the folder the terminal is pointed at, or in your Downloads folder, or you must give its full path in quotes.
+   The prompt now starts with `(.venv)`. You need to do this once each time you open a new Terminal window.
+
+> The examples below use the placeholder image name **`graph.png`**. Substitute the real name of your own image file. The image must be either in the folder the terminal is pointed at, or in your **Downloads** folder, or you must give its full path (in quotes on Windows if it contains spaces; on a Mac, drag the image file onto the Terminal window to paste its full path).
+
+### Your first run, step by step
+
+The source code includes a real Raman spectrum, so you can try the command line before using your own image. From a terminal in the `Digitizer` folder:
+
+**Windows** (PowerShell)
+
+```powershell
+py digitizer.py ..\docs\assets\demo\example_raman.png
+explorer $HOME\Downloads
+```
+
+**Mac** (Terminal, with `(.venv)` showing)
+
+```bash
+python3 digitizer.py ../docs/assets/demo/example_raman.png
+open ~/Downloads
+```
+
+The first command prints:
+
+```text
+Success. Output -> /Users/you/Downloads
+    example_raman_digitized_points.csv
+    example_raman_digitized_overlay.png
+```
+
+(on Windows the folder reads `C:\Users\You\Downloads`). The second command opens that folder: double-click the **CSV** to see the numbers in Excel or Numbers, and open the **overlay PNG** to check that the purple dots sit on the curve. To see what it worked out along the way, add `--verbose 1`:
+
+```text
+Digitized successfully.
+    color (r,g,b)  : 125, 0, 255
+    pixel coords   : x_min=(162, 775) x_max=(1077, 775) y_min=(116, 764) y_max=(116, 22)
+    tick -> values : x_min=400.0 x_max=1800.0 y_min=2000.0 y_max=14000.0  (OCR)
+    OCR confidence : 96.0%
+    num points     : 916
+```
+
+That's the whole loop. Now swap in your own image.
 
 ### The simplest command
 
 Give it an image. That's it:
 
+**Windows**
+
 ```powershell
 py digitizer.py graph.png
+```
+
+**Mac**
+
+```bash
+python3 digitizer.py graph.png
 ```
 
 With nothing else, the app automatically:
@@ -299,11 +379,11 @@ With nothing else, the app automatically:
 
 A bare filename like `graph.png` is looked up first in the current folder, then in your Downloads folder — so the one-liner works as long as the image is in either place. By default it stays quiet: it prints just a success line and the output folder. Add **`--verbose 1`** to see the full detail — the color, pixel coordinates, the OCR readings, the point count, and the **OCR confidence score** (see [Seeing more detail](#seeing-more-detail---verbose)).
 
-> Two other spellings do exactly the same thing: `py digitizer_2_11.py cli graph.png` and `py digitizer_2_11.py digitize graph.png`.
+> Two other spellings do exactly the same thing: `digitizer_2_11.py cli graph.png` and `digitizer_2_11.py digitize graph.png` (started with `py` on Windows, `python3` on a Mac).
 
 ### Options
 
-Add any of these to the command for more control:
+Add any of these to the command for more control. They are the same on Windows and Mac:
 
 | Option (aliases) | What it does | Default |
 | --- | --- | --- |
@@ -326,25 +406,51 @@ Add any of these to the command for more control:
 
 If you'd like a copy-and-edit reference, run:
 
+**Windows**
+
 ```powershell
 py digitizer.py template
 ```
 
-This **prints a fill-in-the-blank line** (it does **not** digitize anything). It shows a minimal example, a full example listing every option, and a short legend explaining each value.
+**Mac**
 
-You can then run that **function-call form** — one quoted line. In PowerShell and in the Mac Terminal alike, wrap the whole `digitizer_cli(...)` call in **single quotes** so the inner double quotes survive.
+```bash
+python3 digitizer.py template
+```
+
+This **prints a fill-in-the-blank line** (it does **not** digitize anything). It shows a minimal example, a full example listing every option, and a short legend explaining each value — already written for the computer you run it on.
+
+You can then run that **function-call form** — one quoted line. In PowerShell and in the Mac Terminal alike, wrap the whole `digitizer_cli(...)` call in **single quotes** so the inner double quotes survive. *(On a Mac this is required: without the single quotes the shell itself rejects the brackets with* `no matches found` *or* `unknown file attribute`*.)*
 
 **Minimal example** (just the image; everything else auto-detected). This is the form to copy first:
+
+**Windows**
 
 ```powershell
 py digitizer.py 'digitizer_cli(pic_dir="graph.png")'
 ```
 
+**Mac**
+
+```bash
+python3 digitizer.py 'digitizer_cli(pic_dir="graph.png")'
+```
+
 **Full example** — the `color`, `axis_values`, and `tick_setting` values below are **placeholders you must edit to match your own chart.** A leftover `color=(255,0,0)` (red) on a non-red curve finds no points and exits with *"produced no points."* Either delete the options you don't need (so those values auto-detect) or replace them with your real values:
+
+**Windows**
 
 ```powershell
 py digitizer.py 'digitizer_cli(pic_dir="graph.png", color=(255,0,0), axis_values=(0,10,0,100), tick_setting=([10,200],[500,200],[10,200],[10,20]), log_x=False, log_y=False, output_dir="C:/Users/You/Downloads/out", verbose=1, json=False, normalize_y=False, limit_to_calibration=False)'
 ```
+
+**Mac**
+
+```bash
+python3 digitizer.py 'digitizer_cli(pic_dir="graph.png", color=(255,0,0), axis_values=(0,10,0,100), tick_setting=([10,200],[500,200],[10,200],[10,20]), log_x=False, log_y=False, output_dir="~/Downloads/out", verbose=1, json=False, normalize_y=False, limit_to_calibration=False)'
+```
+
+(`~` means your home folder; it works inside the quotes too.)
 
 The values you can put inside `digitizer_cli(...)`:
 
@@ -368,42 +474,108 @@ Arguments can be **positional** in the order `pic_dir, color, tick_setting, axis
 
 Auto-detect everything (color and axes), save to Downloads — **the safest example to copy as-is**:
 
+**Windows**
+
 ```powershell
 py digitizer.py graph.png
 ```
 
+**Mac**
+
+```bash
+python3 digitizer.py graph.png
+```
+
 Set the axis values yourself but still auto-detect the color:
+
+**Windows**
 
 ```powershell
 py digitizer.py graph.png --axis 0,10,0,100
 ```
 
+**Mac**
+
+```bash
+python3 digitizer.py graph.png --axis 0,10,0,100
+```
+
 Force a specific curve color — **change `130,5,255` to your curve's real R,G,B**; a color that doesn't match the curve produces no points:
+
+**Windows**
 
 ```powershell
 py digitizer.py graph.png --color 130,5,255 --axis 0,10,0,100
 ```
 
+**Mac**
+
+```bash
+python3 digitizer.py graph.png --color 130,5,255 --axis 0,10,0,100
+```
+
 Use a full path, choose an output folder, and read the Y axis on a **log scale**:
+
+**Windows**
 
 ```powershell
 py digitizer.py "C:\path\to\graph.png" --out "C:\path\to\out" --log-y
 ```
 
+**Mac**
+
+```bash
+python3 digitizer.py ~/path/to/graph.png --out ~/path/to/out --log-y
+```
+
 See everything the run worked out — color, pixel coordinates, the tick→OCR values, point count, and the **OCR confidence score** — and drop a `log.txt` alongside the output:
+
+**Windows**
 
 ```powershell
 py digitizer.py graph.png --verbose 1
 ```
 
-> **Tip:** There's also an interactive wizard that asks for each field one at a time. Start it with `py digitizer_2_11.py interactive` (or `wizard`).
+**Mac**
+
+```bash
+python3 digitizer.py graph.png --verbose 1
+```
+
+> **Tip:** There's also an interactive wizard that asks for each field one at a time. Start it with `py digitizer_2_11.py interactive` on Windows or `python3 digitizer_2_11.py interactive` on a Mac (`wizard` works too).
+
+### A whole folder at once (batch mode)
+
+Put your chart images in one folder and point `digitizer_batch_cli.py` at it. Every image is digitized; a file that fails (not a plot, unreadable axes) is recorded in the report and never stops the run.
+
+**Windows**
+
+```powershell
+py digitizer_batch_cli.py "C:\Users\You\Downloads\charts" --out "C:\Users\You\Downloads\charts_digitized"
+```
+
+**Mac**
+
+```bash
+python3 digitizer_batch_cli.py ~/Downloads/charts --out ~/Downloads/charts_digitized
+```
+
+It prints one line per image (`[1/2] a.png ... ok (916 points, 0.7s)`) and a summary, and writes `digitized_csvs/`, `digitized_overlays/`, `batch_report.csv` and `batch_report.json` into the output folder (into the image folder itself if you leave out `--out`). The same `--color`, `--axis`, `--log-x`, `--log-y` and `--verbose` options apply, to every image. Run it with `--help` for the full list.
 
 ### Seeing more detail (`--verbose`)
 
 By default the command line is **quiet** — it just confirms success and tells you the output folder. When you want to see (or keep a record of) exactly what the tool did, raise the verbosity:
 
+**Windows**
+
 ```powershell
 py digitizer.py graph.png --verbose 1
+```
+
+**Mac**
+
+```bash
+python3 digitizer.py graph.png --verbose 1
 ```
 
 At level `1` it prints, and the run also writes a `<image>_log.txt`, the following:
@@ -572,7 +744,7 @@ Double-click the downloaded zip in **Finder → Downloads**; `Digitizer.app` app
 **`python3: command not found`, or `pip install` fails with "externally-managed-environment".**
 Install Python with `brew install python`, open a new Terminal window, and use the [virtual environment](#on-a-mac-1) — Homebrew's Python refuses system-wide installs.
 
-**`zsh: no matches found` when using the `digitizer_cli(...)` form.**
+**`zsh: no matches found` or `zsh: unknown file attribute` when using the `digitizer_cli(...)` form.**
 Keep the single quotes around the whole `'digitizer_cli(...)'` call — the Mac shell treats unquoted brackets as file patterns.
 
 ### Using the app and the command line
@@ -649,11 +821,22 @@ This is a **separate, optional** tool. It's completely independent of the main D
 - **Windows:** double-click **`AccuracyTester.exe`** — a windowed, one-file app, no install or console needed.
 - **Mac:** double-click **`AccuracyTester-macOS-AppleSilicon.zip`** (or `-Intel.zip`), then open **`AccuracyTester.app`**; the first launch needs the same [Open Anyway](#the-first-run-mac-warning-expected) step.
 
-**Run from source** (in the `AccuracyTester` folder, after `pip install -r requirements.txt`):
+**Run from source** (in the `AccuracyTester` folder):
+
+**Windows**
 
 ```powershell
-py accuracytester_desktop.py          # Windows
-python3 accuracytester_desktop.py     # Mac
+py -m pip install -r requirements.txt
+py accuracytester_desktop.py
+```
+
+**Mac** — Homebrew's Python needs `python-tk` for this tool's window:
+
+```bash
+brew install python-tk
+python3 -m venv .venv && source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+python3 accuracytester_desktop.py
 ```
 
 ---
